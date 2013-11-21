@@ -21,6 +21,8 @@ using Windows.UI.Xaml.Navigation;
 
 namespace MyWorldIsComics
 {
+    using MyWorldIsComics.DataSource;
+
     /// <summary>
     /// A page that displays details for a single item within a group.
     /// </summary>
@@ -68,7 +70,9 @@ namespace MyWorldIsComics
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
             var item = await SampleDataSource.GetItemAsync((String)e.NavigationParameter);
+            var character = await ComicVineSource.ExecuteSearchAsync("batman");
             this.DefaultViewModel["Item"] = item;
+            this.DefaultViewModel["Character"] = character;
         }
 
         #region NavigationHelper registration

@@ -65,7 +65,7 @@ namespace MyWorldIsComics
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            var sampleDataGroup = await SampleDataSource.GetGroupAsync("Group-4");
+            var sampleDataGroup = await SampleDataSource.GetGroupAsync("Group-3");
             this.DefaultViewModel["Section3Items"] = sampleDataGroup;
         }
 
@@ -92,7 +92,7 @@ namespace MyWorldIsComics
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
             var itemId = ((SampleDataItem)e.ClickedItem).UniqueId;
-            this.Frame.Navigate(typeof(ItemPage), itemId);
+            this.Frame.Navigate(typeof(CharacterPage), itemId);
         }
         #region NavigationHelper registration
 

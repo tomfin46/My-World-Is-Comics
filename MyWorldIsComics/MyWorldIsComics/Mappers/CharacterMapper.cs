@@ -100,14 +100,8 @@ namespace MyWorldIsComics.Mappers
 
             reader.ReadToFollowing("api_detail_url");
             issue.ComicVineApiUrl = new Uri(reader.ReadElementContentAsString());
-
-            //reader.ReadToFollowing("id");
             issue.UniqueId = reader.ReadElementContentAsInt();
-
-            //reader.ReadToFollowing("name");
             issue.Name = reader.ReadElementContentAsString();
-
-            //reader.ReadToFollowing("issue_number");
             issue.IssueNumber = reader.ReadElementContentAsInt();
 
             characterToMap.FirstAppearance = issue;
@@ -121,13 +115,11 @@ namespace MyWorldIsComics.Mappers
 
         private static void ParseId(XmlReader reader)
         {
-            //reader.ReadToFollowing("id");
             characterToMap.UniqueId = reader.ReadElementContentAsInt();
         }
 
         private static void ParseImage(XmlReader reader)
         {
-            //reader.ReadToFollowing("image");
             reader.ReadToFollowing("super_url");
             characterToMap.MainImage = new Uri(reader.ReadElementContentAsString());
         }
@@ -139,16 +131,11 @@ namespace MyWorldIsComics.Mappers
 
         private static void ParseOrigin(XmlReader reader)
         {
-            //reader.ReadToFollowing("origin");
             var origin = new Origin();
 
             reader.ReadToFollowing("api_detail_url");
             origin.ComicVineApiUrl = new Uri(reader.ReadElementContentAsString());
-
-            //reader.ReadToFollowing("id");
             origin.UniqueId = reader.ReadElementContentAsInt();
-
-            //reader.ReadToFollowing("name");
             origin.Name = reader.ReadElementContentAsString();
 
             characterToMap.Origin = origin;
@@ -156,16 +143,11 @@ namespace MyWorldIsComics.Mappers
 
         private static void ParsePublisher(XmlReader reader)
         {
-            //reader.ReadToFollowing("publisher");
             var publisher = new Publisher();
 
             reader.ReadToFollowing("api_detail_url");
             publisher.ComicVineApiUrl = new Uri(reader.ReadElementContentAsString());
-
-            //reader.ReadToFollowing("id");
             publisher.UniqueId = reader.ReadElementContentAsInt();
-
-            //reader.ReadToFollowing("name");
             publisher.Name = reader.ReadElementContentAsString();
 
             characterToMap.Publisher = publisher;
@@ -179,7 +161,6 @@ namespace MyWorldIsComics.Mappers
 
         private static void ParseSiteUrl(XmlReader reader)
         {
-            //reader.ReadToFollowing("site_detail_url");
             characterToMap.ComicVineSiteUrl = new Uri(reader.ReadElementContentAsString());
         }
     }

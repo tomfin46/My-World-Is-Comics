@@ -17,6 +17,8 @@ using Windows.UI.Xaml.Navigation;
 
 namespace MyWorldIsComics
 {
+    using MyWorldIsComics.DataSource;
+
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
@@ -61,9 +63,12 @@ namespace MyWorldIsComics
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
-        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Assign a collection of bindable groups to this.DefaultViewModel["Groups"]
+            string name = e.NavigationParameter as string;
+            var character = await ComicVineSource.ExecuteSearchAsync(name);
+            this.DefaultViewModel["Character"] = character;
         }
 
         #region NavigationHelper registration

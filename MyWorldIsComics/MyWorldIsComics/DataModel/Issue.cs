@@ -8,5 +8,9 @@ namespace MyWorldIsComics.DataModel
 {
     class Issue
     {
+        public int UniqueId { get; set; }
+        public Uri ComicVineApiUrl { get; set; }
+        public string Name { get; set; }
+        public int IssueNumber { get; set; }
     }
 }

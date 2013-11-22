@@ -112,9 +112,12 @@
     <Compile Include="DataModel\Creator.cs" />
     <Compile Include="DataModel\Creators.cs" />
     <Compile Include="DataModel\Enums\Gender.cs" />
+    <Compile Include="DataModel\Enums\ImageTypes.cs" />
+    <Compile Include="DataModel\Enums\Month.cs" />
     <Compile Include="DataModel\Enums\Resources.cs" />
     <Compile Include="DataModel\Issue.cs" />
     <Compile Include="DataModel\Movie.cs" />
+    <Compile Include="DataModel\Origin.cs" />
     <Compile Include="DataModel\Power.cs" />
     <Compile Include="DataModel\Publisher.cs" />
     <Compile Include="DataModel\StoryArc.cs" />

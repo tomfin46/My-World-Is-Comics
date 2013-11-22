@@ -10,6 +10,6 @@ namespace MyWorldIsComics.Common
     {
         public const string ComicVineApiKey = "api_key=c8679682be40855aa24ba1648a19d71611e8938f";
         public const string ComicVineBaseUrl = "http://www.comicvine.com/api/";
-        public const string ComicVineFormat = "format=json";
+        public const string ComicVineFormat = "format=xml";
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MyWorldIsComics.DataModel
 {
-    class Publisher
+    class Origin
     {
         public int UniqueId { get; set; }
         public string Name { get; set; }

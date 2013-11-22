@@ -36,7 +36,7 @@ namespace MyWorldIsComics.DataSource
         {
             string parser = await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query));
             Character character;
-            CharacterMapper.MapJsonObject(parser, out character);
+            CharacterMapper.MapXmlObject(parser, out character);
             return character;
         }
 
@@ -54,7 +54,6 @@ namespace MyWorldIsComics.DataSource
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            //return JsonObject.Parse(content);
             return content;
         }
 
@@ -70,7 +69,7 @@ namespace MyWorldIsComics.DataSource
                     uri += query + "/";
                     break;
             }
-            uri += "&" + ServiceConstants.ComicVineApiKey + "&" + ServiceConstants.ComicVineFormat;
+            uri += "&" + ServiceConstants.ComicVineApiKey + "&" + ServiceConstants.ComicVineFormat + "&limit=1";
             return new Uri(uri);
         }
     }

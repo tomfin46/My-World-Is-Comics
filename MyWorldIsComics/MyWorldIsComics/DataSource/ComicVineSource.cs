@@ -35,17 +35,24 @@ namespace MyWorldIsComics.DataSource
         public static async Task<Character> ExecuteSearchAsync(string query)
         {
             string parser = await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query));
+            
             Character character;
-            CharacterMapper.MapXmlObject(parser, out character);
+            CharacterMapper.QuickMapXmlObject(parser, out character);
             return character;
         }
 
-        public static async Task<Character> GetCharacterAsync(string query)
+        public static async Task<Character> GetCharacterAsync(int id)
         {
-            string parser = await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, query));
+            string characterParser = await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, id.ToString()));
+            
             Character character;
-            CharacterMapper.MapJsonObject(parser, out character);
+            CharacterMapper.MapXmlObject(characterParser, out character);
             return character;
+        }
+
+        public static async Task<Description> FormatDescriptionAsync(string descriptionString)
+        {
+            return await Task.Run(() => DescriptionMapper.MapDescription(descriptionString));
         }
 
         private static async Task<string> QueryServiceAsync(Uri uri)
@@ -63,14 +70,18 @@ namespace MyWorldIsComics.DataSource
             switch (resourcesEnum)
             {
                 case Resources.ResourcesEnum.Search:
-                    uri += "?query=" + query;
+                    uri += "?query=" + query + "&limit=1" + "&";
+                    break;
+                case Resources.ResourcesEnum.Character:
+                    uri += "4005-" + query + "/?";
                     break;
                 default:
                     uri += query + "/";
                     break;
             }
-            uri += "&" + ServiceConstants.ComicVineApiKey + "&" + ServiceConstants.ComicVineFormat + "&limit=1";
+            uri += ServiceConstants.ComicVineApiKey + "&" + ServiceConstants.ComicVineFormat;
             return new Uri(uri);
         }
+
     }
 }

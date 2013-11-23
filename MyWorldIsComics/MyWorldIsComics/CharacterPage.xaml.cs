@@ -67,8 +67,13 @@ namespace MyWorldIsComics
         {
             // TODO: Assign a collection of bindable groups to this.DefaultViewModel["Groups"]
             string name = e.NavigationParameter as string;
-            var character = await ComicVineSource.ExecuteSearchAsync(name);
+            var quickCharacter = await ComicVineSource.ExecuteSearchAsync(name);
+            this.DefaultViewModel["QuickCharacter"] = quickCharacter;
+            var characterDescription = await ComicVineSource.FormatDescriptionAsync(quickCharacter.DescriptionString);
+            this.DefaultViewModel["CharacterDescription"] = characterDescription;
+            var character = await ComicVineSource.GetCharacterAsync(quickCharacter.UniqueId);
             this.DefaultViewModel["Character"] = character;
+
         }
 
         #region NavigationHelper registration

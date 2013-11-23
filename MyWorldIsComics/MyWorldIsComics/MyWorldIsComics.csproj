@@ -114,6 +114,7 @@
     <Compile Include="DataModel\ComicSeriesVolume.cs" />
     <Compile Include="DataModel\Creator.cs" />
     <Compile Include="DataModel\Creators.cs" />
+    <Compile Include="DataModel\Description.cs" />
     <Compile Include="DataModel\Enums\Gender.cs" />
     <Compile Include="DataModel\Enums\ImageTypes.cs" />
     <Compile Include="DataModel\Enums\Month.cs" />
@@ -121,7 +122,6 @@
     <Compile Include="DataModel\Issue.cs" />
     <Compile Include="DataModel\Movie.cs" />
     <Compile Include="DataModel\Origin.cs" />
-    <Compile Include="DataModel\Power.cs" />
     <Compile Include="DataModel\Publisher.cs" />
     <Compile Include="DataModel\StoryArc.cs" />
     <Compile Include="DataModel\Team.cs" />
@@ -130,6 +130,7 @@
       <DependentUpon>HubPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Mappers\CharacterMapper.cs" />
+    <Compile Include="Mappers\DescriptionMapper.cs" />
     <Compile Include="SectionPage.xaml.cs">
       <DependentUpon>SectionPage.xaml</DependentUpon>
     </Compile>
@@ -187,8 +188,8 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\netcore45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\winrt45\HtmlAgilityPack.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">

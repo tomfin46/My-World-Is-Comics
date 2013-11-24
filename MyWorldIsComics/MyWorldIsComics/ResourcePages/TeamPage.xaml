@@ -24,11 +24,11 @@
             </TransitionCollection>
         </Grid.ChildrenTransitions>
 
-        <Hub>
+        <Hub DataContext="{Binding QuickTeam}">
             <Hub.Header>
                 <!-- Back button and page title -->
                 <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0" Padding="25">
-                    <Grid DataContext="{Binding QuickTeam}">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="*"/>
@@ -45,12 +45,12 @@
                 </Border>
             </Hub.Header>
 
-            <HubSection Width="780" Margin="0,0,20,0" DataContext="{Binding QuickTeam}">
+            <HubSection Width="780" Margin="0,0,20,0">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" AlignmentX="Left" />
                 </HubSection.Background>
             </HubSection>
-            
+
             <HubSection Width="500" Header="Section 1">
                 <DataTemplate>
                     <Grid>

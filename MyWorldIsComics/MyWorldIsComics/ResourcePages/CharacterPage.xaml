@@ -56,9 +56,9 @@
                             AutomationProperties.AutomationId="BackButton"
                             AutomationProperties.ItemType="Navigation Button"
                             Visibility="Collapsed" HorizontalAlignment="Stretch"/>
-                    
+
                     <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0" Padding="25" Grid.Column="1">
-                        <TextBlock x:Name="pageTitle" Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Top"/>
+                        <TextBlock Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Top"/>
                     </Border>
                 </Grid>
 
@@ -88,6 +88,12 @@
                                 <Run Text="{Binding BirthString}" FontWeight="Normal"/>
                             </TextBlock>
 
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
+                                <Run Text="Appears in: " />
+                                <Run Text="{Binding IssueAppearancesCount}" FontWeight="Normal"/>
+                                <Run Text=" issues" />
+                            </TextBlock>
+
                             <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="10,10,10,10" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="{Binding Deck}"/>
                                 <Run Text="i" FontSize=".01"/>
@@ -97,62 +103,12 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection Width="500" Header="Bio">
+            <HubSection Width="520" Header="Current Events">
                 <DataTemplate>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid DataContext="{Binding QuickCharacter}" Grid.Row="0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="1" Margin="0,10,0,0" TextWrapping="Wrap">
-                                <Run Text="Real Name: " />
-                                <Run Text="{Binding RealName}" FontWeight="Normal"/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="2" Margin="0,10,0,0" TextWrapping="Wrap">
-                                <Run Text="Aliases: " />
-                                <Run Text="{Binding AliasesString}" FontWeight="Normal"/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="3" Margin="0,10,0,0" TextWrapping="Wrap">
-                                <Run Text="Date of Birth: " />
-                                <Run Text="{Binding BirthString}" FontWeight="Normal"/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="4" Margin="0,10,0,0" TextWrapping="Wrap">
-                                <Run Text="Deck: " />
-                                <Run Text="{Binding Deck}" FontWeight="Normal"/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="6" Margin="0,10,0,0" TextWrapping="Wrap">
-                                <Run Text="Appears in: " />
-                                <Run Text="{Binding IssueAppearancesCount}" FontWeight="Normal"/>
-                                <Run Text=" issues" />
-                            </TextBlock>
-                        </Grid>
-
-                        <Grid DataContext="{Binding CharacterDescription}" Grid.Row="1" Margin="0,20,0,0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="0" Margin="0,10,0,0" Text="Current Events: " TextWrapping="Wrap"/>
-                            <ScrollViewer VerticalScrollBarVisibility="Hidden" Grid.Row="1">
-                                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,10,0,0" Text="{Binding CurrentEvents}" TextWrapping="Wrap" />
-                            </ScrollViewer>
-                        </Grid>
+                    <Grid DataContext="{Binding CharacterDescription}" Margin="0">
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,10,0,0" Text="{Binding CurrentEvents}" TextWrapping="Wrap" />
+                        </ScrollViewer>
                     </Grid>
                 </DataTemplate>
             </HubSection>

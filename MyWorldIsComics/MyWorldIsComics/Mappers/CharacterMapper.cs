@@ -290,9 +290,9 @@
         private static void ParseTeamsMemberOf(XmlReader reader)
         {
             if (reader.Name != "teams") { reader.ReadToFollowing("teams"); }
+            reader.ReadToFollowing("team");
             for (int i = 0; i < 10; i++)
             {
-                reader.ReadToFollowing("team");
                 reader.ReadToDescendant("id");
                 CharacterToMap.TeamIds.Add(reader.ReadElementContentAsInt());
 
@@ -304,7 +304,5 @@
                 if (reader.Name != "team") { i = 10; }
             }
         }
-
-        
     }
 }

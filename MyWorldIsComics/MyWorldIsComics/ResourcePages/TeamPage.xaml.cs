@@ -1,8 +1,4 @@
-﻿using System.IO;
-using System.Net.Http;
-using Windows.UI.Xaml.Media.Imaging;
-using FluxJpeg.Core;
-using MyWorldIsComics.DataModel.Resources;
+﻿using MyWorldIsComics.DataModel.Resources;
 using MyWorldIsComics.Mappers;
 
 namespace MyWorldIsComics.ResourcePages

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net.Http;
 using Windows.UI.Xaml.Media.Imaging;
 using FluxJpeg.Core;
 using MyWorldIsComics.DataModel.Resources;
@@ -66,18 +67,6 @@ namespace MyWorldIsComics.ResourcePages
             // TODO: Assign a collection of bindable groups to this.DefaultViewModel["Groups"]
             var team = e.NavigationParameter as Team;
 
-            Image image = new Image {Source = new BitmapImage(team.MainImage) };
-            image.ImageOpened += (s, p) =>
-            {
-                var width = image.Width;
-                //WriteableBitmap wb = new WriteableBitmap(image);
-                //MemoryStream ms = new MemoryStream();
-            };
-            Stream inStream = new MemoryStream();
-            //FluxJpeg.Core.Image img = (FluxJpeg.Core.Image) new Image {Source = new BitmapImage(team.MainImage)};
-            //DecodedJpeg decodedJpeg = new DecodedJpeg(img);
-            //var width = decodedJpeg.Image.Width;
-            //var team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
             DefaultViewModel["QuickTeam"] = team;
         }
 

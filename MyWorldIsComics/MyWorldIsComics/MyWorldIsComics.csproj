@@ -135,8 +135,8 @@
       <DependentUpon>TeamPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SavedData.cs" />
-    <Compile Include="SectionPage.xaml.cs">
-      <DependentUpon>SectionPage.xaml</DependentUpon>
+    <Compile Include="TeamsPage.xaml.cs">
+      <DependentUpon>TeamsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ItemPage.xaml.cs">
       <DependentUpon>ItemPage.xaml</DependentUpon>
@@ -186,7 +186,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SectionPage.xaml">
+    <Page Include="TeamsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

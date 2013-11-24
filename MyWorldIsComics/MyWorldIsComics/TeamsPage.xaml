@@ -49,7 +49,7 @@
             SelectionMode="None"
             IsSwipeEnabled="false"
             IsItemClickEnabled="True"
-            ItemClick="ItemView_ItemClick">
+            ItemClick="ItemView_ItemClick" SelectionChanged="itemGridView_SelectionChanged">
             <GridView.ItemTemplate>
                 <DataTemplate>
                     <Grid Height="110" Width="480" Margin="10">

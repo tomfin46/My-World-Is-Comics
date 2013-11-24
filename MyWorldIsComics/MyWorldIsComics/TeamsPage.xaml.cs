@@ -109,5 +109,10 @@ namespace MyWorldIsComics
         }
 
         #endregion
+
+        private void itemGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

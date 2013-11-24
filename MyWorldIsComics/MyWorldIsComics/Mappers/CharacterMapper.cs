@@ -1,4 +1,6 @@
-﻿namespace MyWorldIsComics.Mappers
+﻿using System.Xml.Serialization;
+
+namespace MyWorldIsComics.Mappers
 {
     #region Usings
 
@@ -290,18 +292,17 @@
         private static void ParseTeamsMemberOf(XmlReader reader)
         {
             if (reader.Name != "teams") { reader.ReadToFollowing("teams"); }
-            reader.ReadToFollowing("team");
-            for (int i = 0; i < 10; i++)
+            while (reader.Read())
             {
-                reader.ReadToDescendant("id");
-                CharacterToMap.TeamIds.Add(reader.ReadElementContentAsInt());
-
-                reader.ReadToFollowing("site_detail_url");
-                reader.Read();
-                reader.Read();
-                reader.Read();
-                reader.Read();
-                if (reader.Name != "team") { i = 10; }
+                if (reader.Name == "team" && reader.NodeType != XmlNodeType.EndElement)
+                {
+                    reader.ReadToDescendant("id");
+                    CharacterToMap.TeamIds.Add(reader.ReadElementContentAsInt());
+                }
+                else if (reader.Name == "teams" && reader.NodeType == XmlNodeType.EndElement)
+                {
+                    return;
+                }
             }
         }
     }

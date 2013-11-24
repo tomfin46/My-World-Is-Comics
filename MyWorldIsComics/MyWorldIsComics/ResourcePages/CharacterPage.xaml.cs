@@ -1,5 +1,9 @@
 ﻿
 
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
 namespace MyWorldIsComics
 {
     using Common;
@@ -69,11 +73,11 @@ namespace MyWorldIsComics
             string prevName = "";
             if (SavedData.QuickCharacter != null)
             {
-                prevName = SavedData.QuickCharacter.Name; 
+                prevName = SavedData.QuickCharacter.Name;
             }
 
             await LoadQuickCharacter(name);
-            
+
             //await LoadDescription(DefaultViewModel["QuickCharacter"] as Character);
 
             await LoadCharacter(DefaultViewModel["QuickCharacter"] as Character);
@@ -125,7 +129,20 @@ namespace MyWorldIsComics
 
         private Character MapCharacter(string characterString)
         {
-            if (characterString == ServiceConstants.QueryNotFound) return new Character();
+            if (characterString == ServiceConstants.QueryNotFound)
+            {
+                return new Character
+                {
+                    Teams = new ObservableCollection<Team>()
+                    {
+                        new Team
+                        {
+                            Name = characterString
+                        }
+                    }
+                };
+            }
+
             Character characterToMap;
             CharacterMapper.MapXmlObject(characterString, out characterToMap);
             return characterToMap;
@@ -136,7 +153,7 @@ namespace MyWorldIsComics
             if (SavedData.Character == null || character.Name != prevName || SavedData.Character.Teams == null)
             {
                 character.Teams.Clear();
-                foreach (int teamId in character.TeamIds)
+                foreach (int teamId in character.TeamIds.Take(10))
                 {
                     character.Teams.Add(MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString())));
                 }

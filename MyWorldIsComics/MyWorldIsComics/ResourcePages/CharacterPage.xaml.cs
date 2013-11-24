@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Windows.UI.Xaml;
 
 namespace MyWorldIsComics
 {
@@ -77,6 +78,8 @@ namespace MyWorldIsComics
             }
 
             await LoadQuickCharacter(name);
+
+            BioHubSection.Visibility = Visibility.Visible;
 
             //await LoadDescription(DefaultViewModel["QuickCharacter"] as Character);
 
@@ -205,5 +208,9 @@ namespace MyWorldIsComics
 
         #endregion
 
+        private void Page_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            BackButton.Visibility = BackButton.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 }

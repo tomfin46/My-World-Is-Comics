@@ -10,6 +10,27 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <!-- Grid-appropriate 310 by 260 pixel item template as seen in section 4 -->
+        <DataTemplate x:Key="Standard310x260ItemTemplate">
+            <Grid Height="250" Width="310" Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="150">
+                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                </Border>
+                <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                        <TextBlock Text="{Binding Deck}" Style="{StaticResource BodyTextBlockStyle}"/> <!--MaxHeight="60" />-->
+                    </ScrollViewer>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
     <!--
         This grid acts as a root panel for the page.
     -->
@@ -66,34 +87,34 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="1" Margin="0,10,0,0" TextWrapping="Wrap">
-                            <Run Text="Real Name: " />
-                            <Run Text="{Binding RealName}" FontWeight="Normal"/>
+                                <Run Text="Real Name: " />
+                                <Run Text="{Binding RealName}" FontWeight="Normal"/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="2" Margin="0,10,0,0" TextWrapping="Wrap">
-                            <Run Text="Aliases: " />
-                            <Run Text="{Binding Aliases}" FontWeight="Normal"/>
+                                <Run Text="Aliases: " />
+                                <Run Text="{Binding Aliases}" FontWeight="Normal"/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="3" Margin="0,10,0,0" TextWrapping="Wrap">
-                            <Run Text="Date of Birth: " />
-                            <Run Text="{Binding Birth}" FontWeight="Normal"/>
+                                <Run Text="Date of Birth: " />
+                                <Run Text="{Binding Birth}" FontWeight="Normal"/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="4" Margin="0,10,0,0" TextWrapping="Wrap">
-                            <Run Text="Deck: " />
-                            <Run Text="{Binding Deck}" FontWeight="Normal"/>
+                                <Run Text="Deck: " />
+                                <Run Text="{Binding Deck}" FontWeight="Normal"/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="6" Margin="0,10,0,0" TextWrapping="Wrap">
-                            <Run Text="Appears in: " />
-                            <Run Text="{Binding IssueAppearancesCount}" FontWeight="Normal"/>
-                            <Run Text=" issues" />
+                                <Run Text="Appears in: " />
+                                <Run Text="{Binding IssueAppearancesCount}" FontWeight="Normal"/>
+                                <Run Text=" issues" />
                             </TextBlock>
-                            </Grid>
+                        </Grid>
 
                         <Grid DataContext="{Binding CharacterDescription}" Grid.Row="1" Margin="0,20,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            
+
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="0" Margin="0,10,0,0" Text="Current Events: " TextWrapping="Wrap"/>
                             <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Row="1" Margin="0,10,0,0" Text="{Binding CurrentEvents}" TextWrapping="Wrap" />
                         </Grid>
@@ -104,15 +125,9 @@
             <HubSection Width="520" Header="Origin" DataContext="{Binding CharacterDescription}">
                 <DataTemplate>
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                            <RowDefinition Height="*"></RowDefinition>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,10" Text="Origin" TextWrapping="Wrap" Grid.Row="0"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Origin}" TextWrapping="Wrap" Grid.Row="1"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Origin}" TextWrapping="Wrap"/>
+                        </ScrollViewer>
                     </Grid>
                 </DataTemplate>
             </HubSection>
@@ -120,27 +135,28 @@
             <HubSection Width="520" Header="Character Evolution" DataContext="{Binding CharacterDescription}">
                 <DataTemplate>
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                            <RowDefinition Height="Auto"></RowDefinition>
-                            <RowDefinition Height="*"></RowDefinition>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,0" Text="Character Evolution" TextWrapping="Wrap" Grid.Row="0"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,0" Text="{Binding CharacterEvolution}" TextWrapping="Wrap" Grid.Row="1"/>
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="0,20,0,0" Text="Creation" TextWrapping="Wrap" Grid.Row="2"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,0" Text="{Binding Creation}" TextWrapping="Wrap" Grid.Row="3"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,0" Text="{Binding CharacterEvolution}" TextWrapping="Wrap"/>
+                        </ScrollViewer>
                     </Grid>
                 </DataTemplate>
             </HubSection>
 
-            <!--<HubSection IsHeaderInteractive="True" DataContext="{Binding Section3Items}" d:DataContext="{Binding Groups[3], Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:SampleDataSource}}"
-                        x:Uid="Section3Header" Header="Teams" Padding="40,40,40,32">
+            <HubSection Width="520" Header="Creation" DataContext="{Binding CharacterDescription}">
+                <DataTemplate>
+                    <Grid>
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,0" Text="{Binding Creation}" TextWrapping="Wrap"/>
+                        </ScrollViewer>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+
+            <HubSection IsHeaderInteractive="True" Header="Teams" Padding="40,40,40,32" DataContext="{Binding Character}">
                 <DataTemplate>
                     <GridView
-                        x:Name="itemGridView"
-                        ItemsSource="{Binding Items}"
+                        x:Name="teamGridView"
+                        ItemsSource="{Binding Teams}"
                         Margin="-9,-14,0,0"
                         AutomationProperties.AutomationId="ItemGridView"
                         AutomationProperties.Name="Items In Group"
@@ -148,10 +164,15 @@
                         SelectionMode="None"
                         IsSwipeEnabled="false"
                         IsItemClickEnabled="True"
-                        ItemClick="ItemView_ItemClick">
+                        ItemClick="TeamView_TeamClick">
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="5"></WrapGrid>
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
                     </GridView>
                 </DataTemplate>
-            </HubSection>-->
+            </HubSection>
 
             <HubSection Header="First Appearance">
                 <DataTemplate>

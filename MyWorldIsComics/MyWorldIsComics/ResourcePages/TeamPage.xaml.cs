@@ -1,28 +1,23 @@
-﻿using MyWorldIsComics.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+﻿using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.Mappers;
 
-// The Hub Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=321224
-
-namespace MyWorldIsComics
+namespace MyWorldIsComics.ResourcePages
 {
-    using MyWorldIsComics.DataSource;
+    #region usings
+
+    using System;
+    using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Navigation;
+
+    using Common;
+    using DataSource;
+
+    #endregion
 
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
-    public sealed partial class CharacterPage : Page
+    public sealed partial class TeamPage : Page
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
@@ -32,7 +27,7 @@ namespace MyWorldIsComics
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
-            get { return this.defaultViewModel; }
+            get { return defaultViewModel; }
         }
 
         /// <summary>
@@ -41,14 +36,14 @@ namespace MyWorldIsComics
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return navigationHelper; }
         }
 
-        public CharacterPage()
+        public TeamPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
+            InitializeComponent();
+            navigationHelper = new NavigationHelper(this);
+            navigationHelper.LoadState += navigationHelper_LoadState;
         }
 
 
@@ -66,14 +61,14 @@ namespace MyWorldIsComics
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Assign a collection of bindable groups to this.DefaultViewModel["Groups"]
-            string name = e.NavigationParameter as string;
-            var quickCharacter = await ComicVineSource.ExecuteSearchAsync(name);
-            this.DefaultViewModel["QuickCharacter"] = quickCharacter;
-            var characterDescription = await ComicVineSource.FormatDescriptionAsync(quickCharacter.DescriptionString);
-            this.DefaultViewModel["CharacterDescription"] = characterDescription;
-            var character = await ComicVineSource.GetCharacterAsync(quickCharacter.UniqueId);
-            this.DefaultViewModel["Character"] = character;
+            var team = e.NavigationParameter;
+            //var team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+            DefaultViewModel["QuickTeam"] = team;
+        }
 
+        private Team MapQuickTeam(string quickTeam)
+        {
+            return quickTeam == ServiceConstants.QueryNotFound ? new Team{ Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
         }
 
         #region NavigationHelper registration

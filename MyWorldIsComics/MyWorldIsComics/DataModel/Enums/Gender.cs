@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MyWorldIsComics.DataModel.Enums
 {
-    internal class Gender
+    public class Gender
     {
         public enum GenderEnum
         {

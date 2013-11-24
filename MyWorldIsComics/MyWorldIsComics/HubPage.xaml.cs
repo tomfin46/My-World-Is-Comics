@@ -1,24 +1,19 @@
-﻿using MyWorldIsComics.Common;
-using MyWorldIsComics.Data;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+﻿
 
 // The Hub Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=321224
 
 namespace MyWorldIsComics
 {
+    #region usings
+   
+    using System;
+    using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Navigation;
+    using Common;
+    using Data;
+
+    #endregion
+   
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
@@ -33,7 +28,7 @@ namespace MyWorldIsComics
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return navigationHelper; }
         }
 
         /// <summary>
@@ -41,14 +36,14 @@ namespace MyWorldIsComics
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
-            get { return this.defaultViewModel; }
+            get { return defaultViewModel; }
         }
 
         public HubPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
+            InitializeComponent();
+            navigationHelper = new NavigationHelper(this);
+            navigationHelper.LoadState += navigationHelper_LoadState;
         }
 
         /// <summary>
@@ -66,7 +61,7 @@ namespace MyWorldIsComics
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
             var sampleDataGroup = await SampleDataSource.GetGroupAsync("Group-3");
-            this.DefaultViewModel["Section3Items"] = sampleDataGroup;
+            DefaultViewModel["Section3Items"] = sampleDataGroup;
         }
 
         /// <summary>
@@ -78,7 +73,7 @@ namespace MyWorldIsComics
         {
             HubSection section = e.Section;
             var group = section.DataContext;
-            this.Frame.Navigate(typeof(SectionPage), ((SampleDataGroup)group).UniqueId);
+            Frame.Navigate(typeof(SectionPage), ((SampleDataGroup)group).UniqueId);
         }
 
         /// <summary>
@@ -92,7 +87,7 @@ namespace MyWorldIsComics
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
             var itemId = ((SampleDataItem)e.ClickedItem).UniqueId;
-            this.Frame.Navigate(typeof(CharacterPage), itemId);
+            Frame.Navigate(typeof(CharacterPage), itemId);
         }
         #region NavigationHelper registration
 

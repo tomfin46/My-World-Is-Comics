@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using HtmlAgilityPack;
-using MyWorldIsComics.DataModel;
-
-namespace MyWorldIsComics.Mappers
+﻿namespace MyWorldIsComics.Mappers
 {
+    #region usings
+
+    using System;
+    using System.Xml;
+    using HtmlAgilityPack;
+    using DataModel;
+
+    #endregion
+
     class DescriptionMapper
     {
         private static Description descriptionToReturn = new Description();

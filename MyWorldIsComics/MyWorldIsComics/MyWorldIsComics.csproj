@@ -105,32 +105,36 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CharacterPage.xaml.cs">
+    <Compile Include="DataModel\Interfaces\IPerson.cs" />
+    <Compile Include="DataModel\Interfaces\IResource.cs" />
+    <Compile Include="Mappers\TeamMapper.cs" />
+    <Compile Include="ResourcePages\CharacterPage.xaml.cs">
       <DependentUpon>CharacterPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Common\ServiceConstants.cs" />
-    <Compile Include="DataModel\Character.cs" />
-    <Compile Include="DataModel\Characters.cs" />
-    <Compile Include="DataModel\ComicSeriesVolume.cs" />
-    <Compile Include="DataModel\Creator.cs" />
-    <Compile Include="DataModel\Creators.cs" />
+    <Compile Include="DataSource\ServiceConstants.cs" />
+    <Compile Include="DataModel\Resources\Character.cs" />
+    <Compile Include="DataModel\Resources\ComicSeriesVolume.cs" />
+    <Compile Include="DataModel\Resources\Creator.cs" />
     <Compile Include="DataModel\Description.cs" />
     <Compile Include="DataModel\Enums\Gender.cs" />
     <Compile Include="DataModel\Enums\ImageTypes.cs" />
     <Compile Include="DataModel\Enums\Month.cs" />
     <Compile Include="DataModel\Enums\Resources.cs" />
-    <Compile Include="DataModel\Issue.cs" />
-    <Compile Include="DataModel\Movie.cs" />
-    <Compile Include="DataModel\Origin.cs" />
-    <Compile Include="DataModel\Publisher.cs" />
-    <Compile Include="DataModel\StoryArc.cs" />
-    <Compile Include="DataModel\Team.cs" />
+    <Compile Include="DataModel\Resources\Issue.cs" />
+    <Compile Include="DataModel\Resources\Movie.cs" />
+    <Compile Include="DataModel\Resources\Publisher.cs" />
+    <Compile Include="DataModel\Resources\StoryArc.cs" />
+    <Compile Include="DataModel\Resources\Team.cs" />
     <Compile Include="DataSource\ComicVineSource.cs" />
     <Compile Include="HubPage.xaml.cs">
       <DependentUpon>HubPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Mappers\CharacterMapper.cs" />
     <Compile Include="Mappers\DescriptionMapper.cs" />
+    <Compile Include="ResourcePages\TeamPage.xaml.cs">
+      <DependentUpon>TeamPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SavedData.cs" />
     <Compile Include="SectionPage.xaml.cs">
       <DependentUpon>SectionPage.xaml</DependentUpon>
     </Compile>
@@ -170,13 +174,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="CharacterPage.xaml">
+    <Page Include="ResourcePages\CharacterPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="HubPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ResourcePages\TeamPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SectionPage.xaml">
       <Generator>MSBuild:Compile</Generator>

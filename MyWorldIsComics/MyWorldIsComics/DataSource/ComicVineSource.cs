@@ -1,53 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MyWorldIsComics.DataSource
+﻿namespace MyWorldIsComics.DataSource
 {
-    using System.Collections.ObjectModel;
+    #region usings
+
+    using System;
+    using System.Threading.Tasks;
+    using DataModel.Resources;
     using System.Net.Http;
+    using DataModel;
+    using DataModel.Enums;
+    using Mappers;
 
-    using Windows.Data.Json;
-
-    using MyWorldIsComics.Common;
-    using MyWorldIsComics.DataModel;
-    using MyWorldIsComics.DataModel.Enums;
-    using MyWorldIsComics.Mappers;
+    #endregion
 
     class ComicVineSource
     {
         private static readonly ComicVineSource comicVineSource = new ComicVineSource();
         private static HttpClient client;
 
-        private readonly ObservableCollection<Characters> characters = new ObservableCollection<Characters>();
-        public ObservableCollection<Characters> Characters
-        {
-            get { return this.characters; }
-        }
-
         public ComicVineSource()
         {
             client = new HttpClient();
         }
 
-        public static async Task<Character> ExecuteSearchAsync(string query)
+        public static async Task<string> ExecuteSearchAsync(string query)
         {
-            string parser = await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query));
-            
-            Character character;
-            CharacterMapper.QuickMapXmlObject(parser, out character);
-            return character;
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query));
         }
 
-        public static async Task<Character> GetCharacterAsync(int id)
+        public static async Task<string> GetCharacterAsync(int id)
         {
-            string characterParser = await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, id.ToString()));
-            
-            Character character;
-            CharacterMapper.MapXmlObject(characterParser, out character);
-            return character;
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, id.ToString()));
+        }
+
+        public static async Task<Team> GetTeamAsync(string teamId)
+        {
+            string teamParser = await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId));
+
+            return teamParser == ServiceConstants.QueryNotFound ? new Team() : new TeamMapper().MapXmlObject(teamParser);
+        }
+
+        public static async Task<string> GetQuickTeamAsync(string teamId)
+        {
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId));
         }
 
         public static async Task<Description> FormatDescriptionAsync(string descriptionString)
@@ -58,9 +52,17 @@ namespace MyWorldIsComics.DataSource
         private static async Task<string> QueryServiceAsync(Uri uri)
         {
             var response = await client.GetAsync(uri);
-            response.EnsureSuccessStatusCode();
+            string content;
+            try
+            {
+                response.EnsureSuccessStatusCode();
+                content = await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception)
+            {
+                content = ServiceConstants.QueryNotFound;
+            }
 
-            var content = await response.Content.ReadAsStringAsync();
             return content;
         }
 
@@ -74,6 +76,9 @@ namespace MyWorldIsComics.DataSource
                     break;
                 case Resources.ResourcesEnum.Character:
                     uri += "4005-" + query + "/?";
+                    break;
+                case Resources.ResourcesEnum.Team:
+                    uri += "4060-" + query + "/?";
                     break;
                 default:
                     uri += query + "/";

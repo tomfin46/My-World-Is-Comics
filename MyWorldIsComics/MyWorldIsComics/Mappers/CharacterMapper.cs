@@ -84,6 +84,7 @@ namespace MyWorldIsComics.Mappers
 
         private static void ParseAliases(XmlReader reader)
         {
+            CharacterToMap.Aliases.Clear();
             if (reader.Name != "aliases") { reader.ReadToFollowing("aliases"); }
             var aliases = reader.ReadElementContentAsString().Split('\n');
             CharacterToMap.Aliases.AddRange(aliases);

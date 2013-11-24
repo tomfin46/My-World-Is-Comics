@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
 using Windows.UI.Xaml;
 
 namespace MyWorldIsComics.DataModel.Resources
@@ -25,6 +27,14 @@ namespace MyWorldIsComics.DataModel.Resources
 
         #region IPerson Fields
         public DateTime Birth { get; set; }
+        public string BirthString
+        {
+            get
+            {
+                return Birth.ToString("d MMM yyyy");
+            }
+        }
+
         public Gender.GenderEnum Gender { get; set; }
 
         #endregion
@@ -36,10 +46,17 @@ namespace MyWorldIsComics.DataModel.Resources
         public int FirstAppearanceId { get; set; }
         public string Origin { get; set; }
         public int PublisherId { get; set; }
+        public string AliasesString
+        {
+            get
+            {
+                return string.Join(", ", Aliases);
+            }
+        }
 
         #region Collections
-
-        public List<String> Aliases { get; set; }
+        
+        public List<String> Aliases { get; set; } 
         public List<int> EnemyIds { get; set; }
         public List<int> FriendIds { get; set; }
         public List<int> CreatorIds { get; set; }
@@ -64,6 +81,11 @@ namespace MyWorldIsComics.DataModel.Resources
             Powers = new List<String>();
             TeamIds = new List<int>();
             Teams = new ObservableCollection<Team>();
+        }
+
+        private string FormatAliases()
+        {
+            return string.Join(", ", Aliases);
         }
 
         public override string ToString()

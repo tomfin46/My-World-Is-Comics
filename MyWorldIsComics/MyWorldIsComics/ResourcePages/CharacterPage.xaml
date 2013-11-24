@@ -8,10 +8,10 @@
     xmlns:common="using:MyWorldIsComics.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:MyWorldIsComics.Converters"
     mc:Ignorable="d">
-
+    
     <Page.Resources>
-        <!-- Grid-appropriate 310 by 260 pixel item template as seen in section 4 -->
         <DataTemplate x:Key="Standard310x260ItemTemplate">
             <Grid Height="250" Width="310" Margin="5">
                 <Grid.RowDefinitions>
@@ -24,7 +24,7 @@
                 <StackPanel Grid.Row="1" Margin="0,10,0,0">
                     <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                        <TextBlock Text="{Binding Deck}" Style="{StaticResource BodyTextBlockStyle}"/> <!--MaxHeight="60" />-->
+                        <TextBlock Text="{Binding Deck}" Style="{StaticResource BodyTextBlockStyle}"/>
                     </ScrollViewer>
                 </StackPanel>
             </Grid>
@@ -90,18 +90,22 @@
                                 <Run Text="Real Name: " />
                                 <Run Text="{Binding RealName}" FontWeight="Normal"/>
                             </TextBlock>
+                            
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="2" Margin="0,10,0,0" TextWrapping="Wrap">
                                 <Run Text="Aliases: " />
-                                <Run Text="{Binding Aliases}" FontWeight="Normal"/>
+                                <Run Text="{Binding AliasesString}" FontWeight="Normal"/>
                             </TextBlock>
+                            
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="3" Margin="0,10,0,0" TextWrapping="Wrap">
                                 <Run Text="Date of Birth: " />
-                                <Run Text="{Binding Birth}" FontWeight="Normal"/>
+                                <Run Text="{Binding BirthString}" FontWeight="Normal"/>
                             </TextBlock>
+
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="4" Margin="0,10,0,0" TextWrapping="Wrap">
                                 <Run Text="Deck: " />
                                 <Run Text="{Binding Deck}" FontWeight="Normal"/>
                             </TextBlock>
+                            
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="6" Margin="0,10,0,0" TextWrapping="Wrap">
                                 <Run Text="Appears in: " />
                                 <Run Text="{Binding IssueAppearancesCount}" FontWeight="Normal"/>
@@ -116,7 +120,9 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="0" Margin="0,10,0,0" Text="Current Events: " TextWrapping="Wrap"/>
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Row="1" Margin="0,10,0,0" Text="{Binding CurrentEvents}" TextWrapping="Wrap" />
+                            <ScrollViewer VerticalScrollBarVisibility="Hidden" Grid.Row="1">
+                                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,10,0,0" Text="{Binding CurrentEvents}" TextWrapping="Wrap" />
+                            </ScrollViewer>
                         </Grid>
                     </Grid>
                 </DataTemplate>

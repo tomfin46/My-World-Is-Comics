@@ -93,7 +93,10 @@ namespace MyWorldIsComics
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            
+            if (this.Frame.CurrentSourcePageType.Name == "HubPage")
+            {
+                character = null;
+            }
         }
 
         private async Task LoadQuickCharacter(string name)

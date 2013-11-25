@@ -181,7 +181,14 @@ namespace MyWorldIsComics.Common
         /// </summary>
         public virtual void GoBack()
         {
-            if (this.Frame != null && this.Frame.CanGoBack) this.Frame.GoBack();
+            if (this.Frame != null && this.Frame.CanGoBack)
+            {
+                if (this.Frame.CurrentSourcePageType.Name == "CharacterPage")
+                {
+                    SavedData.Clear();
+                }
+                this.Frame.GoBack();
+            }
         }
         /// <summary>
         /// Virtual method used by the <see cref="GoForwardCommand"/> property

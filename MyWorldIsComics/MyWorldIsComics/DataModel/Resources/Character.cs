@@ -31,7 +31,7 @@ namespace MyWorldIsComics.DataModel.Resources
         {
             get
             {
-                return Birth.ToString("d MMM yyyy");
+                return Birth == default(DateTime) ? "Unknown" : Birth.ToString("d MMM yyyy");
             }
         }
 

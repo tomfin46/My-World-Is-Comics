@@ -208,7 +208,10 @@
 
         private void ParseImage(XmlReader reader)
         {
-            if (reader.Name != "super_url") { reader.ReadToFollowing("super_url"); }
+            if (reader.Name != "image") { reader.ReadToFollowing("image"); }
+            if (reader.IsEmptyElement) return;
+
+            reader.ReadToFollowing("super_url");
             _teamToMap.MainImage = new Uri(reader.ReadElementContentAsString());
         }
 

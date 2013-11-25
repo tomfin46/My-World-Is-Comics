@@ -53,6 +53,7 @@ namespace MyWorldIsComics
 
             navigationHelper = new NavigationHelper(this);
             navigationHelper.LoadState += navigationHelper_LoadState;
+            navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -85,7 +86,14 @@ namespace MyWorldIsComics
 
             await LoadCharacter(DefaultViewModel["QuickCharacter"] as Character);
 
+            TeamSection.IsHeaderInteractive = true;
+
             await LoadQuickTeams(DefaultViewModel["Character"] as Character, prevName);
+        }
+
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            
         }
 
         private async Task LoadQuickCharacter(string name)
@@ -136,6 +144,7 @@ namespace MyWorldIsComics
             {
                 return new Character
                 {
+                    TeamIds = new List<int>(),
                     Teams = new ObservableCollection<Team>()
                     {
                         new Team
@@ -155,10 +164,11 @@ namespace MyWorldIsComics
         {
             if (SavedData.Character == null || character.Name != prevName || SavedData.Character.Teams == null)
             {
-                character.Teams.Clear();
                 foreach (int teamId in character.TeamIds.Take(10))
                 {
-                    character.Teams.Add(MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString())));
+                    Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                    if (character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
+                    character.Teams.Add(team);
                 }
             }
         }
@@ -197,7 +207,6 @@ namespace MyWorldIsComics
         private void TeamView_TeamClick(object sender, ItemClickEventArgs e)
         {
             // Save response content so don't have to fetch from api service again
-
             SavedData.QuickCharacter = DefaultViewModel["QuickCharacter"] as Character;
             SavedData.Character = DefaultViewModel["Character"] as Character;
             //SavedData.QuickTeams = this.DefaultViewModel["QuickTeams"] as List<Team>;
@@ -206,11 +215,17 @@ namespace MyWorldIsComics
             Frame.Navigate(typeof(TeamPage), team);
         }
 
-        #endregion
-
         private void Page_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             BackButton.Visibility = BackButton.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
+
+        private void Hub_SectionHeaderClick(object sender, HubSectionHeaderClickEventArgs e)
+        {
+            var characterToSend = character;
+            Frame.Navigate(typeof(TeamsPage), characterToSend);
+        }
+
+        #endregion
     }
 }

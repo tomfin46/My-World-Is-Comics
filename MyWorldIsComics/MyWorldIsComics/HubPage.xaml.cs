@@ -73,7 +73,7 @@ namespace MyWorldIsComics
         {
             HubSection section = e.Section;
             var group = section.DataContext;
-            Frame.Navigate(typeof(SectionPage), ((SampleDataGroup)group).UniqueId);
+            Frame.Navigate(typeof(TeamsPage), ((SampleDataGroup)group).UniqueId);
         }
 
         /// <summary>

@@ -63,7 +63,8 @@
                     <ImageBrush ImageSource="Assets/MediumGray.png" Stretch="UniformToFill" />
                 </HubSection.Background>
             </HubSection>
-            <HubSection Width="500" x:Uid="Section1Header" Header="Section 1">
+            
+            <HubSection Width="500" x:Uid="Section1Header" Header="Section 1" Visibility="Collapsed">
                 <DataTemplate>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -82,7 +83,8 @@
                     </Grid>
                 </DataTemplate>
             </HubSection>
-            <HubSection Width="520" x:Uid="Section2Header" Header="Section 2">
+            
+            <HubSection Width="520" x:Uid="Section2Header" Header="Section 2" Visibility="Collapsed">
                 <DataTemplate>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -102,6 +104,7 @@
                     </Grid>
                 </DataTemplate>
             </HubSection>
+            
             <HubSection IsHeaderInteractive="True" DataContext="{Binding Section3Items}" d:DataContext="{Binding Groups[3], Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:SampleDataSource}}"
                         x:Uid="Section3Header" Header="Section 3" Padding="40,40,40,32">
                 <DataTemplate>
@@ -119,6 +122,7 @@
                     </GridView>
                 </DataTemplate>
             </HubSection>
+            
             <HubSection x:Uid="Section4Header" Header="Section 4">
                 <DataTemplate>
                     <!-- width of 400 -->

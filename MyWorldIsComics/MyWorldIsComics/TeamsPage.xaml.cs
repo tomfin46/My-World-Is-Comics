@@ -1,4 +1,5 @@
-﻿using MyWorldIsComics.Common;
+﻿using System.Collections.ObjectModel;
+using MyWorldIsComics.Common;
 using MyWorldIsComics.Data;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,11 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-
-
 // The Section Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234229
+using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Mappers;
+using MyWorldIsComics.ResourcePages;
 
 namespace MyWorldIsComics
 {
@@ -25,10 +28,11 @@ namespace MyWorldIsComics
     /// A page that displays an overview of a single group, including a preview of the items
     /// within the group.
     /// </summary>
-    public sealed partial class SectionPage : Page
+    public sealed partial class TeamsPage : Page
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private Character character;
 
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
@@ -48,11 +52,12 @@ namespace MyWorldIsComics
         }
 
 
-        public SectionPage()
+        public TeamsPage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
+            this.navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -69,9 +74,38 @@ namespace MyWorldIsComics
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            var group = await SampleDataSource.GetGroupAsync((String)e.NavigationParameter);
-            this.DefaultViewModel["Group"] = group;
-            this.DefaultViewModel["Items"] = group.Items;
+            if (SavedData.Character != null)
+            {
+                character = SavedData.Character;
+            }
+            else
+            {
+                var characterFromNav = e.NavigationParameter as Character;
+                if (characterFromNav == null) return;
+
+                character = characterFromNav;
+            }
+
+            this.DefaultViewModel["Character"] = character;
+            this.DefaultViewModel["Items"] = character.Teams;
+
+            foreach (int teamId in character.TeamIds.GetRange(character.Teams.Count, character.TeamIds.Count - character.Teams.Count))
+            {
+                Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                if (character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
+                character.Teams.Add(team);
+            }
+        }
+
+        private async void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            SavedData.Character = character;
+        }
+        
+
+        private Team MapQuickTeam(string quickTeam)
+        {
+            return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
         }
 
         /// <summary>
@@ -81,10 +115,9 @@ namespace MyWorldIsComics
         /// <param name="e">Event data that describes the item clicked.</param>
         void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            // Navigate to the appropriate destination page, configuring the new page
-            // by passing required information as a navigation parameter
-            var itemId = ((SampleDataItem)e.ClickedItem).UniqueId;
-            this.Frame.Navigate(typeof(ItemPage), itemId);
+            SavedData.Character = character;
+            var team = ((Team)e.ClickedItem);
+            Frame.Navigate(typeof(TeamPage), team);
         }
 
         #region NavigationHelper registration

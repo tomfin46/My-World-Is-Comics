@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+
     using Interfaces;
 
     public class Team : IResource
@@ -20,23 +22,44 @@
 
         #region Team Specific Fields
 
-        public Issue FirstAppearance { get; set; }
+        public int FirstAppearanceId { get; set; }
         public int IssueAppearancesCount { get; set; }
         public int MembersCount { get; set; }
-        public Publisher Publisher { get; set; }
+        public int PublisherId { get; set; }
+        public string ResourceString { get; set; }
 
         #region Collections
 
         public List<String> Aliases { get; set; }
-        public List<Character> Members { get; set; }
-        public List<Character> Enemies { get; set; }
-        public List<Character> Friends { get; set; }
-        public List<Issue> IssuesDispandedIn { get; set; }
-        public List<Movie> Movies { get; set; }
+        public ObservableCollection<Character> Members { get; set; }
+        public List<int> MemberIds { get; set; }
+        public ObservableCollection<Character> Enemies { get; set; }
+        public List<int> EnemyIds { get; set; }
+        public ObservableCollection<Character> Friends { get; set; }
+        public List<int> FriendIds { get; set; }
+        public ObservableCollection<Issue> IssuesDispandedIn { get; set; }
+        public List<int> IssuesDispandedInIds { get; set; }
+        public ObservableCollection<Movie> Movies { get; set; }
+        public List<int> MovieIds { get; set; }
 
         #endregion
 
         #endregion
+
+        public Team()
+        {
+            Aliases = new List<string>();
+            EnemyIds = new List<int>();
+            Enemies = new ObservableCollection<Character>();
+            FriendIds = new List<int>();
+            Friends = new ObservableCollection<Character>();
+            MemberIds = new List<int>();
+            Members = new ObservableCollection<Character>();
+            IssuesDispandedInIds = new List<int>();
+            IssuesDispandedIn = new ObservableCollection<Issue>();
+            MovieIds = new List<int>();
+            Movies = new ObservableCollection<Movie>();
+        }
 
         public override string ToString()
         {

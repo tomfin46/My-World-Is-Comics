@@ -32,11 +32,9 @@
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, id.ToString()));
         }
 
-        public static async Task<Team> GetTeamAsync(string teamId)
+        public static async Task<string> GetTeamAsync(string teamId)
         {
-            string teamParser = await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId));
-
-            return teamParser == ServiceConstants.QueryNotFound ? new Team() : new TeamMapper().MapXmlObject(teamParser);
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId));
         }
 
         public static async Task<string> GetQuickTeamAsync(string teamId)

@@ -206,7 +206,10 @@ namespace MyWorldIsComics.Mappers
 
         private static void ParseImage(XmlReader reader)
         {
-            if (reader.Name != "super_url") { reader.ReadToFollowing("super_url"); }
+            if (reader.Name != "image") { reader.ReadToFollowing("image"); }
+            if (reader.IsEmptyElement) return;
+
+            reader.ReadToFollowing("super_url");
             _characterToMap.MainImage = new Uri(reader.ReadElementContentAsString());
         }
 

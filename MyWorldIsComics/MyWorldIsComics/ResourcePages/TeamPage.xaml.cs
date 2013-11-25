@@ -6,6 +6,10 @@ namespace MyWorldIsComics.ResourcePages
     #region usings
 
     using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+
+    using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Navigation;
 
@@ -65,10 +69,15 @@ namespace MyWorldIsComics.ResourcePages
 
             DefaultViewModel["QuickTeam"] = team;
         }
-
-        private Team MapQuickTeam(string quickTeam)
+        private async Task LoadTeam(Team quickTeam)
         {
-            return quickTeam == ServiceConstants.QueryNotFound ? new Team{ Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
+            Team team = this.MapTeam(quickTeam.ResourceString);
+            DefaultViewModel["Team"] = team;
+        }
+
+        private Team MapTeam(string teamString)
+        {
+            return teamString == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().MapXmlObject(teamString);
         }
 
         #region NavigationHelper registration

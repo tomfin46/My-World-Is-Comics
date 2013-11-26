@@ -169,32 +169,36 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection Header="First Appearance">
+            <HubSection x:Name="FirstAppernceSection" Width="520" Header="First Appearance" DataContext="{Binding FirstAppearance}" IsHeaderInteractive="False">
                 <DataTemplate>
                     <!-- width of 400 -->
                     <StackPanel Orientation="Vertical">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="130"/>
-                                <ColumnDefinition Width="5"/>
-                                <ColumnDefinition Width="130"/>
-                                <ColumnDefinition Width="5"/>
-                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="450"/>
+                                <ColumnDefinition Width="70"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="270"/>
-                                <RowDefinition Height="95"/>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <Image Grid.ColumnSpan="5" Stretch="Fill" Margin="0,0,0,10"/>
-                            <Image Grid.Row="1" Stretch="Fill"/>
-                            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill"/>
-                            <Image Grid.Row="1" Grid.Column="4" Stretch="Fill"/>
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="2" Grid.ColumnSpan="5" Margin="0,15,0,0"
-                                       Text="Description Text:"/>
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Row="3" Grid.ColumnSpan="5" 
-                                       Text="Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper. Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper."/>
+                            <Image DataContext="{Binding MainImage}" Grid.Column="1"  Stretch="Fill" Margin="0,0,0,10"/>
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="0" Margin="0,15,0,0"
+                                       Text="Description Text:">
+                                <Run Text="{Binding VolumeName}"></Run>
+                                <Run Text=" #"></Run>
+                                <Run Text="{Binding IssueNumber}"></Run>
+                            </TextBlock>
+                            <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}" Grid.Row="0" Grid.Column="1"/>
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource BodyTextBlockStyle}" Grid.Row="0" Grid.Column="1"/>
+                            
+                            <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}" Grid.Row="0" Grid.Column="1"/>
+                            <TextBlock Text="{Binding CoverDateString}" Style="{StaticResource BodyTextBlockStyle}" Grid.Row="0" Grid.Column="1"/>
+                            
+                            <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}" Grid.Row="0" Grid.Column="1"/>
+                            <TextBlock Text="{Binding StoreDateString}" Style="{StaticResource BodyTextBlockStyle}" Grid.Row="0" Grid.Column="1"/>
+
+                            <TextBlock Text="{Binding Deck}" Style="{StaticResource BodyTextBlockStyle}" Grid.Row="1" Grid.ColumnSpan="2"/>
                         </Grid>
                     </StackPanel>
                 </DataTemplate>

@@ -62,25 +62,16 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection Width="500" Header="Section 1">
+            <HubSection Width="500" Header="Bio">
                 <DataTemplate>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <Image Stretch="Fill" Width="420" Height="280"/>
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Row="1" Margin="0,10,0,0" TextWrapping="Wrap" 
-                                   Text="Lorem ipsum dolor sit nonumy sed consectetuer ising elit, sed diam"/>
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="2" Margin="0,10,0,0"
-                                   Text="Description text:"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Row="3" 
-                                   Text="Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper. Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper. "/>
-                    </Grid>
+                    <StackPanel>
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Deck}" TextWrapping="Wrap" />
+                        </ScrollViewer>
+                    </StackPanel>
                 </DataTemplate>
             </HubSection>
+            
             <HubSection Width="520" Header="Section 2">
                 <DataTemplate>
                     <Grid>

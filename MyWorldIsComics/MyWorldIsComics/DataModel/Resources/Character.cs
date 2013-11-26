@@ -44,6 +44,7 @@ namespace MyWorldIsComics.DataModel.Resources
         public string RealName { get; set; }
         public int IssueAppearancesCount { get; set; }
         public int FirstAppearanceId { get; set; }
+        public Issue FirstAppearanceIssue { get; set; }
         public string Origin { get; set; }
         public int PublisherId { get; set; }
         public string AliasesString

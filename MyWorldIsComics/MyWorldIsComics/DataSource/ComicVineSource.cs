@@ -32,14 +32,14 @@
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, id.ToString()));
         }
 
-        public static async Task<string> GetTeamAsync(string teamId)
+        public static async Task<string> GetQuickTeamAsync(string teamId)
         {
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId));
         }
 
-        public static async Task<string> GetQuickTeamAsync(string teamId)
+        public static async Task<string> GetIssueAsync(string issueId)
         {
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issue, issueId));
         }
 
         public static async Task<Description> FormatDescriptionAsync(string descriptionString)
@@ -77,6 +77,9 @@
                     break;
                 case Resources.ResourcesEnum.Team:
                     uri += "4060-" + query + "/?";
+                    break;
+                case Resources.ResourcesEnum.Issue:
+                    uri += "4000-" + query + "/?";
                     break;
                 default:
                     uri += query + "/";

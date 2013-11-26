@@ -86,9 +86,14 @@ namespace MyWorldIsComics
 
             await LoadCharacter(DefaultViewModel["QuickCharacter"] as Character);
 
-            TeamSection.IsHeaderInteractive = true;
 
             await LoadQuickTeams(DefaultViewModel["Character"] as Character, prevName);
+
+            TeamSection.IsHeaderInteractive = true;
+
+            await LoadFirstAppearance(DefaultViewModel["Character"] as Character, prevName);
+
+            FirstAppernceSection.IsHeaderInteractive = true;
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
@@ -179,6 +184,21 @@ namespace MyWorldIsComics
         private Team MapQuickTeam(string quickTeam)
         {
             return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
+        }
+
+        private async Task LoadFirstAppearance(Character character, string prevName)
+        {
+            if (SavedData.Character == null || character.Name != prevName)
+            {
+                Issue issue = MapIssue(await ComicVineSource.GetIssueAsync(character.FirstAppearanceId.ToString()));
+                character.FirstAppearanceIssue = issue;
+                DefaultViewModel["FirstAppearance"] = character;
+            }
+        }
+
+        private Issue MapIssue(string issue)
+        {
+            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
         }
 
         #region NavigationHelper registration

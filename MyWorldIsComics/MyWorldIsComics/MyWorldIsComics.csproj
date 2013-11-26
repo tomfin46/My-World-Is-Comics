@@ -107,6 +107,7 @@
     </Compile>
     <Compile Include="DataModel\Interfaces\IPerson.cs" />
     <Compile Include="DataModel\Interfaces\IResource.cs" />
+    <Compile Include="Mappers\IssueMapper.cs" />
     <Compile Include="Mappers\TeamMapper.cs" />
     <Compile Include="ResourcePages\CharacterPage.xaml.cs">
       <DependentUpon>CharacterPage.xaml</DependentUpon>
@@ -131,6 +132,9 @@
     </Compile>
     <Compile Include="Mappers\CharacterMapper.cs" />
     <Compile Include="Mappers\DescriptionMapper.cs" />
+    <Compile Include="ResourcePages\IssuePage.xaml.cs">
+      <DependentUpon>IssuePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ResourcePages\TeamPage.xaml.cs">
       <DependentUpon>TeamPage.xaml</DependentUpon>
     </Compile>
@@ -178,6 +182,10 @@
     <Page Include="HubPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ResourcePages\IssuePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ResourcePages\TeamPage.xaml">
       <SubType>Designer</SubType>

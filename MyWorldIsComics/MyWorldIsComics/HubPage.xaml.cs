@@ -12,6 +12,8 @@ namespace MyWorldIsComics
     using Common;
     using Data;
 
+    using MyWorldIsComics.ResourcePages;
+
     #endregion
    
     /// <summary>

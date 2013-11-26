@@ -22,6 +22,12 @@
             {
                 if (link.Name != "h2") continue;
 
+                //if (link.Name == "h2")
+                //{
+                //    ProcessSection(link);
+                //}
+
+
                 HtmlNode sibling = link.NextSibling;
                 HtmlNode nextSibling;
                 while (sibling.Name != "p")
@@ -35,7 +41,7 @@
                 switch (link.InnerText)
                 {
                     case "Current Events":
-                        descriptionToReturn.CurrentEvents = sibling.InnerText;
+                        descriptionToReturn.CurrentEvents = link.NextSibling.InnerHtml;
                         break;
                     case "Origin":
                         descriptionToReturn.Origin = sibling.InnerText;
@@ -103,32 +109,52 @@
             return descriptionToReturn;
         }
 
-        private static void ParseCurrentEvents(XmlReader reader)
+        private static void ProcessSection(HtmlNode link)
         {
+            var headerName = link.InnerText;
+            var nextSibling = link.NextSibling;
+
+            while (nextSibling.Name != "h2")
+            {
+                if (nextSibling.Name == "p")
+                {
+                    ProcessParagraph(nextSibling, headerName);
+                }
+                else if (nextSibling.Name == "figure")
+                {
+                    ProcessFigure(nextSibling, headerName);
+                }
+                else if (nextSibling.Name == "h3")
+                {
+                    ProcessSubSection(nextSibling, headerName);
+                }
+                else if (nextSibling.Name == "h4")
+                {
+                    ProcessSubSubSection(nextSibling, headerName);
+                }
+
+                nextSibling = nextSibling.NextSibling;
+            }
+
 
         }
 
-        private static void ParseOrigin(XmlReader reader)
-        {
-
-        }
-
-        private static void ParseCreation(XmlReader reader)
+        private static void ProcessParagraph(HtmlNode nextSibling, string headerName)
         {
             throw new NotImplementedException();
         }
 
-        private static void ParseCharacterEvolution(XmlReader reader)
+        private static void ProcessFigure(HtmlNode nextSibling, string headerName)
         {
             throw new NotImplementedException();
         }
 
-        private static void ParseMajorStoryArcs(XmlReader reader)
+        private static void ProcessSubSection(HtmlNode nextSibling, string headerName)
         {
             throw new NotImplementedException();
         }
 
-        private static void ParseAlternateRealities(XmlReader reader)
+        private static void ProcessSubSubSection(HtmlNode nextSibling, string headerName)
         {
             throw new NotImplementedException();
         }

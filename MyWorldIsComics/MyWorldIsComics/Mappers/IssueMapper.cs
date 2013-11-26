@@ -25,7 +25,7 @@ namespace MyWorldIsComics.Mappers
             {
                 reader.ReadToFollowing("results");
                 ParseCoverDate(reader);
-                ParseDeck(reader);
+                ParseDescriptionString(reader);
                 ParseId(reader);
                 ParseImage(reader);
                 ParseIssueNumber(reader);
@@ -190,7 +190,7 @@ namespace MyWorldIsComics.Mappers
             }
             else
             {
-                reader.ReadToFollowing("name");
+                reader.ReadToNextSibling("name");
             }
 
             _issueToMap.Name = reader.ReadElementContentAsString();
@@ -293,7 +293,6 @@ namespace MyWorldIsComics.Mappers
 
             reader.ReadToFollowing("id");
             _issueToMap.VolumeId = reader.ReadElementContentAsInt();
-            reader.ReadToNextSibling("name");
             _issueToMap.VolumeName = reader.ReadElementContentAsString();
         }
     }

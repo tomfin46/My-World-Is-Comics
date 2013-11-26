@@ -11,6 +11,7 @@ namespace MyWorldIsComics
         public static Character Character { get; set; }
         public static ObservableCollection<Team> QuickTeams { get; set; }
         public static ObservableCollection<Team> Teams { get; set; }
+        public static Issue FirstAppearance { get; set; }
 
         public static void Clear()
         {
@@ -18,6 +19,7 @@ namespace MyWorldIsComics
             QuickCharacter = null;
             Teams = null;
             QuickTeams = null;
+            FirstAppearance = null;
         }
     }
 }

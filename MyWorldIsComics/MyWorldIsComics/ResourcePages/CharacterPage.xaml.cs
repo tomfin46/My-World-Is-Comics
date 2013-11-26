@@ -1,21 +1,21 @@
-﻿
-
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using Windows.UI.Xaml;
-
-namespace MyWorldIsComics
+﻿namespace MyWorldIsComics.ResourcePages
 {
-    using Common;
-    using DataModel.Resources;
-    using DataSource;
-    using Mappers;
-    using ResourcePages;
     using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
     using System.Threading.Tasks;
+
+    using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Input;
     using Windows.UI.Xaml.Navigation;
+
+    using MyWorldIsComics.Common;
+    using MyWorldIsComics.DataModel;
+    using MyWorldIsComics.DataModel.Resources;
+    using MyWorldIsComics.DataSource;
+    using MyWorldIsComics.Mappers;
 
     /// <summary>
     /// A page that displays a grouped collection of items.
@@ -25,15 +25,15 @@ namespace MyWorldIsComics
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
         private Character character;
-
+        private Description description;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
-            get { return defaultViewModel; }
-            set { defaultViewModel = value; }
+            get { return this.defaultViewModel; }
+            set { this.defaultViewModel = value; }
         }
 
         /// <summary>
@@ -42,18 +42,18 @@ namespace MyWorldIsComics
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return navigationHelper; }
+            get { return this.navigationHelper; }
         }
 
         public CharacterPage()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            character = new Character();
+            this.character = new Character();
 
-            navigationHelper = new NavigationHelper(this);
-            navigationHelper.LoadState += navigationHelper_LoadState;
-            navigationHelper.SaveState += navigationHelper_SaveState;
+            this.navigationHelper = new NavigationHelper(this);
+            this.navigationHelper.LoadState += this.navigationHelper_LoadState;
+            this.navigationHelper.SaveState += this.navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -78,29 +78,35 @@ namespace MyWorldIsComics
                 prevName = SavedData.QuickCharacter.Name;
             }
 
-            await LoadQuickCharacter(name);
+            await this.LoadQuickCharacter(name);
 
-            BioHubSection.Visibility = Visibility.Visible;
+            this.BioHubSection.Visibility = Visibility.Visible;
 
-            //await LoadDescription(DefaultViewModel["QuickCharacter"] as Character);
+            await this.LoadDescription(this.DefaultViewModel["QuickCharacter"] as Character);
 
-            await LoadCharacter(DefaultViewModel["QuickCharacter"] as Character);
+            await this.LoadCharacter(this.DefaultViewModel["QuickCharacter"] as Character);
 
+            this.TeamSection.IsHeaderInteractive = true;
 
-            await LoadQuickTeams(DefaultViewModel["Character"] as Character, prevName);
+            await this.LoadFirstAppearance(this.DefaultViewModel["Character"] as Character, prevName);
 
-            TeamSection.IsHeaderInteractive = true;
+            this.FirstAppearanceSection.IsHeaderInteractive = true;
 
-            await LoadFirstAppearance(DefaultViewModel["Character"] as Character, prevName);
-
-            FirstAppernceSection.IsHeaderInteractive = true;
+            await this.LoadQuickTeams(this.DefaultViewModel["Character"] as Character, prevName);
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             if (this.Frame.CurrentSourcePageType.Name == "HubPage")
             {
-                character = null;
+                this.character = null;
+            }
+            else
+            {
+                // Save response content so don't have to fetch from api service again
+                SavedData.QuickCharacter = this.DefaultViewModel["QuickCharacter"] as Character;
+                SavedData.Character = this.DefaultViewModel["Character"] as Character;
+                SavedData.FirstAppearance = this.DefaultViewModel["FirstAppearance"] as Issue;
             }
         }
 
@@ -108,12 +114,12 @@ namespace MyWorldIsComics
         {
             if (SavedData.QuickCharacter != null && SavedData.QuickCharacter.Name == name)
             {
-                DefaultViewModel["QuickCharacter"] = SavedData.QuickCharacter;
+                this.DefaultViewModel["QuickCharacter"] = SavedData.QuickCharacter;
             }
             else
             {
                 var quickCharacterString = await ComicVineSource.ExecuteSearchAsync(name);
-                DefaultViewModel["QuickCharacter"] = MapQuickCharacter(quickCharacterString);
+                this.DefaultViewModel["QuickCharacter"] = this.MapQuickCharacter(quickCharacterString);
             }
         }
 
@@ -128,21 +134,22 @@ namespace MyWorldIsComics
         private async Task LoadDescription(Character quickCharacter)
         {
             var characterDescription = await ComicVineSource.FormatDescriptionAsync(quickCharacter.DescriptionString);
-            DefaultViewModel["CharacterDescription"] = characterDescription;
+            description = characterDescription;
+            this.DefaultViewModel["CharacterDescription"] = characterDescription;
         }
 
         private async Task LoadCharacter(Character quickCharacter)
         {
             if (SavedData.Character != null && SavedData.Character.Name == quickCharacter.Name)
             {
-                character = SavedData.Character;
-                DefaultViewModel["Character"] = character;
+                this.character = SavedData.Character;
+                this.DefaultViewModel["Character"] = this.character;
             }
             else
             {
                 var characterString = await ComicVineSource.GetCharacterAsync(quickCharacter.UniqueId);
-                character = MapCharacter(characterString);
-                DefaultViewModel["Character"] = character;
+                this.character = this.MapCharacter(characterString);
+                this.DefaultViewModel["Character"] = this.character;
             }
         }
 
@@ -174,7 +181,7 @@ namespace MyWorldIsComics
             {
                 foreach (int teamId in character.TeamIds.Take(10))
                 {
-                    Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                    Team team = this.MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
                     if (character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
                     character.Teams.Add(team);
                 }
@@ -188,11 +195,15 @@ namespace MyWorldIsComics
 
         private async Task LoadFirstAppearance(Character character, string prevName)
         {
-            if (SavedData.Character == null || character.Name != prevName)
+            if (SavedData.FirstAppearance != null && SavedData.Character != null && SavedData.Character.FirstAppearanceId == SavedData.FirstAppearance.UniqueId)
             {
-                Issue issue = MapIssue(await ComicVineSource.GetIssueAsync(character.FirstAppearanceId.ToString()));
+                this.DefaultViewModel["FirstAppearance"] = SavedData.FirstAppearance;
+            }
+            else
+            {
+                Issue issue = this.MapIssue(await ComicVineSource.GetIssueAsync(character.FirstAppearanceId.ToString()));
                 character.FirstAppearanceIssue = issue;
-                DefaultViewModel["FirstAppearance"] = character;
+                this.DefaultViewModel["FirstAppearance"] = character.FirstAppearanceIssue;
             }
         }
 
@@ -214,12 +225,12 @@ namespace MyWorldIsComics
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            this.navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            this.navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
@@ -229,24 +240,28 @@ namespace MyWorldIsComics
 
         private void TeamView_TeamClick(object sender, ItemClickEventArgs e)
         {
-            // Save response content so don't have to fetch from api service again
-            SavedData.QuickCharacter = DefaultViewModel["QuickCharacter"] as Character;
-            SavedData.Character = DefaultViewModel["Character"] as Character;
-            //SavedData.QuickTeams = this.DefaultViewModel["QuickTeams"] as List<Team>;
-
             var team = ((Team)e.ClickedItem);
-            Frame.Navigate(typeof(TeamPage), team);
+            this.Frame.Navigate(typeof(TeamPage), team);
         }
 
         private void Page_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            BackButton.Visibility = BackButton.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+            this.BackButton.Visibility = this.BackButton.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void Hub_SectionHeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
-            var characterToSend = character;
-            Frame.Navigate(typeof(TeamsPage), characterToSend);
+            var characterToSend = this.character;
+            this.Frame.Navigate(typeof(TeamsPage), characterToSend);
+        }
+
+        private void CurrentEventsWebView_Loaded(object sender, RoutedEventArgs e)
+        {
+            var webView = sender as WebView;
+            if (webView != null && this.description != null)
+            {
+                webView.NavigateToString(this.description.CurrentEvents);
+            }
         }
 
         #endregion

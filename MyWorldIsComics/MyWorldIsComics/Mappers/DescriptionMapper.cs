@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using MyWorldIsComics.DataModel.DescriptionElements;
+using MyWorldIsComics.DataModel.DescriptionContent;
 
 namespace MyWorldIsComics.Mappers
 {
@@ -22,122 +22,40 @@ namespace MyWorldIsComics.Mappers
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(htmlString);
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
-            foreach (HtmlNode link in collection)
+            foreach (HtmlNode link in collection.Where(link => link.Name == "h2"))
             {
-                if (link.Name != "h2") continue;
-
-                if (link.Name == "h2")
-                {
-                    switch (link.InnerText)
-                    {
-                        case "Current Events":
-                            descriptionToReturn.CurrentEvents = ProcessSection(link);
-                            break;
-                        //case "Origin":
-                        //    descriptionToReturn.Origin = ProcessSection(link);
-                        //    break;
-                        //case "Creation":
-                        //    descriptionToReturn.Creation = ProcessSection(link);
-                        //    break;
-                        //case "Character Evolution":
-                        //    descriptionToReturn.CharacterEvolution = ProcessSection(link);
-                        //    break;
-                        //case "Major Story Arcs":
-                        //    descriptionToReturn.MajorStoryArcs = ProcessSection(link);
-                        //    break;
-                        //case "Other Versions":
-                        //case "Alternate Realities":
-                        //    descriptionToReturn.AlternateRealities = ProcessSection(link);
-                        //    break;
-                    }
-
-                }
-
-
-                /*HtmlNode sibling = link.NextSibling;
-                HtmlNode nextSibling;
-                while (sibling.Name != "p")
-                {
-                    if (sibling.NextSibling != null)
-                    {
-                        sibling = sibling.NextSibling;
-                    }
-                }
-
                 switch (link.InnerText)
                 {
                     case "Current Events":
-                        descriptionToReturn.CurrentEvents = link.NextSibling.InnerText;
+                        descriptionToReturn.CurrentEvents = ProcessSection(link);
                         break;
                     case "Origin":
-                        descriptionToReturn.Origin = sibling.InnerText;
-                        nextSibling = sibling.NextSibling;
-                        if (nextSibling != null)
-                        {
-                            while (nextSibling.Name == "p")
-                            {
-                                descriptionToReturn.Origin += "\n" + nextSibling.InnerText;
-                                nextSibling = nextSibling.NextSibling;
-                            }
-                        }
-
+                        descriptionToReturn.Origin = ProcessSection(link);
                         break;
                     case "Creation":
-                        descriptionToReturn.Creation = sibling.InnerText;
-                        nextSibling = sibling.NextSibling;
-                        if (nextSibling != null)
-                        {
-                            while (nextSibling.Name == "p")
-                            {
-                                descriptionToReturn.Creation += "\n" + nextSibling.InnerText;
-                                nextSibling = nextSibling.NextSibling;
-                            }
-                        }
+                        descriptionToReturn.Creation = ProcessSection(link);
                         break;
                     case "Character Evolution":
-                        descriptionToReturn.CharacterEvolution = sibling.InnerText;
-                        nextSibling = sibling.NextSibling;
-                        if (nextSibling != null)
-                        {
-                            while (nextSibling.Name == "p")
-                            {
-                                descriptionToReturn.CharacterEvolution += "\n" + nextSibling.InnerText;
-                                nextSibling = nextSibling.NextSibling;
-                            }
-                        }
+                        descriptionToReturn.CharacterEvolution = ProcessSection(link);
                         break;
                     case "Major Story Arcs":
-                        descriptionToReturn.MajorStoryArcs = sibling.InnerText;
-                        nextSibling = sibling.NextSibling;
-                        if (nextSibling != null)
-                        {
-                            while (nextSibling.Name == "p")
-                            {
-                                descriptionToReturn.MajorStoryArcs += "\n" + nextSibling.InnerText;
-                                nextSibling = nextSibling.NextSibling;
-                            }
-                        }
+                        descriptionToReturn.MajorStoryArcs = ProcessSection(link);
                         break;
+                    case "Other Versions":
                     case "Alternate Realities":
-                        descriptionToReturn.AlternateRealities = sibling.InnerText;
-                        nextSibling = sibling.NextSibling;
-                        if (nextSibling != null)
-                        {
-                            while (nextSibling.Name == "p")
-                            {
-                                descriptionToReturn.AlternateRealities += "\n" + nextSibling.InnerText;
-                                nextSibling = nextSibling.NextSibling;
-                            }
-                        }
+                        descriptionToReturn.AlternateRealities = ProcessSection(link);
                         break;
-                }*/
+                }
             }
             return descriptionToReturn;
         }
 
-        private static Queue<Paragraph> ProcessSection(HtmlNode link)
+        private static Section ProcessSection(HtmlNode link)
         {
-            var headerSectionQueue = new Queue<Paragraph>();
+            Section section = new Section
+            {
+                Title = link.InnerText
+            }; 
             var nextSibling = link.NextSibling;
 
             while (nextSibling.Name != link.Name)
@@ -145,23 +63,23 @@ namespace MyWorldIsComics.Mappers
                 switch (nextSibling.Name)
                 {
                     case "p":
-                        headerSectionQueue.Enqueue(ProcessParagraph(nextSibling));
+                        section.ContentQueue.Enqueue(ProcessParagraph(nextSibling));
                         break;
-                    //case "figure":
-                    //    ProcessFigure(nextSibling);
-                    //    break;
-                    //case "h3":
-                    //    ProcessSubSection(nextSibling);
-                    //    break;
-                    //case "h4":
-                    //    ProcessSubSubSection(nextSibling);
-                    //    break;
+                    case "figure":
+                        section.ContentQueue.Enqueue(ProcessFigure(nextSibling));
+                        break;
+                    case "h3":
+                        section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
+                        break;
+                    case "h4":
+                        section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
+                        break;
                 }
 
                 nextSibling = nextSibling.NextSibling;
             }
 
-            return headerSectionQueue;
+            return section;
         }
 
         private static Paragraph ProcessParagraph(HtmlNode paragraphNode)
@@ -188,19 +106,42 @@ namespace MyWorldIsComics.Mappers
             return paragraph;
         }
 
-        private static void ProcessFigure(HtmlNode figureNode, Queue<string> headerSection)
+        private static Figure ProcessFigure(HtmlNode figureNode)
         {
-            var image = figureNode.GetAttributeValue("data-img-src", String.Empty);
+            Figure figure = new Figure
+            {
+                ImageSource = new Uri(figureNode.GetAttributeValue("data-img-src", String.Empty))
+            };
+            return figure;
         }
 
-        private static void ProcessSubSection(HtmlNode subSectionNode, Queue<string> headerSection)
+        private static Section ProcessSubSection(HtmlNode subSectionNode)
         {
-            headerSection.Enqueue(subSectionNode.Name);
-        }
+            Section section = new Section
+            {
+                Title = subSectionNode.InnerText
+            };
 
-        private static void ProcessSubSubSection(HtmlNode subSubSectionNode, Queue<string> headerSection)
-        {
-            headerSection.Enqueue(subSubSectionNode.Name);
+            var nextSibling = subSectionNode.NextSibling;
+            while (!nextSibling.Name.StartsWith("h"))
+            {
+                switch (nextSibling.Name)
+                {
+                    case "p":
+                        section.ContentQueue.Enqueue(ProcessParagraph(nextSibling));
+                        break;
+                    case "figure":
+                        section.ContentQueue.Enqueue(ProcessFigure(nextSibling));
+                        break;
+                    case "h3":
+                        section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
+                        break;
+                    case "h4":
+                        section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
+                        break;
+                }
+            }
+            return section;
         }
     }
 }

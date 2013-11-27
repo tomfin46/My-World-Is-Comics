@@ -105,8 +105,11 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataModel\DescriptionElements\Link.cs" />
-    <Compile Include="DataModel\DescriptionElements\Paragraph.cs" />
+    <Compile Include="DataModel\DescriptionContent\Figure.cs" />
+    <Compile Include="DataModel\DescriptionContent\Link.cs" />
+    <Compile Include="DataModel\DescriptionContent\Paragraph.cs" />
+    <Compile Include="DataModel\DescriptionContent\Section.cs" />
+    <Compile Include="DataModel\Interfaces\IDescriptionContent.cs" />
     <Compile Include="DataModel\Interfaces\IPerson.cs" />
     <Compile Include="DataModel\Interfaces\IResource.cs" />
     <Compile Include="Mappers\IssueMapper.cs" />

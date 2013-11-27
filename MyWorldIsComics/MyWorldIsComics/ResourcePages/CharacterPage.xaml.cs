@@ -1,7 +1,7 @@
 ﻿using Windows.ApplicationModel.Store;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Markup;
-using Paragraph = MyWorldIsComics.DataModel.DescriptionElements.Paragraph;
+using Paragraph = MyWorldIsComics.DataModel.DescriptionContent.Paragraph;
 
 namespace MyWorldIsComics.ResourcePages
 {

@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using MyWorldIsComics.DataModel.DescriptionContent;
-
-namespace MyWorldIsComics.DataModel
+﻿namespace MyWorldIsComics.DataModel
 {
-    class Description
+    using MyWorldIsComics.DataModel.DescriptionContent;
+
+    internal class Description
     {
         public Section CurrentEvents { get; set; }
         public Section Origin { get; set; }
@@ -11,5 +10,8 @@ namespace MyWorldIsComics.DataModel
         public Section CharacterEvolution { get; set; }
         public Section MajorStoryArcs { get; set; }
         public Section AlternateRealities { get; set; }
+        public Section DistinguishingCharacteristics { get; set; }
+        public Section PowersAndAbilities { get; set; }
+        public Section OtherMedia { get; set; }
     }
 }

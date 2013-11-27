@@ -164,7 +164,6 @@
     <PRIResource Include="Strings\en-US\Resources.resw">
       <SubType>Designer</SubType>
     </PRIResource>
-    <Content Include="AppxManifest.xml" />
     <Content Include="DataModel\SampleData.json" />
   </ItemGroup>
   <ItemGroup>

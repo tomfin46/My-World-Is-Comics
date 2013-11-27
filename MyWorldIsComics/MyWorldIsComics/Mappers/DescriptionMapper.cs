@@ -35,15 +35,24 @@ namespace MyWorldIsComics.Mappers
                     case "Creation":
                         descriptionToReturn.Creation = ProcessSection(link);
                         break;
+                    case "Distinguishing Characteristics":
+                        descriptionToReturn.DistinguishingCharacteristics = ProcessSection(link);
+                        break;
                     case "Character Evolution":
                         descriptionToReturn.CharacterEvolution = ProcessSection(link);
                         break;
                     case "Major Story Arcs":
                         descriptionToReturn.MajorStoryArcs = ProcessSection(link);
                         break;
+                    case "Powers and Abilities":
+                        descriptionToReturn.PowersAndAbilities = ProcessSection(link);
+                        break;
                     case "Other Versions":
                     case "Alternate Realities":
                         descriptionToReturn.AlternateRealities = ProcessSection(link);
+                        break;
+                    case "Other Media":
+                        descriptionToReturn.OtherMedia = ProcessSection(link);
                         break;
                 }
             }
@@ -70,9 +79,23 @@ namespace MyWorldIsComics.Mappers
                         break;
                     case "h3":
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
+    
+                        nextSibling = nextSibling.NextSibling;
+                        while (!nextSibling.Name.StartsWith("h") || int.Parse(nextSibling.Name.Substring(1)) > int.Parse(link.Name.Substring(1)))
+                        {
+                            nextSibling = nextSibling.NextSibling;
+                        }
+                        nextSibling = nextSibling.PreviousSibling;
                         break;
                     case "h4":
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
+
+                        nextSibling = nextSibling.NextSibling;
+                        while (!nextSibling.Name.StartsWith("h") && int.Parse(nextSibling.Name.Substring(1)) < int.Parse(link.Name.Substring(1)))
+                        {
+                            nextSibling = nextSibling.NextSibling;
+                        }
+                        nextSibling = nextSibling.PreviousSibling;
                         break;
                 }
 
@@ -123,8 +146,9 @@ namespace MyWorldIsComics.Mappers
             };
 
             var nextSibling = subSectionNode.NextSibling;
-            while (!nextSibling.Name.StartsWith("h"))
+            while (nextSibling.Name != subSectionNode.Name)
             {
+                if(nextSibling.Name.StartsWith("h") && int.Parse(nextSibling.Name.Substring(1)) < int.Parse(subSectionNode.Name.Substring(1))) return section;
                 switch (nextSibling.Name)
                 {
                     case "p":
@@ -135,11 +159,26 @@ namespace MyWorldIsComics.Mappers
                         break;
                     case "h3":
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
+
+                        nextSibling = nextSibling.NextSibling;
+                        while (!nextSibling.Name.StartsWith("h"))
+                        {
+                            nextSibling = nextSibling.NextSibling;
+                        }
+                        nextSibling = nextSibling.PreviousSibling;
                         break;
                     case "h4":
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
+
+                        nextSibling = nextSibling.NextSibling;
+                        while (!nextSibling.Name.StartsWith("h"))
+                        {
+                            nextSibling = nextSibling.NextSibling;
+                        }
+                        nextSibling = nextSibling.PreviousSibling;
                         break;
                 }
+                nextSibling = nextSibling.NextSibling;
             }
             return section;
         }

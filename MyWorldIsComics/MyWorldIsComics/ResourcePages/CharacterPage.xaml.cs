@@ -18,6 +18,8 @@ namespace MyWorldIsComics.ResourcePages
 
     using MyWorldIsComics.Common;
     using MyWorldIsComics.DataModel;
+    using MyWorldIsComics.DataModel.DescriptionContent;
+    using MyWorldIsComics.DataModel.Interfaces;
     using MyWorldIsComics.DataModel.Resources;
     using MyWorldIsComics.DataSource;
     using MyWorldIsComics.Mappers;
@@ -89,27 +91,7 @@ namespace MyWorldIsComics.ResourcePages
 
             await this.LoadDescription(this.DefaultViewModel["QuickCharacter"] as Character);
 
-            String markup = String.Empty;
-            markup += "<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">";
-            markup += "<ScrollViewer VerticalScrollBarVisibility=\"Hidden\">";
-            markup += "<RichTextBlock FontSize=\"15\" FontFamily=\"Segoe UI Semilight\">";
-
-            if (description.CurrentEvents != null)
-            {
-                while (description.CurrentEvents.Count > 0)
-                {
-                    Paragraph para = description.CurrentEvents.Dequeue();
-                    if (para != null) markup += "<Paragraph>" + para.FormatLinks() + "</Paragraph>";
-                }
-            }
-
-            markup += "</RichTextBlock>";
-            markup += "</ScrollViewer>";
-            markup += "</DataTemplate>";
-
-            DataTemplate currentEventsDataTemplate = (DataTemplate)XamlReader.Load(markup);
-
-            this.CurrentEventsHubSection.ContentTemplate = currentEventsDataTemplate;
+            this.CreateDataTemplates();
 
             await this.LoadCharacter(this.DefaultViewModel["QuickCharacter"] as Character);
 
@@ -120,6 +102,60 @@ namespace MyWorldIsComics.ResourcePages
             this.FirstAppearanceSection.IsHeaderInteractive = true;
 
             await this.LoadQuickTeams(this.DefaultViewModel["Character"] as Character, prevName);
+        }
+
+        private void CreateDataTemplates()
+        {
+            /*this.CreateDataTemplate("Current Events");
+            this.CreateDataTemplate("Origin");
+            this.CreateDataTemplate("Creation");
+            this.CreateDataTemplate("Distinguishing Characteristics");
+            this.CreateDataTemplate("Character Evolution");
+            this.CreateDataTemplate("Major Story Arcs");
+            this.CreateDataTemplate("Powers and Abilities");
+            this.CreateDataTemplate("Other Versions");
+            this.CreateDataTemplate("Other Media");*/
+
+            String markup = String.Empty;
+            markup += "<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">";
+            markup += "<ScrollViewer VerticalScrollBarVisibility=\"Hidden\">";
+            markup += "<RichTextBlock FontSize=\"15\" FontFamily=\"Segoe UI Semilight\">";
+
+            if (description.CurrentEvents != null)
+            {
+                while (description.CurrentEvents.ContentQueue.Count > 0)
+                {
+                    var queuePeekType = description.CurrentEvents.ContentQueue.Peek().GetType();
+                    switch (queuePeekType.Name)
+                    {
+                        case "Paragraph":
+                            Paragraph para = this.description.CurrentEvents.ContentQueue.Dequeue() as Paragraph;
+                            if (para != null) markup += "<Paragraph>" + para.FormatLinks() + "</Paragraph>";
+                            break;
+                        case "Figure":
+                            Figure fig = this.description.CurrentEvents.ContentQueue.Dequeue() as Figure;
+                            if (fig != null) markup += "<Image Source=\"" + fig.ImageSource + "\" Stretch=\"Uniform\"/>";
+                            break;
+                        case "Section":
+                            Section section = this.description.CurrentEvents.ContentQueue.Dequeue() as Section;
+                            if (section != null) MarkupSection(section);
+                            break;
+                    }
+                }
+            }
+
+            markup += "</RichTextBlock>";
+            markup += "</ScrollViewer>";
+            markup += "</DataTemplate>";
+
+            DataTemplate currentEventsDataTemplate = (DataTemplate)XamlReader.Load(markup);
+
+            this.CurrentEventsHubSection.ContentTemplate = currentEventsDataTemplate;
+        }
+
+        private void MarkupSection(Section section)
+        {
+            throw new NotImplementedException();
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)

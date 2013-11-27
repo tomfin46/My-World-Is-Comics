@@ -106,56 +106,119 @@ namespace MyWorldIsComics.ResourcePages
 
         private void CreateDataTemplates()
         {
-            /*this.CreateDataTemplate("Current Events");
-            this.CreateDataTemplate("Origin");
-            this.CreateDataTemplate("Creation");
-            this.CreateDataTemplate("Distinguishing Characteristics");
-            this.CreateDataTemplate("Character Evolution");
-            this.CreateDataTemplate("Major Story Arcs");
-            this.CreateDataTemplate("Powers and Abilities");
-            this.CreateDataTemplate("Other Versions");
-            this.CreateDataTemplate("Other Media");*/
+            this.CreateDataTemplate(description.CurrentEvents);
+            this.CreateDataTemplate(description.Origin);
+            this.CreateDataTemplate(description.Creation);
+            this.CreateDataTemplate(description.DistinguishingCharacteristics);
+            this.CreateDataTemplate(description.CharacterEvolution);
+            this.CreateDataTemplate(description.MajorStoryArcs);
+            this.CreateDataTemplate(description.PowersAndAbilities);
+            this.CreateDataTemplate(description.AlternateRealities);
+            this.CreateDataTemplate(description.OtherMedia);
+        }
 
+        private void CreateDataTemplate(Section descriptionSection)
+        {
             String markup = String.Empty;
             markup += "<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">";
             markup += "<ScrollViewer VerticalScrollBarVisibility=\"Hidden\">";
-            markup += "<RichTextBlock FontSize=\"15\" FontFamily=\"Segoe UI Semilight\">";
+            markup += "<RichTextBlock>";
 
-            if (description.CurrentEvents != null)
+            if (descriptionSection != null)
             {
-                while (description.CurrentEvents.ContentQueue.Count > 0)
+                while (descriptionSection.ContentQueue.Count > 0)
                 {
-                    var queuePeekType = description.CurrentEvents.ContentQueue.Peek().GetType();
+                    var queuePeekType = descriptionSection.ContentQueue.Peek().GetType();
                     switch (queuePeekType.Name)
                     {
                         case "Paragraph":
-                            Paragraph para = this.description.CurrentEvents.ContentQueue.Dequeue() as Paragraph;
-                            if (para != null) markup += "<Paragraph>" + para.FormatLinks() + "</Paragraph>";
+                            Paragraph para = descriptionSection.ContentQueue.Dequeue() as Paragraph;
+                            if (para != null) markup += "<Paragraph FontSize=\"15\" FontFamily=\"Segoe UI Semilight\">" + para.FormatLinks() + "</Paragraph>";
                             break;
                         case "Figure":
-                            Figure fig = this.description.CurrentEvents.ContentQueue.Dequeue() as Figure;
+                            Figure fig = descriptionSection.ContentQueue.Dequeue() as Figure;
                             if (fig != null) markup += "<Image Source=\"" + fig.ImageSource + "\" Stretch=\"Uniform\"/>";
                             break;
                         case "Section":
-                            Section section = this.description.CurrentEvents.ContentQueue.Dequeue() as Section;
-                            if (section != null) MarkupSection(section);
+                            Section section = descriptionSection.ContentQueue.Dequeue() as Section;
+                            if (section != null) markup += MarkupSection(section);
+                            break;
+                    }
+                }
+
+                markup += "</RichTextBlock>";
+                markup += "</ScrollViewer>";
+                markup += "</DataTemplate>";
+
+                DataTemplate dataTemplate = (DataTemplate)XamlReader.Load(markup);
+                this.SetHubSectionContentTemplate(dataTemplate, descriptionSection.Title);
+            }
+
+
+        }
+
+        private string MarkupSection(Section sectionToMarkup)
+        {
+            string markup = String.Empty;
+
+            if (sectionToMarkup != null)
+            {
+                markup += "<Paragraph FontSize=\"15\" FontFamily=\"Segoe UI";
+                if (sectionToMarkup.Type == "h3") markup += " Semibold\"";
+                else if (sectionToMarkup.Type == "h4") markup += "\" FontStyle=\"Italic\"";
+                markup += ">" + sectionToMarkup.Title + "</Paragraph>";
+
+                while (sectionToMarkup.ContentQueue.Count > 0)
+                {
+                    var queuePeekType = sectionToMarkup.ContentQueue.Peek().GetType();
+                    switch (queuePeekType.Name)
+                    {
+                        case "Paragraph":
+                            Paragraph para = sectionToMarkup.ContentQueue.Dequeue() as Paragraph;
+                            if (para != null)
+                                markup += "<Paragraph FontSize=\"15\" FontFamily=\"Segoe UI Semilight\">" + para.FormatLinks() + "</Paragraph>";
+                            break;
+                        case "Figure":
+                            Figure fig = sectionToMarkup.ContentQueue.Dequeue() as Figure;
+                            if (fig != null) markup += "<Image Source=\"" + fig.ImageSource + "\" Stretch=\"Uniform\"/>";
+                            break;
+                        case "Section":
+                            Section section = sectionToMarkup.ContentQueue.Dequeue() as Section;
+                            if (section != null) markup += MarkupSection(section);
                             break;
                     }
                 }
             }
 
-            markup += "</RichTextBlock>";
-            markup += "</ScrollViewer>";
-            markup += "</DataTemplate>";
-
-            DataTemplate currentEventsDataTemplate = (DataTemplate)XamlReader.Load(markup);
-
-            this.CurrentEventsHubSection.ContentTemplate = currentEventsDataTemplate;
+            return markup;
         }
 
-        private void MarkupSection(Section section)
+        private void SetHubSectionContentTemplate(DataTemplate sectionTemplate, string sectionTitle)
         {
-            throw new NotImplementedException();
+            switch (sectionTitle)
+            {
+                case "Current Events":
+                    this.CurrentEventsHubSection.ContentTemplate = sectionTemplate;
+                    break;
+                case "Origin":
+                    this.OriginHubSection.ContentTemplate = sectionTemplate;
+                    break;
+                case "Creation":
+                    break;
+                case "Distinguishing Characteristics":
+                    break;
+                case "Character Evolution":
+                    break;
+                case "Major Story Arcs":
+                    break;
+                case "Powers and Abilities":
+                    break;
+                case "Other Versions":
+                case "Alternate Realities":
+                    break;
+                case "Other Media":
+                    break;
+            }
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)

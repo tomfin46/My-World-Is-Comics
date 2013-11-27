@@ -108,14 +108,14 @@
             <HubSection x:Name="CurrentEventsHubSection" Width="520" Header="Current Events">
             </HubSection>
 
-            <HubSection Width="520" Header="Origin" DataContext="{Binding CharacterDescription}">
-                <DataTemplate>
+            <HubSection x:Name="OriginHubSection" Width="520" Header="Origin">
+                <!--<DataTemplate>
                     <Grid>
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
                             <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Origin}" TextWrapping="Wrap"/>
                         </ScrollViewer>
                     </Grid>
-                </DataTemplate>
+                </DataTemplate>-->
             </HubSection>
 
             <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" DataContext="{Binding FirstAppearance}" IsHeaderInteractive="False">

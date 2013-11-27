@@ -63,7 +63,8 @@ namespace MyWorldIsComics.Mappers
         {
             Section section = new Section
             {
-                Title = link.InnerText
+                Title = link.InnerText,
+                Type = link.Name
             }; 
             var nextSibling = link.NextSibling;
 
@@ -142,7 +143,8 @@ namespace MyWorldIsComics.Mappers
         {
             Section section = new Section
             {
-                Title = subSectionNode.InnerText
+                Title = subSectionNode.InnerText,
+                Type = subSectionNode.Name
             };
 
             var nextSibling = subSectionNode.NextSibling;

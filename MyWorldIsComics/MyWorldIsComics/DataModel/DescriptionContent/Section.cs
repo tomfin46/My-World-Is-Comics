@@ -14,6 +14,7 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
         public Uri ImageSource { get; set; }
         public Queue<IDescriptionContent> ContentQueue { get; set; }
         public List<Link> Links { get; set; }
+        public string Type { get; set; }
 
         public Section()
         {

@@ -112,7 +112,7 @@ namespace MyWorldIsComics.Mappers
             if (reader.Name != "cover_date") { reader.ReadToFollowing("cover_date"); }
             var date = reader.ReadElementContentAsString();
 
-            if (date == "") { return; }
+            if (date == String.Empty) { return; }
             var dateVals = date.Split('-');
             _issueToMap.CoverDate = new DateTime(int.Parse(dateVals[0]), int.Parse(dateVals[1]), int.Parse(dateVals[2]));
         }
@@ -246,7 +246,7 @@ namespace MyWorldIsComics.Mappers
             if (reader.Name != "store_date") { reader.ReadToFollowing("store_date"); }
             var date = reader.ReadElementContentAsString();
 
-            if (date == "") { return; }
+            if (date == String.Empty) { return; }
             var dateVals = date.Split('-');
             _issueToMap.StoreDate = new DateTime(int.Parse(dateVals[0]), int.Parse(dateVals[1]), int.Parse(dateVals[2]));
         }

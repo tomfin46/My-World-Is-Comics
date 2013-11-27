@@ -1,4 +1,9 @@
-﻿namespace MyWorldIsComics.ResourcePages
+﻿using Windows.ApplicationModel.Store;
+using Windows.UI.Xaml.Documents;
+using Windows.UI.Xaml.Markup;
+using Paragraph = MyWorldIsComics.DataModel.DescriptionElements.Paragraph;
+
+namespace MyWorldIsComics.ResourcePages
 {
     using System;
     using System.Collections.Generic;
@@ -72,7 +77,7 @@
             // TODO: Assign a collection of bindable groups to this.DefaultViewModel["Groups"]
             string name = e.NavigationParameter as string;
 
-            string prevName = "";
+            string prevName = String.Empty;
             if (SavedData.QuickCharacter != null)
             {
                 prevName = SavedData.QuickCharacter.Name;
@@ -83,6 +88,28 @@
             this.BioHubSection.Visibility = Visibility.Visible;
 
             await this.LoadDescription(this.DefaultViewModel["QuickCharacter"] as Character);
+
+            String markup = String.Empty;
+            markup += "<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">";
+            markup += "<ScrollViewer VerticalScrollBarVisibility=\"Hidden\">";
+            markup += "<RichTextBlock FontSize=\"15\" FontFamily=\"Segoe UI Semilight\">";
+
+            if (description.CurrentEvents != null)
+            {
+                while (description.CurrentEvents.Count > 0)
+                {
+                    Paragraph para = description.CurrentEvents.Dequeue();
+                    if (para != null) markup += "<Paragraph>" + para.FormatLinks() + "</Paragraph>";
+                }
+            }
+
+            markup += "</RichTextBlock>";
+            markup += "</ScrollViewer>";
+            markup += "</DataTemplate>";
+
+            DataTemplate currentEventsDataTemplate = (DataTemplate)XamlReader.Load(markup);
+
+            this.CurrentEventsHubSection.ContentTemplate = currentEventsDataTemplate;
 
             await this.LoadCharacter(this.DefaultViewModel["QuickCharacter"] as Character);
 
@@ -119,7 +146,8 @@
             else
             {
                 var quickCharacterString = await ComicVineSource.ExecuteSearchAsync(name);
-                this.DefaultViewModel["QuickCharacter"] = this.MapQuickCharacter(quickCharacterString);
+                this.character = this.MapQuickCharacter(quickCharacterString);
+                this.DefaultViewModel["QuickCharacter"] = this.character;
             }
         }
 
@@ -253,15 +281,6 @@
         {
             var characterToSend = this.character;
             this.Frame.Navigate(typeof(TeamsPage), characterToSend);
-        }
-
-        private void CurrentEventsWebView_Loaded(object sender, RoutedEventArgs e)
-        {
-            var webView = sender as WebView;
-            if (webView != null && this.description != null)
-            {
-                webView.NavigateToString(this.description.CurrentEvents);
-            }
         }
 
         #endregion

@@ -9,6 +9,5 @@
         <!-- Application-specific resources -->
 
         <x:String x:Key="AppName">MyWorldIsComics</x:String>
-
     </Application.Resources>
 </Application>

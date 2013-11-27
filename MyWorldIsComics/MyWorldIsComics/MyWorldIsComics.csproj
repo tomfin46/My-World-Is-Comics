@@ -105,6 +105,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DataModel\DescriptionElements\Link.cs" />
+    <Compile Include="DataModel\DescriptionElements\Paragraph.cs" />
     <Compile Include="DataModel\Interfaces\IPerson.cs" />
     <Compile Include="DataModel\Interfaces\IResource.cs" />
     <Compile Include="Mappers\IssueMapper.cs" />
@@ -159,6 +161,7 @@
     <PRIResource Include="Strings\en-US\Resources.resw">
       <SubType>Designer</SubType>
     </PRIResource>
+    <Content Include="AppxManifest.xml" />
     <Content Include="DataModel\SampleData.json" />
   </ItemGroup>
   <ItemGroup>

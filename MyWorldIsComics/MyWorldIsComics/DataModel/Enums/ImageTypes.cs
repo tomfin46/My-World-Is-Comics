@@ -32,7 +32,7 @@ namespace MyWorldIsComics.DataModel.Enums
                 case ImageTypesEnum.ScreenMedium:
                     return "screen_medium";
             }
-            return "";
+            return String.Empty;
         }
     }
 }

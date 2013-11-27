@@ -1,4 +1,8 @@
-﻿namespace MyWorldIsComics.Mappers
+﻿using System.Collections.Generic;
+using System.Linq;
+using MyWorldIsComics.DataModel.DescriptionElements;
+
+namespace MyWorldIsComics.Mappers
 {
     #region usings
 
@@ -22,13 +26,35 @@
             {
                 if (link.Name != "h2") continue;
 
-                //if (link.Name == "h2")
-                //{
-                //    ProcessSection(link);
-                //}
+                if (link.Name == "h2")
+                {
+                    switch (link.InnerText)
+                    {
+                        case "Current Events":
+                            descriptionToReturn.CurrentEvents = ProcessSection(link);
+                            break;
+                        //case "Origin":
+                        //    descriptionToReturn.Origin = ProcessSection(link);
+                        //    break;
+                        //case "Creation":
+                        //    descriptionToReturn.Creation = ProcessSection(link);
+                        //    break;
+                        //case "Character Evolution":
+                        //    descriptionToReturn.CharacterEvolution = ProcessSection(link);
+                        //    break;
+                        //case "Major Story Arcs":
+                        //    descriptionToReturn.MajorStoryArcs = ProcessSection(link);
+                        //    break;
+                        //case "Other Versions":
+                        //case "Alternate Realities":
+                        //    descriptionToReturn.AlternateRealities = ProcessSection(link);
+                        //    break;
+                    }
+
+                }
 
 
-                HtmlNode sibling = link.NextSibling;
+                /*HtmlNode sibling = link.NextSibling;
                 HtmlNode nextSibling;
                 while (sibling.Name != "p")
                 {
@@ -41,7 +67,7 @@
                 switch (link.InnerText)
                 {
                     case "Current Events":
-                        descriptionToReturn.CurrentEvents = link.NextSibling.InnerHtml;
+                        descriptionToReturn.CurrentEvents = link.NextSibling.InnerText;
                         break;
                     case "Origin":
                         descriptionToReturn.Origin = sibling.InnerText;
@@ -104,59 +130,77 @@
                             }
                         }
                         break;
-                }
+                }*/
             }
             return descriptionToReturn;
         }
 
-        private static void ProcessSection(HtmlNode link)
+        private static Queue<Paragraph> ProcessSection(HtmlNode link)
         {
-            var headerName = link.InnerText;
+            var headerSectionQueue = new Queue<Paragraph>();
             var nextSibling = link.NextSibling;
 
-            while (nextSibling.Name != "h2")
+            while (nextSibling.Name != link.Name)
             {
-                if (nextSibling.Name == "p")
+                switch (nextSibling.Name)
                 {
-                    ProcessParagraph(nextSibling, headerName);
-                }
-                else if (nextSibling.Name == "figure")
-                {
-                    ProcessFigure(nextSibling, headerName);
-                }
-                else if (nextSibling.Name == "h3")
-                {
-                    ProcessSubSection(nextSibling, headerName);
-                }
-                else if (nextSibling.Name == "h4")
-                {
-                    ProcessSubSubSection(nextSibling, headerName);
+                    case "p":
+                        headerSectionQueue.Enqueue(ProcessParagraph(nextSibling));
+                        break;
+                    //case "figure":
+                    //    ProcessFigure(nextSibling);
+                    //    break;
+                    //case "h3":
+                    //    ProcessSubSection(nextSibling);
+                    //    break;
+                    //case "h4":
+                    //    ProcessSubSubSection(nextSibling);
+                    //    break;
                 }
 
                 nextSibling = nextSibling.NextSibling;
             }
 
-
+            return headerSectionQueue;
         }
 
-        private static void ProcessParagraph(HtmlNode nextSibling, string headerName)
+        private static Paragraph ProcessParagraph(HtmlNode paragraphNode)
         {
-            throw new NotImplementedException();
+            Paragraph paragraph = new Paragraph
+            {
+                Text = paragraphNode.InnerText,
+                Links = new List<Link>()
+            };
+
+            if (paragraphNode.HasChildNodes)
+            {
+                var nodes = paragraphNode.ChildNodes;
+                foreach (HtmlNode htmlNode in nodes.Where(htmlNode => htmlNode.Name == "a").Where(htmlNode => htmlNode.GetAttributeValue("rel", String.Empty) != "nofollow"))
+                {
+                    paragraph.Links.Add(new Link
+                    {
+                        Href = htmlNode.GetAttributeValue("href", String.Empty),
+                        Text = htmlNode.InnerText
+                    });
+                }
+            }
+
+            return paragraph;
         }
 
-        private static void ProcessFigure(HtmlNode nextSibling, string headerName)
+        private static void ProcessFigure(HtmlNode figureNode, Queue<string> headerSection)
         {
-            throw new NotImplementedException();
+            var image = figureNode.GetAttributeValue("data-img-src", String.Empty);
         }
 
-        private static void ProcessSubSection(HtmlNode nextSibling, string headerName)
+        private static void ProcessSubSection(HtmlNode subSectionNode, Queue<string> headerSection)
         {
-            throw new NotImplementedException();
+            headerSection.Enqueue(subSectionNode.Name);
         }
 
-        private static void ProcessSubSubSection(HtmlNode nextSibling, string headerName)
+        private static void ProcessSubSubSection(HtmlNode subSubSectionNode, Queue<string> headerSection)
         {
-            throw new NotImplementedException();
+            headerSection.Enqueue(subSubSectionNode.Name);
         }
     }
 }

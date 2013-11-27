@@ -52,7 +52,7 @@
 
                 <DataTemplate>
                     <Grid>
-                        <Image Source="{Binding MainImage}" Opacity="0" />
+                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
                         <StackPanel x:Name="BioStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
                             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                                 <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Deck}" TextWrapping="Wrap" />

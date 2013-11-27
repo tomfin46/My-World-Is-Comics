@@ -1,8 +1,11 @@
-﻿namespace MyWorldIsComics.DataModel
+﻿using System.Collections.Generic;
+using MyWorldIsComics.DataModel.DescriptionElements;
+
+namespace MyWorldIsComics.DataModel
 {
     class Description
     {
-        public string CurrentEvents { get; set; }
+        public Queue<Paragraph> CurrentEvents { get; set; }
         public string Origin { get; set; }
         public string Creation { get; set; }
         public string CharacterEvolution { get; set; }

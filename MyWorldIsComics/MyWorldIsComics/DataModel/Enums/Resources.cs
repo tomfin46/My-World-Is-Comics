@@ -104,7 +104,7 @@ namespace MyWorldIsComics.DataModel.Enums
                 case ResourcesEnum.Issue:
                     return "issue";
             }
-            return "";
+            return String.Empty;
         }
     }
 }

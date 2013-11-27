@@ -102,7 +102,7 @@ namespace MyWorldIsComics.Mappers
             if (reader.Name != "birth") { reader.ReadToFollowing("birth"); }
             var date = reader.ReadElementContentAsString();
 
-            if (date == "") { return; }
+            if (date == String.Empty) { return; }
 
             var commaPos = date.IndexOf(',');
             var year = int.Parse(date.Substring(commaPos + 1));

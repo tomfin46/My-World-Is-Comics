@@ -15,6 +15,11 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
         public Queue<IDescriptionContent> ContentQueue { get; set; }
         public List<Link> Links { get; set; }
 
+        public Quote()
+        {
+            ContentQueue = new Queue<IDescriptionContent>();
+        }
+
         public string FormatLinks()
         {
             var text = Text;

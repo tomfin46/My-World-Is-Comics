@@ -190,7 +190,7 @@ namespace MyWorldIsComics.ResourcePages
                                 {
                                     Paragraph listItem = list.ContentQueue.Dequeue() as Paragraph;
                                     //TODO bulleted paragraph
-                                    if(listItem != null) markup += "" + listItem.FormatLinks();
+                                    if (listItem != null) markup += "" + listItem.FormatLinks();
                                 }
                             }
                             break;
@@ -253,6 +253,21 @@ namespace MyWorldIsComics.ResourcePages
                                                        "</Paragraph>" +
                                                        "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + fig.Text + "</Paragraph>";
                             break;
+                        case "List":
+                            List list = sectionToMarkup.ContentQueue.Dequeue() as List;
+                            if (list != null)
+                            {
+                                while (list.ContentQueue.Count > 0)
+                                {
+                                    Paragraph listItem = list.ContentQueue.Dequeue() as Paragraph;
+                                    if (listItem != null) markup += "<Paragraph Margin=\"25,0,0,16\" TextIndent=\"-25\">> " + listItem.FormatLinks() + "</Paragraph>";
+                                }
+                            }
+                            break;
+                        case "Quote":
+                            Quote quote = sectionToMarkup.ContentQueue.Dequeue() as Quote;
+                            if (quote != null) markup += "<Paragraph Margin=\"10\"><Bold>" + quote.FormatLinks() + "</Bold></Paragraph>";
+                            break;
                         case "Section":
                             Section section = sectionToMarkup.ContentQueue.Dequeue() as Section;
                             if (section != null) markup += MarkupSection(section);
@@ -286,6 +301,8 @@ namespace MyWorldIsComics.ResourcePages
                 case "Major Story Arcs":
                     break;
                 case "Powers and Abilities":
+                case "Powers and Abilties":
+                    PowersAndAbilitiesHubSection.Visibility = Visibility.Collapsed;
                     break;
                 case "Other Versions":
                 case "Alternate Realities":
@@ -317,6 +334,8 @@ namespace MyWorldIsComics.ResourcePages
                 case "Major Story Arcs":
                     break;
                 case "Powers and Abilities":
+                case "Powers and Abilties":
+                    PowersAndAbilitiesHubSection.ContentTemplate = sectionTemplate;
                     break;
                 case "Weapons and Equipment":
                     break;

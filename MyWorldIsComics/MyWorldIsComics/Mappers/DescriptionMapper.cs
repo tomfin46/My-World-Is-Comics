@@ -94,7 +94,7 @@ namespace MyWorldIsComics.Mappers
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
 
                         nextSibling = nextSibling.NextSibling;
-                        while (nextSibling != null && (!nextSibling.Name.StartsWith("h") || int.Parse(nextSibling.Name.Substring(1)) < int.Parse(link.Name.Substring(1))))
+                        while (nextSibling != null && nextSibling.Name != "h3" && nextSibling.Name != "h2")
                         {
                             nextSibling = nextSibling.NextSibling;
                         }
@@ -105,7 +105,7 @@ namespace MyWorldIsComics.Mappers
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
 
                         nextSibling = nextSibling.NextSibling;
-                        while (nextSibling != null && (!nextSibling.Name.StartsWith("h") || int.Parse(nextSibling.Name.Substring(1)) < int.Parse(link.Name.Substring(1))))
+                        while (nextSibling != null && nextSibling.Name != "h4" && nextSibling.Name != "h3" && nextSibling.Name != "h2")
                         {
                             nextSibling = nextSibling.NextSibling;
                         }
@@ -212,7 +212,7 @@ namespace MyWorldIsComics.Mappers
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
 
                         nextSibling = nextSibling.NextSibling;
-                        while (nextSibling != null && !nextSibling.Name.StartsWith("h"))
+                        while (nextSibling != null && nextSibling.Name != "h3" && nextSibling.Name != "h2")
                         {
                             nextSibling = nextSibling.NextSibling;
                         }
@@ -222,7 +222,7 @@ namespace MyWorldIsComics.Mappers
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
 
                         nextSibling = nextSibling.NextSibling;
-                        while (nextSibling != null && !nextSibling.Name.StartsWith("h"))
+                        while (nextSibling != null && nextSibling.Name != "h4" && nextSibling.Name != "h3" && nextSibling.Name != "h2")
                         {
                             nextSibling = nextSibling.NextSibling;
                         }

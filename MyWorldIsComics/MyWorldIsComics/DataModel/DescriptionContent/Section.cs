@@ -20,5 +20,10 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
         {
             ContentQueue = new Queue<IDescriptionContent>();
         }
+
+        public override string ToString()
+        {
+            return Title;
+        }
     }
 }

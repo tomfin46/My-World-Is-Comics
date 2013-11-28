@@ -148,6 +148,8 @@
             <HubSection x:Name="CharacterEvolutionHubSection" Width="520" Header="Character Evolution" />
 
             <HubSection x:Name="CreationHubSection" Width="520" Header="Creation" />
+            
+            <HubSection x:Name="PowersAndAbilitiesHubSection" Width="520" Header="Powers and Abilities" />
 
             <HubSection x:Name="TeamSection" IsHeaderInteractive="False" Header="Teams" Padding="40,40,40,32" DataContext="{Binding Character}">
                 <DataTemplate>

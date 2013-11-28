@@ -81,7 +81,6 @@ namespace MyWorldIsComics.ResourcePages
                 ComicVineSource.ReinstateCts();                
             }
 
-            // TODO: Assign a collection of bindable groups to this.DefaultViewModel["Groups"]
             string name = e.NavigationParameter as string;
 
             string prevName = String.Empty;

@@ -4,6 +4,8 @@ using MyWorldIsComics.DataModel.Interfaces;
 
 namespace MyWorldIsComics.DataModel.DescriptionContent
 {
+    using System.Linq;
+
     class Paragraph : IDescriptionContent
     {
         public string Title { get; set; }
@@ -23,7 +25,20 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
             foreach (Link link in Links)
             {
                 var hyperlink = "<Hyperlink NavigateUri=\"http://www.comicvine.com" + link.Href + "\">" + link.Text + "</Hyperlink>";
-                text = text.Replace(link.Text, hyperlink);
+                Link linkCopy = link;
+                Boolean contains = false;
+                foreach (Link link2 in Links.Where(link1 => link1.Text != linkCopy.Text))
+                {
+                    if (link2.Text.Contains(link.Text))
+                    {
+                        contains = true;
+                    }
+                }
+
+                if (!contains)
+                {
+                    text = text.Replace(link.Text, hyperlink);
+                }
             }
             return text;
         }

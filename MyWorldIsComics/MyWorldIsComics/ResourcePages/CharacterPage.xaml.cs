@@ -189,8 +189,7 @@ namespace MyWorldIsComics.ResourcePages
                                 while (list.ContentQueue.Count > 0)
                                 {
                                     Paragraph listItem = list.ContentQueue.Dequeue() as Paragraph;
-                                    //TODO bulleted paragraph
-                                    if (listItem != null) markup += "" + listItem.FormatLinks();
+                                    if (listItem != null) markup += "<Paragraph Margin=\"25,0,0,16\" TextIndent=\"-25\">> " + listItem.FormatLinks() + "</Paragraph>";
                                 }
                             }
                             break;
@@ -432,7 +431,7 @@ namespace MyWorldIsComics.ResourcePages
         {
             if (SavedData.Character == null || character.Name != prevName || SavedData.Character.Teams == null)
             {
-                foreach (int teamId in character.TeamIds.Take(6))
+                foreach (int teamId in character.TeamIds)
                 {
                     Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
                     if (character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;

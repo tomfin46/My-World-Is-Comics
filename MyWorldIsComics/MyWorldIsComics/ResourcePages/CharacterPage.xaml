@@ -148,12 +148,13 @@
             <HubSection x:Name="CharacterEvolutionHubSection" Width="520" Header="Character Evolution" />
 
             <HubSection x:Name="CreationHubSection" Width="520" Header="Creation" />
-            
+
             <HubSection x:Name="PowersAndAbilitiesHubSection" Width="520" Header="Powers and Abilities" />
 
             <HubSection x:Name="TeamSection" IsHeaderInteractive="False" Header="Teams" Padding="40,40,40,32" DataContext="{Binding Character}">
                 <DataTemplate>
-                    <GridView
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                        <GridView
                         x:Name="teamGridView"
                         ItemsSource="{Binding Teams}"
                         Margin="-9,-14,0,0"
@@ -164,12 +165,13 @@
                         IsSwipeEnabled="false"
                         IsItemClickEnabled="True"
                         ItemClick="TeamView_TeamClick">
-                        <GridView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
-                            </ItemsPanelTemplate>
-                        </GridView.ItemsPanel>
-                    </GridView>
+                            <GridView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
+                                </ItemsPanelTemplate>
+                            </GridView.ItemsPanel>
+                        </GridView>
+                    </ScrollViewer>
                 </DataTemplate>
             </HubSection>
 

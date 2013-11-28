@@ -105,18 +105,9 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="CurrentEventsHubSection" Width="520" Header="Current Events">
-            </HubSection>
+            <HubSection x:Name="CurrentEventsHubSection" Width="520" Header="Current Events" />
 
-            <HubSection x:Name="OriginHubSection" Width="520" Header="Origin">
-                <!--<DataTemplate>
-                    <Grid>
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Origin}" TextWrapping="Wrap"/>
-                        </ScrollViewer>
-                    </Grid>
-                </DataTemplate>-->
-            </HubSection>
+            <HubSection x:Name="OriginHubSection" Width="520" Header="Origin" />
 
             <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" DataContext="{Binding FirstAppearance}" IsHeaderInteractive="False">
                 <DataTemplate>
@@ -137,7 +128,7 @@
                                             <Run Text="{Binding IssueNumber}"></Run>
                                         </TextBlock>
                                         <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding Name}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
 
                                         <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
                                         <TextBlock Text="{Binding CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
@@ -154,25 +145,9 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection Width="520" Header="Character Evolution" DataContext="{Binding CharacterDescription}">
-                <DataTemplate>
-                    <Grid>
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,0" Text="{Binding CharacterEvolution}" TextWrapping="Wrap"/>
-                        </ScrollViewer>
-                    </Grid>
-                </DataTemplate>
-            </HubSection>
+            <HubSection x:Name="CharacterEvolutionHubSection" Width="520" Header="Character Evolution" />
 
-            <HubSection Width="520" Header="Creation" DataContext="{Binding CharacterDescription}">
-                <DataTemplate>
-                    <Grid>
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,0" Text="{Binding Creation}" TextWrapping="Wrap"/>
-                        </ScrollViewer>
-                    </Grid>
-                </DataTemplate>
-            </HubSection>
+            <HubSection x:Name="CreationHubSection" Width="520" Header="Creation" />
 
             <HubSection x:Name="TeamSection" IsHeaderInteractive="False" Header="Teams" Padding="40,40,40,32" DataContext="{Binding Character}">
                 <DataTemplate>
@@ -189,7 +164,7 @@
                         ItemClick="TeamView_TeamClick">
                         <GridView.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="5"></WrapGrid>
+                                <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
                             </ItemsPanelTemplate>
                         </GridView.ItemsPanel>
                     </GridView>

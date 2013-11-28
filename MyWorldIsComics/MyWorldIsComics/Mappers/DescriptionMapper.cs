@@ -30,6 +30,7 @@ namespace MyWorldIsComics.Mappers
                         descriptionToReturn.CurrentEvents = ProcessSection(link);
                         break;
                     case "Origin":
+                    case "Origins":
                         descriptionToReturn.Origin = ProcessSection(link);
                         break;
                     case "Creation":
@@ -45,7 +46,11 @@ namespace MyWorldIsComics.Mappers
                         descriptionToReturn.MajorStoryArcs = ProcessSection(link);
                         break;
                     case "Powers and Abilities":
+                    case "Powers and Abilties":
                         descriptionToReturn.PowersAndAbilities = ProcessSection(link);
+                        break;
+                    case "Weapons and Equipment":
+                        descriptionToReturn.WeaponsAndEquipment = ProcessSection(link);
                         break;
                     case "Other Versions":
                     case "Alternate Realities":
@@ -65,10 +70,10 @@ namespace MyWorldIsComics.Mappers
             {
                 Title = link.InnerText,
                 Type = link.Name
-            }; 
+            };
             var nextSibling = link.NextSibling;
 
-            while (nextSibling.Name != link.Name)
+            while (nextSibling != null && nextSibling.Name != link.Name)
             {
                 switch (nextSibling.Name)
                 {
@@ -80,27 +85,28 @@ namespace MyWorldIsComics.Mappers
                         break;
                     case "h3":
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
-    
+
                         nextSibling = nextSibling.NextSibling;
-                        while (!nextSibling.Name.StartsWith("h") || int.Parse(nextSibling.Name.Substring(1)) > int.Parse(link.Name.Substring(1)))
+                        while (nextSibling != null && (!nextSibling.Name.StartsWith("h") || int.Parse(nextSibling.Name.Substring(1)) < int.Parse(link.Name.Substring(1))))
                         {
                             nextSibling = nextSibling.NextSibling;
                         }
-                        nextSibling = nextSibling.PreviousSibling;
+
+                        if (nextSibling != null) nextSibling = nextSibling.PreviousSibling;
                         break;
                     case "h4":
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
 
                         nextSibling = nextSibling.NextSibling;
-                        while (!nextSibling.Name.StartsWith("h") && int.Parse(nextSibling.Name.Substring(1)) < int.Parse(link.Name.Substring(1)))
+                        while (nextSibling != null && (!nextSibling.Name.StartsWith("h") || int.Parse(nextSibling.Name.Substring(1)) < int.Parse(link.Name.Substring(1))))
                         {
                             nextSibling = nextSibling.NextSibling;
                         }
-                        nextSibling = nextSibling.PreviousSibling;
+                        if (nextSibling != null) nextSibling = nextSibling.PreviousSibling;
                         break;
                 }
 
-                nextSibling = nextSibling.NextSibling;
+                if (nextSibling != null) nextSibling = nextSibling.NextSibling;
             }
 
             return section;
@@ -134,8 +140,13 @@ namespace MyWorldIsComics.Mappers
         {
             Figure figure = new Figure
             {
-                ImageSource = new Uri(figureNode.GetAttributeValue("data-img-src", String.Empty))
+                ImageSource = new Uri(figureNode.GetAttributeValue("data-img-src", String.Empty)),
             };
+            foreach (HtmlNode childNode in figureNode.ChildNodes.Where(childNode => childNode.Name == "figcaption"))
+            {
+                figure.Text = childNode.InnerText;
+
+            }
             return figure;
         }
 
@@ -148,9 +159,9 @@ namespace MyWorldIsComics.Mappers
             };
 
             var nextSibling = subSectionNode.NextSibling;
-            while (nextSibling.Name != subSectionNode.Name)
+            while (nextSibling != null && nextSibling.Name != subSectionNode.Name)
             {
-                if(nextSibling.Name.StartsWith("h") && int.Parse(nextSibling.Name.Substring(1)) < int.Parse(subSectionNode.Name.Substring(1))) return section;
+                if (nextSibling.Name.StartsWith("h") && int.Parse(nextSibling.Name.Substring(1)) < int.Parse(subSectionNode.Name.Substring(1))) return section;
                 switch (nextSibling.Name)
                 {
                     case "p":
@@ -163,24 +174,24 @@ namespace MyWorldIsComics.Mappers
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
 
                         nextSibling = nextSibling.NextSibling;
-                        while (!nextSibling.Name.StartsWith("h"))
+                        while (nextSibling != null && !nextSibling.Name.StartsWith("h"))
                         {
                             nextSibling = nextSibling.NextSibling;
                         }
-                        nextSibling = nextSibling.PreviousSibling;
+                        if (nextSibling != null) nextSibling = nextSibling.PreviousSibling;
                         break;
                     case "h4":
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
 
                         nextSibling = nextSibling.NextSibling;
-                        while (!nextSibling.Name.StartsWith("h"))
+                        while (nextSibling != null && !nextSibling.Name.StartsWith("h"))
                         {
                             nextSibling = nextSibling.NextSibling;
                         }
-                        nextSibling = nextSibling.PreviousSibling;
+                        if (nextSibling != null) nextSibling = nextSibling.PreviousSibling;
                         break;
                 }
-                nextSibling = nextSibling.NextSibling;
+                if (nextSibling != null) nextSibling = nextSibling.NextSibling;
             }
             return section;
         }

@@ -13,5 +13,6 @@
         public Section DistinguishingCharacteristics { get; set; }
         public Section PowersAndAbilities { get; set; }
         public Section OtherMedia { get; set; }
+        public Section WeaponsAndEquipment { get; set; }
     }
 }

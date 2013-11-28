@@ -47,12 +47,12 @@
 
             <HubSection Width="780" Margin="0,0,20,0">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" AlignmentX="Left" />
+                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" AlignmentX="Left" />
                 </HubSection.Background>
 
                 <DataTemplate>
                     <Grid>
-                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
+                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="Uniform" />
                         <StackPanel x:Name="BioStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
                             <ScrollViewer VerticalScrollBarVisibility="Hidden">
                                 <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Deck}" TextWrapping="Wrap" />

@@ -10,6 +10,15 @@
 
         public int UniqueId { get; set; }
         public string Name { get; set; }
+
+        public string IssueTitle
+        {
+            get
+            {
+                return Name == String.Empty ? "<No Title>" : Name;
+            }
+        }
+
         public Uri ComicVineApiUrl { get; set; }
         public Uri ComicVineSiteUrl { get; set; }
         public string Deck { get; set; }

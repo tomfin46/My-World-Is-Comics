@@ -9,6 +9,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using MyWorldIsComics.DataSource;
 
 namespace MyWorldIsComics.Common
 {
@@ -186,6 +187,7 @@ namespace MyWorldIsComics.Common
                 if (this.Frame.CurrentSourcePageType.Name == "CharacterPage")
                 {
                     SavedData.Clear();
+                    ComicVineSource.CancelTask();
                 }
                 this.Frame.GoBack();
             }

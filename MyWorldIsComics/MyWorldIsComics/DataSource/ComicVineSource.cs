@@ -1,4 +1,6 @@
-﻿namespace MyWorldIsComics.DataSource
+﻿using System.Threading;
+
+namespace MyWorldIsComics.DataSource
 {
     #region usings
 
@@ -16,10 +18,12 @@
     {
         private static readonly ComicVineSource comicVineSource = new ComicVineSource();
         private static HttpClient client;
+        private static CancellationTokenSource cts;
 
         public ComicVineSource()
         {
             client = new HttpClient();
+            cts = new CancellationTokenSource();
         }
 
         public static async Task<string> ExecuteSearchAsync(string query)
@@ -49,7 +53,7 @@
 
         private static async Task<string> QueryServiceAsync(Uri uri)
         {
-            var response = await client.GetAsync(uri);
+            var response = await client.GetAsync(uri, cts.Token);
             string content;
             try
             {
@@ -89,5 +93,14 @@
             return new Uri(uri);
         }
 
+        public static void CancelTask()
+        {
+            cts.Cancel();
+        }
+
+        public static void ReinstateCts()
+        {
+            cts = new CancellationTokenSource();
+        }
     }
 }

@@ -102,5 +102,10 @@ namespace MyWorldIsComics.DataSource
         {
             cts = new CancellationTokenSource();
         }
+
+        public static bool IsCanceled()
+        {
+            return cts.IsCancellationRequested;
+        }
     }
 }

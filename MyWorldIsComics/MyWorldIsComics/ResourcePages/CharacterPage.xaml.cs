@@ -76,6 +76,11 @@ namespace MyWorldIsComics.ResourcePages
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            if (ComicVineSource.IsCanceled())
+            {
+                ComicVineSource.ReinstateCts();                
+            }
+
             // TODO: Assign a collection of bindable groups to this.DefaultViewModel["Groups"]
             string name = e.NavigationParameter as string;
 

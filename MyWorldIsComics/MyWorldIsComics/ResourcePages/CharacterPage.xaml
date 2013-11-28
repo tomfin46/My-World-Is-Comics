@@ -1,7 +1,7 @@
 ﻿<Page
     x:Name="pageRoot"
     x:Class="MyWorldIsComics.ResourcePages.CharacterPage"
-    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
+    DataContext="{Binding CharacterPageViewModel, RelativeSource={RelativeSource Self}}"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MyWorldIsComics"
@@ -41,7 +41,7 @@
         <Hub SectionHeaderClick="Hub_SectionHeaderClick">
             <Hub.Header>
                 <!-- Back button and page title -->
-                <Grid DataContext="{Binding QuickCharacter}">
+                <Grid DataContext="{Binding BasicCharacter}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="80"/>
                         <ColumnDefinition Width="*"/>
@@ -61,7 +61,7 @@
 
             </Hub.Header>
 
-            <HubSection x:Name="BioHubSection" Width="580" Margin="0,0,20,0" DataContext="{Binding QuickCharacter}" Visibility="Collapsed">
+            <HubSection x:Name="BioHubSection" Width="580" Margin="0,0,20,0" DataContext="{Binding BasicCharacter}" Visibility="Collapsed">
                 <HubSection.Background>
                     <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
                 </HubSection.Background>
@@ -95,7 +95,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection Width="520" DataContext="{Binding QuickCharacter}">
+            <HubSection Width="520" DataContext="{Binding BasicCharacter}">
                 <DataTemplate>
                     <Grid>
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
@@ -109,7 +109,13 @@
 
             <HubSection x:Name="OriginHubSection" Width="520" Header="Origin" />
 
-            <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" DataContext="{Binding FirstAppearance}" IsHeaderInteractive="False">
+            <HubSection x:Name="CharacterEvolutionHubSection" Width="520" Header="Character Evolution" />
+
+            <HubSection x:Name="CreationHubSection" Width="520" Header="Creation" />
+
+            <HubSection x:Name="PowersAndAbilitiesHubSection" Width="520" Header="Powers and Abilities" />
+
+            <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" DataContext="{Binding FilteredCharacter}" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>
                     <Grid>
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
@@ -120,38 +126,32 @@
                                         <ColumnDefinition Width="270"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Image Source="{Binding MainImage}" Stretch="Uniform" Grid.Column="0" />
+                                    <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
                                     <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
                                         <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,0,0,0">
-                                            <Run Text="{Binding VolumeName}"></Run>
+                                            <Run Text="{Binding FirstAppearanceIssue.VolumeName}"></Run>
                                             <Run Text=" #"></Run>
-                                            <Run Text="{Binding IssueNumber}"></Run>
+                                            <Run Text="{Binding FirstAppearanceIssue.IssueNumber}"></Run>
                                         </TextBlock>
                                         <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding FirstAppearanceIssue.IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
 
                                         <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding FirstAppearanceIssue.CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
 
                                         <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding FirstAppearanceIssue.StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
                                     </StackPanel>
                                 </Grid>
 
-                                <TextBlock Text="{Binding DescriptionString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionString}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </Grid>
                 </DataTemplate>
             </HubSection>
-
-            <HubSection x:Name="CharacterEvolutionHubSection" Width="520" Header="Character Evolution" />
-
-            <HubSection x:Name="CreationHubSection" Width="520" Header="Creation" />
-
-            <HubSection x:Name="PowersAndAbilitiesHubSection" Width="520" Header="Powers and Abilities" />
-
-            <HubSection x:Name="TeamSection" IsHeaderInteractive="False" Header="Teams" Padding="40,40,40,32" DataContext="{Binding Character}">
+            
+            <HubSection x:Name="TeamSection" Header="Teams" Padding="40,40,40,32" DataContext="{Binding FilteredCharacter}" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView
@@ -174,7 +174,6 @@
                     </ScrollViewer>
                 </DataTemplate>
             </HubSection>
-
 
         </Hub>
     </Grid>

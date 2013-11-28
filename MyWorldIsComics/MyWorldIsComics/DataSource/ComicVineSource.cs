@@ -5,12 +5,15 @@ namespace MyWorldIsComics.DataSource
     #region usings
 
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using DataModel.Resources;
     using System.Net.Http;
     using DataModel;
     using DataModel.Enums;
     using Mappers;
+
+    using MyWorldIsComics.DataModel.DescriptionContent;
 
     #endregion
 
@@ -36,9 +39,15 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, id.ToString()));
         }
 
+        public static async Task<string> GetFilteredCharacterAsync(int id, string filter)
+        {
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, id.ToString(), filter));
+        }
+
         public static async Task<string> GetQuickTeamAsync(string teamId)
         {
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId));
+            List<string> filters = new List<string>{ "deck", "id", "image", "name"};
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId, filters));
         }
 
         public static async Task<string> GetIssueAsync(string issueId)
@@ -74,22 +83,36 @@ namespace MyWorldIsComics.DataSource
             switch (resourcesEnum)
             {
                 case Resources.ResourcesEnum.Search:
-                    uri += "?query=" + query + "&limit=1" + "&";
+                    uri += Resources.GetResourceId(resourcesEnum) + query + "&limit=1" + "&";
                     break;
                 case Resources.ResourcesEnum.Character:
-                    uri += "4005-" + query + "/?";
+                    uri += Resources.GetResourceId(resourcesEnum) + query + "/?";
                     break;
                 case Resources.ResourcesEnum.Team:
-                    uri += "4060-" + query + "/?";
+                    uri += Resources.GetResourceId(resourcesEnum) + query + "/?";
                     break;
                 case Resources.ResourcesEnum.Issue:
-                    uri += "4000-" + query + "/?";
+                    uri += Resources.GetResourceId(resourcesEnum) + query + "/?";
                     break;
                 default:
                     uri += query + "/";
                     break;
             }
             uri += ServiceConstants.ComicVineApiKey + "&" + ServiceConstants.ComicVineFormat;
+            return new Uri(uri);
+        }
+
+        private Uri ContructUrl(Resources.ResourcesEnum resourcesEnum, string query, string filter)
+        {
+            string uri = this.ContructUrl(resourcesEnum, query).AbsoluteUri;
+            uri += "&field_list=" + filter;
+            return new Uri(uri);
+        }
+
+        private Uri ContructUrl(Resources.ResourcesEnum resourcesEnum, string query, IEnumerable<string> filters)
+        {
+            string uri = this.ContructUrl(resourcesEnum, query).AbsoluteUri;
+            uri += "&field_list=" + string.Join(",", filters);
             return new Uri(uri);
         }
 

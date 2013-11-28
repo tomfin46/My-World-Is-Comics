@@ -24,6 +24,8 @@ using MyWorldIsComics.ResourcePages;
 
 namespace MyWorldIsComics
 {
+    using System.Threading.Tasks;
+
     /// <summary>
     /// A page that displays an overview of a single group, including a preview of the items
     /// within the group.
@@ -76,30 +78,37 @@ namespace MyWorldIsComics
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
             if (SavedData.Character != null)
             {
-                character = SavedData.Character;
+                this.character = SavedData.Character;
             }
             else
             {
                 var characterFromNav = e.NavigationParameter as Character;
                 if (characterFromNav == null) return;
 
-                character = characterFromNav;
+                this.character = characterFromNav;
             }
 
             this.DefaultViewModel["Character"] = character;
             this.DefaultViewModel["Items"] = character.Teams;
 
-            foreach (int teamId in character.TeamIds.GetRange(character.Teams.Count, character.TeamIds.Count - character.Teams.Count))
+            try
             {
-                Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
-                if (character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
-                character.Teams.Add(team);
+                foreach (int teamId in character.TeamIds.GetRange(character.Teams.Count, character.TeamIds.Count - character.Teams.Count))
+                {
+                    Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                    if (character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
+                    character.Teams.Add(team);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
             }
         }
 
         private async void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            SavedData.Character = character;
+            SavedData.Character = this.character;
         }
         
 
@@ -115,7 +124,7 @@ namespace MyWorldIsComics
         /// <param name="e">Event data that describes the item clicked.</param>
         void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            SavedData.Character = character;
+            SavedData.Character = this.character;
             var team = ((Team)e.ClickedItem);
             Frame.Navigate(typeof(TeamPage), team);
         }

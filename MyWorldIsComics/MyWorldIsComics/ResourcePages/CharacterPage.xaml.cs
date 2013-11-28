@@ -29,18 +29,19 @@ namespace MyWorldIsComics.ResourcePages
     /// </summary>
     public sealed partial class CharacterPage : Page
     {
-        private readonly NavigationHelper _navigationHelper;
-        private ObservableDictionary _defaultViewModel = new ObservableDictionary();
-        private Character _character;
-        private Description _description;
+        private readonly NavigationHelper navigationHelper;
 
-        /// <summary>
-        /// This can be changed to a strongly typed view model.
-        /// </summary>
-        public ObservableDictionary DefaultViewModel
+
+        private ObservableDictionary characterPageViewModel = new ObservableDictionary();
+
+        private Character basicCharacterForPage;
+        private Character filteredCharacterForPage;
+        private Description characterDescriptionForPage;
+
+        public ObservableDictionary CharacterPageViewModel
         {
-            get { return _defaultViewModel; }
-            set { _defaultViewModel = value; }
+            get { return characterPageViewModel; }
+            set { characterPageViewModel = value; }
         }
 
         /// <summary>
@@ -49,18 +50,16 @@ namespace MyWorldIsComics.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return _navigationHelper; }
+            get { return this.navigationHelper; }
         }
 
         public CharacterPage()
         {
             InitializeComponent();
 
-            _character = new Character();
-
-            _navigationHelper = new NavigationHelper(this);
-            _navigationHelper.LoadState += navigationHelper_LoadState;
-            _navigationHelper.SaveState += navigationHelper_SaveState;
+            this.navigationHelper = new NavigationHelper(this);
+            this.navigationHelper.LoadState += navigationHelper_LoadState;
+            this.navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -76,38 +75,47 @@ namespace MyWorldIsComics.ResourcePages
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            if (ComicVineSource.IsCanceled())
-            {
-                ComicVineSource.ReinstateCts();                
-            }
+            if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
             string name = e.NavigationParameter as string;
 
-            string prevName = String.Empty;
-            if (SavedData.QuickCharacter != null)
+            if (SavedData.BasicCharacter != null && SavedData.BasicCharacter.Name == name)
             {
-                prevName = SavedData.QuickCharacter.Name;
+                this.basicCharacterForPage = SavedData.BasicCharacter;
+                this.CharacterPageViewModel["BasicCharacter"] = this.basicCharacterForPage;
+                BioHubSection.Visibility = Visibility.Visible;
             }
+            else { await this.LoadBasicCharacter(name); }
 
+            await this.LoadDescription();
+
+            if (SavedData.Character != null && SavedData.Character.UniqueId == this.basicCharacterForPage.UniqueId)
+            {
+                this.filteredCharacterForPage = SavedData.Character;
+                this.CharacterPageViewModel["FilteredCharacter"] = this.filteredCharacterForPage;
+                this.HideOrShowFilteredSections();
+            }
+            else { await this.LoadCharacter(); }
+        }
+
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            if (this.Frame.CurrentSourcePageType.Name == "HubPage") { return; }
+
+            // Save response content so don't have to fetch from api service again
+            SavedData.BasicCharacter = this.basicCharacterForPage;
+            SavedData.Character = this.filteredCharacterForPage;
+        }
+
+        #region Load Character
+
+        private async Task LoadBasicCharacter(string name)
+        {
             try
             {
-                await LoadQuickCharacter(name);
-
+                await this.SearchForCharacter(name);
+                this.CharacterPageViewModel["BasicCharacter"] = this.basicCharacterForPage;
                 BioHubSection.Visibility = Visibility.Visible;
-
-                await LoadDescription(DefaultViewModel["QuickCharacter"] as Character);
-
-                CreateDataTemplates();
-
-                await LoadCharacter(DefaultViewModel["QuickCharacter"] as Character);
-
-                if (_character.FirstAppearanceId != 0) { TeamSection.IsHeaderInteractive = true; }
-
-                await LoadFirstAppearance(DefaultViewModel["Character"] as Character, prevName);
-
-                if (_character.FirstAppearanceId != 0) { FirstAppearanceSection.IsHeaderInteractive = true; }
-
-                await LoadQuickTeams(DefaultViewModel["Character"] as Character, prevName);
             }
             catch (TaskCanceledException)
             {
@@ -115,37 +123,189 @@ namespace MyWorldIsComics.ResourcePages
             }
         }
 
+        private async Task LoadDescription()
+        {
+            try
+            {
+                await this.FormatDescriptionForPage();
+                this.characterDescriptionForPage.UniqueId = this.basicCharacterForPage.UniqueId;
+                CreateDataTemplates();
+                this.CharacterPageViewModel["CharacterDescription"] = this.characterDescriptionForPage;
+            }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
+        }
+
+        private async Task LoadCharacter()
+        {
+            try
+            {
+                List<string> filters = new List<string> { "first_appeared_in_issue", "teams" };
+
+                foreach (string filter in filters)
+                {
+                    await this.FetchFilteredCharacterResource(filter);
+                    switch (filter)
+                    {
+                        case "first_appeared_in_issue":
+                            await this.FetchFirstAppearance();
+                            break;
+                        case "teams":
+                            await this.FetchFirstTeam();
+                            break;
+                    }
+                    this.CharacterPageViewModel["FilteredCharacter"] = this.filteredCharacterForPage;
+                    this.HideOrShowFilteredSections();
+                }
+                await this.FetchRemainingTeams();
+                this.CharacterPageViewModel["FilteredCharacter"] = this.filteredCharacterForPage;
+            }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
+        }
+
+        private void HideOrShowFilteredSections()
+        {
+            this.TeamSection.Visibility = this.filteredCharacterForPage.TeamIds.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            this.FirstAppearanceSection.Visibility = this.filteredCharacterForPage.FirstAppearanceIssue.UniqueId != 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        #endregion
+
+        private async Task SearchForCharacter(string name)
+        {
+            var characterSearchString = await ComicVineSource.ExecuteSearchAsync(name);
+            this.basicCharacterForPage = this.GetMappedCharacterFromSearch(characterSearchString);
+        }
+
+        #region Fetch methods
+
+        private async Task FetchFilteredCharacterResource(string filter)
+        {
+            string filteredCharacterString = await ComicVineSource.GetFilteredCharacterAsync(this.basicCharacterForPage.UniqueId, filter);
+            this.filteredCharacterForPage = this.GetMappedCharacterFromFilter(filteredCharacterString, filter);
+        }
+
+        private async Task FetchFirstTeam()
+        {
+            foreach (int teamId in this.filteredCharacterForPage.TeamIds.Take(1))
+            {
+                Team team = this.GetMappedQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                if (this.filteredCharacterForPage.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
+                this.filteredCharacterForPage.Teams.Add(team);
+            }
+        }
+
+        private async Task FetchRemainingTeams()
+        {
+            var firstId = this.filteredCharacterForPage.TeamIds.First();
+            foreach (int teamId in this.filteredCharacterForPage.TeamIds.Where(id => id != firstId).Take(this.filteredCharacterForPage.TeamIds.Count - 1))
+            {
+                Team team = this.GetMappedQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                if (this.filteredCharacterForPage.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
+                this.filteredCharacterForPage.Teams.Add(team);
+            }
+        }
+
+        private async Task FetchFirstAppearance()
+        {
+            if (this.basicCharacterForPage.FirstAppearanceId != 0)
+            {
+                Issue issue = this.GetMappedIssue(await ComicVineSource.GetIssueAsync(this.basicCharacterForPage.FirstAppearanceId.ToString()));
+                this.filteredCharacterForPage.FirstAppearanceIssue = issue;
+            }
+        }
+
+        #endregion
+
+        #region Get Mappings
+
+        private Character GetMappedCharacterFromSearch(string characterSearchString)
+        {
+            if (characterSearchString == ServiceConstants.QueryNotFound)
+            {
+                return new Character { Name = ServiceConstants.QueryNotFound };
+            }
+            return new CharacterMapper().MapSearchXmlObject(characterSearchString);
+        }
+
+        private Character GetMappedCharacterFromFilter(string filteredCharacterString, string filter)
+        {
+            if (filteredCharacterString == ServiceConstants.QueryNotFound)
+            {
+                return new Character
+                {
+                    TeamIds = new List<int>(),
+                    Teams = new ObservableCollection<Team>()
+                    {
+                        new Team
+                        {
+                            Name = filteredCharacterString
+                        }
+                    },
+                    FirstAppearanceIssue = new Issue
+                    {
+                        Name = filteredCharacterString
+                    }
+                };
+            }
+            return new CharacterMapper().MapFilteredXmlObject(this.basicCharacterForPage, filteredCharacterString, filter);
+        }
+
+        private Team GetMappedQuickTeam(string quickTeam)
+        {
+            return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
+        }
+
+        private Issue GetMappedIssue(string issue)
+        {
+            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
+        }
+
+        #endregion
+
+        private async Task FormatDescriptionForPage()
+        {
+            characterDescriptionForPage = await ComicVineSource.FormatDescriptionAsync(this.basicCharacterForPage.DescriptionString);
+        }
+
+        #region DataTemplate Creation
+
         private void CreateDataTemplates()
         {
-            if (_description.CurrentEvents == null) HideHubSection("Current Events");
-            else CreateDataTemplate(_description.CurrentEvents);
+            if (this.characterDescriptionForPage.CurrentEvents == null) HideHubSection("Current Events");
+            else CreateDataTemplate(this.characterDescriptionForPage.CurrentEvents);
 
-            if (_description.Origin == null) HideHubSection("Origin");
-            else CreateDataTemplate(_description.Origin);
+            if (this.characterDescriptionForPage.Origin == null) HideHubSection("Origin");
+            else CreateDataTemplate(this.characterDescriptionForPage.Origin);
 
-            if (_description.Creation == null) HideHubSection("Creation");
-            else CreateDataTemplate(_description.Creation);
+            if (this.characterDescriptionForPage.Creation == null) HideHubSection("Creation");
+            else CreateDataTemplate(this.characterDescriptionForPage.Creation);
 
-            if (_description.DistinguishingCharacteristics == null) HideHubSection("Distinguishing Characteristics");
-            else CreateDataTemplate(_description.DistinguishingCharacteristics);
+            if (this.characterDescriptionForPage.DistinguishingCharacteristics == null) HideHubSection("Distinguishing Characteristics");
+            else CreateDataTemplate(this.characterDescriptionForPage.DistinguishingCharacteristics);
 
-            if (_description.CharacterEvolution == null) HideHubSection("Character Evolution");
-            else CreateDataTemplate(_description.CharacterEvolution);
+            if (this.characterDescriptionForPage.CharacterEvolution == null) HideHubSection("Character Evolution");
+            else CreateDataTemplate(this.characterDescriptionForPage.CharacterEvolution);
 
-            if (_description.MajorStoryArcs == null) HideHubSection("Major Story Arcs");
-            else CreateDataTemplate(_description.MajorStoryArcs);
+            if (this.characterDescriptionForPage.MajorStoryArcs == null) HideHubSection("Major Story Arcs");
+            else CreateDataTemplate(this.characterDescriptionForPage.MajorStoryArcs);
 
-            if (_description.PowersAndAbilities == null) HideHubSection("Powers and Abilities");
-            else CreateDataTemplate(_description.PowersAndAbilities);
+            if (this.characterDescriptionForPage.PowersAndAbilities == null) HideHubSection("Powers and Abilities");
+            else CreateDataTemplate(this.characterDescriptionForPage.PowersAndAbilities);
 
-            if (_description.WeaponsAndEquipment == null) HideHubSection("Weapons and Equipment");
-            else CreateDataTemplate(_description.WeaponsAndEquipment);
+            if (this.characterDescriptionForPage.WeaponsAndEquipment == null) HideHubSection("Weapons and Equipment");
+            else CreateDataTemplate(this.characterDescriptionForPage.WeaponsAndEquipment);
 
-            if (_description.AlternateRealities == null) HideHubSection("Alternate Realities");
-            else CreateDataTemplate(_description.AlternateRealities);
+            if (this.characterDescriptionForPage.AlternateRealities == null) HideHubSection("Alternate Realities");
+            else CreateDataTemplate(this.characterDescriptionForPage.AlternateRealities);
 
-            if (_description.OtherMedia == null) HideHubSection("Other Media");
-            else CreateDataTemplate(_description.OtherMedia);
+            if (this.characterDescriptionForPage.OtherMedia == null) HideHubSection("Other Media");
+            else CreateDataTemplate(this.characterDescriptionForPage.OtherMedia);
         }
 
         private void CreateDataTemplate(Section descriptionSection)
@@ -354,127 +514,7 @@ namespace MyWorldIsComics.ResourcePages
             }
         }
 
-        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
-        {
-            if (Frame.CurrentSourcePageType.Name == "HubPage")
-            {
-                _character = null;
-            }
-            else
-            {
-                // Save response content so don't have to fetch from api service again
-                SavedData.QuickCharacter = DefaultViewModel["QuickCharacter"] as Character;
-                SavedData.Character = DefaultViewModel["Character"] as Character;
-                SavedData.FirstAppearance = DefaultViewModel["FirstAppearance"] as Issue;
-            }
-        }
-
-        private async Task LoadQuickCharacter(string name)
-        {
-            if (SavedData.QuickCharacter != null && SavedData.QuickCharacter.Name == name)
-            {
-                DefaultViewModel["QuickCharacter"] = SavedData.QuickCharacter;
-            }
-            else
-            {
-                var quickCharacterString = await ComicVineSource.ExecuteSearchAsync(name);
-                _character = MapQuickCharacter(quickCharacterString);
-                DefaultViewModel["QuickCharacter"] = _character;
-            }
-        }
-
-        private Character MapQuickCharacter(string quickCharacterString)
-        {
-            if (quickCharacterString == ServiceConstants.QueryNotFound) return new Character();
-            Character quickCharacter;
-            CharacterMapper.QuickMapXmlObject(quickCharacterString, out quickCharacter);
-            return quickCharacter;
-        }
-
-        private async Task LoadDescription(Character quickCharacter)
-        {
-            var characterDescription = await ComicVineSource.FormatDescriptionAsync(quickCharacter.DescriptionString);
-            _description = characterDescription;
-            DefaultViewModel["CharacterDescription"] = characterDescription;
-        }
-
-        private async Task LoadCharacter(Character quickCharacter)
-        {
-            if (SavedData.Character != null && SavedData.Character.Name == quickCharacter.Name)
-            {
-                _character = SavedData.Character;
-                DefaultViewModel["Character"] = _character;
-            }
-            else
-            {
-                var characterString = await ComicVineSource.GetCharacterAsync(quickCharacter.UniqueId);
-                _character = MapCharacter(characterString);
-                DefaultViewModel["Character"] = _character;
-            }
-        }
-
-        private Character MapCharacter(string characterString)
-        {
-            if (characterString == ServiceConstants.QueryNotFound)
-            {
-                return new Character
-                {
-                    TeamIds = new List<int>(),
-                    Teams = new ObservableCollection<Team>()
-                    {
-                        new Team
-                        {
-                            Name = characterString
-                        }
-                    }
-                };
-            }
-
-            Character characterToMap;
-            CharacterMapper.MapXmlObject(characterString, out characterToMap);
-            return characterToMap;
-        }
-
-        private async Task LoadQuickTeams(Character character, string prevName)
-        {
-            if (SavedData.Character == null || character.Name != prevName || SavedData.Character.Teams == null)
-            {
-                foreach (int teamId in character.TeamIds)
-                {
-                    Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
-                    if (character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
-                    character.Teams.Add(team);
-                }
-            }
-        }
-
-        private Team MapQuickTeam(string quickTeam)
-        {
-            return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
-        }
-
-        private async Task LoadFirstAppearance(Character character, string prevName)
-        {
-            if (SavedData.FirstAppearance != null && SavedData.Character != null &&
-                SavedData.Character.FirstAppearanceId == SavedData.FirstAppearance.UniqueId)
-            {
-                DefaultViewModel["FirstAppearance"] = SavedData.FirstAppearance;
-            }
-            else
-            {
-                if (character.FirstAppearanceId != 0)
-                {
-                    Issue issue = MapIssue(await ComicVineSource.GetIssueAsync(character.FirstAppearanceId.ToString()));
-                    character.FirstAppearanceIssue = issue;
-                    DefaultViewModel["FirstAppearance"] = character.FirstAppearanceIssue;
-                }
-            }
-        }
-
-        private Issue MapIssue(string issue)
-        {
-            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
-        }
+        #endregion
 
         #region NavigationHelper registration
 
@@ -489,16 +529,15 @@ namespace MyWorldIsComics.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            _navigationHelper.OnNavigatedTo(e);
+            this.navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            _navigationHelper.OnNavigatedFrom(e);
+            this.navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
-
 
         #region Event Listners
 
@@ -515,8 +554,7 @@ namespace MyWorldIsComics.ResourcePages
 
         private void Hub_SectionHeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
-            var characterToSend = _character;
-            Frame.Navigate(typeof(TeamsPage), characterToSend);
+            Frame.Navigate(typeof(TeamsPage), this.filteredCharacterForPage);
         }
 
         #endregion

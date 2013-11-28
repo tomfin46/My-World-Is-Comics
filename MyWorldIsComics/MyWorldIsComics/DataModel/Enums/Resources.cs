@@ -103,8 +103,26 @@ namespace MyWorldIsComics.DataModel.Enums
                     return "team";
                 case ResourcesEnum.Issue:
                     return "issue";
+                default:
+                    return String.Empty;
             }
-            return String.Empty;
+        }
+
+        public static string GetResourceId(ResourcesEnum resourcesEnum)
+        {
+            switch (resourcesEnum)
+            {
+                case ResourcesEnum.Search:
+                    return "?query=";
+                case ResourcesEnum.Character:
+                    return "4005-";
+                case ResourcesEnum.Team:
+                    return "4060-";
+                case ResourcesEnum.Issue:
+                    return "4000-";
+                default:
+                    return String.Empty;
+            }
         }
     }
 }

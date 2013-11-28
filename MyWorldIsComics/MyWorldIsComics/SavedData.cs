@@ -3,23 +3,19 @@ using System.Collections.ObjectModel;
 
 namespace MyWorldIsComics
 {
+    using MyWorldIsComics.DataModel;
+    using MyWorldIsComics.DataModel.DescriptionContent;
     using MyWorldIsComics.DataModel.Resources;
 
     class SavedData
     {
-        public static Character QuickCharacter { get; set; }
+        public static Character BasicCharacter { get; set; }
         public static Character Character { get; set; }
-        public static ObservableCollection<Team> QuickTeams { get; set; }
-        public static ObservableCollection<Team> Teams { get; set; }
-        public static Issue FirstAppearance { get; set; }
 
         public static void Clear()
         {
             Character = null;
-            QuickCharacter = null;
-            Teams = null;
-            QuickTeams = null;
-            FirstAppearance = null;
+            BasicCharacter = null;
         }
     }
 }

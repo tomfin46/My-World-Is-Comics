@@ -21,6 +21,7 @@
         {
             _teamToMap = new Team();
         }
+
         public Team QuickMapXmlObject(string xmlString)
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
@@ -216,16 +217,7 @@
 
         private void ParseName(XmlReader reader)
         {
-            if (reader.Name != "name" && reader.Name != "movies")
-            {
-                reader.ReadToFollowing("movies");
-                reader.ReadToNextSibling("name");
-            }
-            else
-            {
-                reader.ReadToFollowing("name");
-            }
-
+            if (reader.Name != "name") { reader.ReadToFollowing("name"); }
             _teamToMap.Name = reader.ReadElementContentAsString();
         }
 

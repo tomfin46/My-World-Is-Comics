@@ -124,7 +124,7 @@
     <Compile Include="DataModel\Resources\Character.cs" />
     <Compile Include="DataModel\Resources\ComicSeriesVolume.cs" />
     <Compile Include="DataModel\Resources\Creator.cs" />
-    <Compile Include="DataModel\Description.cs" />
+    <Compile Include="DataModel\DescriptionContent\Description.cs" />
     <Compile Include="DataModel\Enums\Gender.cs" />
     <Compile Include="DataModel\Enums\ImageTypes.cs" />
     <Compile Include="DataModel\Enums\Month.cs" />

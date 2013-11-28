@@ -1,9 +1,8 @@
-﻿namespace MyWorldIsComics.DataModel
+﻿namespace MyWorldIsComics.DataModel.DescriptionContent
 {
-    using MyWorldIsComics.DataModel.DescriptionContent;
-
     internal class Description
     {
+        public int UniqueId { get; set; }
         public Section CurrentEvents { get; set; }
         public Section Origin { get; set; }
         public Section Creation { get; set; }

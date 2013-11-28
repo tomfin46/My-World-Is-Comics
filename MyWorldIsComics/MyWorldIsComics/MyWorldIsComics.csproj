@@ -107,11 +107,14 @@
     </Compile>
     <Compile Include="DataModel\DescriptionContent\Figure.cs" />
     <Compile Include="DataModel\DescriptionContent\Link.cs" />
+    <Compile Include="DataModel\DescriptionContent\List.cs" />
     <Compile Include="DataModel\DescriptionContent\Paragraph.cs" />
+    <Compile Include="DataModel\DescriptionContent\Quote.cs" />
     <Compile Include="DataModel\DescriptionContent\Section.cs" />
     <Compile Include="DataModel\Interfaces\IDescriptionContent.cs" />
     <Compile Include="DataModel\Interfaces\IPerson.cs" />
     <Compile Include="DataModel\Interfaces\IResource.cs" />
+    <Compile Include="DataSource\ComicBookRoundupSource.cs" />
     <Compile Include="Mappers\IssueMapper.cs" />
     <Compile Include="Mappers\TeamMapper.cs" />
     <Compile Include="ResourcePages\CharacterPage.xaml.cs">

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MyWorldIsComics.DataModel.DescriptionContent;
+using MyWorldIsComics.DataModel.Interfaces;
 
 namespace MyWorldIsComics.Mappers
 {
@@ -84,8 +85,10 @@ namespace MyWorldIsComics.Mappers
                         section.ContentQueue.Enqueue(ProcessFigure(nextSibling));
                         break;
                     case "ul":
+                        section.ContentQueue.Enqueue(ProcessList(nextSibling));
                         break;
                     case "blockquote":
+                        section.ContentQueue.Enqueue(ProcessQuote(nextSibling));
                         break;
                     case "h3":
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
@@ -115,7 +118,7 @@ namespace MyWorldIsComics.Mappers
 
             return section;
         }
-
+        
         private static Paragraph ProcessParagraph(HtmlNode paragraphNode)
         {
             Paragraph paragraph = new Paragraph
@@ -157,6 +160,28 @@ namespace MyWorldIsComics.Mappers
             return figure;
         }
 
+        private static List ProcessList(HtmlNode listNode)
+        {
+            List list = new List();
+            foreach (HtmlNode childNode in listNode.ChildNodes.Where(childNode => childNode.Name == "li"))
+            {
+                Paragraph para = ProcessParagraph(childNode);
+                list.ContentQueue.Enqueue(para);
+            }
+            return list;
+        }
+
+        private static Quote ProcessQuote(HtmlNode quoteNode)
+        {
+            Paragraph para = ProcessParagraph(quoteNode);
+            Quote quote = new Quote
+            {
+                Text = para.Text,
+                Links = para.Links
+            };
+            return quote;
+        }
+        
         private static Section ProcessSubSection(HtmlNode subSectionNode)
         {
             Section section = new Section
@@ -176,6 +201,12 @@ namespace MyWorldIsComics.Mappers
                         break;
                     case "figure":
                         section.ContentQueue.Enqueue(ProcessFigure(nextSibling));
+                        break;
+                    case "ul":
+                        section.ContentQueue.Enqueue(ProcessList(nextSibling));
+                        break;
+                    case "blockquote":
+                        section.ContentQueue.Enqueue(ProcessQuote(nextSibling));
                         break;
                     case "h3":
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));

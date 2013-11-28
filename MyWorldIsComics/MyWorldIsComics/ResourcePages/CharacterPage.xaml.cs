@@ -16,13 +16,13 @@ namespace MyWorldIsComics.ResourcePages
     using Windows.UI.Xaml.Input;
     using Windows.UI.Xaml.Navigation;
 
-    using MyWorldIsComics.Common;
-    using MyWorldIsComics.DataModel;
-    using MyWorldIsComics.DataModel.DescriptionContent;
-    using MyWorldIsComics.DataModel.Interfaces;
-    using MyWorldIsComics.DataModel.Resources;
-    using MyWorldIsComics.DataSource;
-    using MyWorldIsComics.Mappers;
+    using Common;
+    using DataModel;
+    using DataModel.DescriptionContent;
+    using DataModel.Interfaces;
+    using DataModel.Resources;
+    using DataSource;
+    using Mappers;
 
     /// <summary>
     /// A page that displays a grouped collection of items.
@@ -39,8 +39,8 @@ namespace MyWorldIsComics.ResourcePages
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
-            get { return this._defaultViewModel; }
-            set { this._defaultViewModel = value; }
+            get { return _defaultViewModel; }
+            set { _defaultViewModel = value; }
         }
 
         /// <summary>
@@ -49,18 +49,18 @@ namespace MyWorldIsComics.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this._navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         public CharacterPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
-            this._character = new Character();
+            _character = new Character();
 
-            this._navigationHelper = new NavigationHelper(this);
-            this._navigationHelper.LoadState += this.navigationHelper_LoadState;
-            this._navigationHelper.SaveState += this.navigationHelper_SaveState;
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -87,23 +87,23 @@ namespace MyWorldIsComics.ResourcePages
 
             try
             {
-                await this.LoadQuickCharacter(name);
+                await LoadQuickCharacter(name);
 
-                this.BioHubSection.Visibility = Visibility.Visible;
+                BioHubSection.Visibility = Visibility.Visible;
 
-                await this.LoadDescription(this.DefaultViewModel["QuickCharacter"] as Character);
+                await LoadDescription(DefaultViewModel["QuickCharacter"] as Character);
 
-                this.CreateDataTemplates();
+                CreateDataTemplates();
 
-                await this.LoadCharacter(this.DefaultViewModel["QuickCharacter"] as Character);
+                await LoadCharacter(DefaultViewModel["QuickCharacter"] as Character);
 
-                if (_character.FirstAppearanceId != 0) { this.TeamSection.IsHeaderInteractive = true; }
+                if (_character.FirstAppearanceId != 0) { TeamSection.IsHeaderInteractive = true; }
 
-                await this.LoadFirstAppearance(this.DefaultViewModel["Character"] as Character, prevName);
+                await LoadFirstAppearance(DefaultViewModel["Character"] as Character, prevName);
 
-                if (_character.FirstAppearanceId != 0) { this.FirstAppearanceSection.IsHeaderInteractive = true; }
+                if (_character.FirstAppearanceId != 0) { FirstAppearanceSection.IsHeaderInteractive = true; }
 
-                await this.LoadQuickTeams(this.DefaultViewModel["Character"] as Character, prevName);
+                await LoadQuickTeams(DefaultViewModel["Character"] as Character, prevName);
             }
             catch (TaskCanceledException)
             {
@@ -113,35 +113,35 @@ namespace MyWorldIsComics.ResourcePages
 
         private void CreateDataTemplates()
         {
-            if (_description.CurrentEvents == null) this.HideHubSection("Current Events");
-            else this.CreateDataTemplate(_description.CurrentEvents);
+            if (_description.CurrentEvents == null) HideHubSection("Current Events");
+            else CreateDataTemplate(_description.CurrentEvents);
 
-            if (_description.Origin == null) this.HideHubSection("Origin");
-            else this.CreateDataTemplate(_description.Origin);
+            if (_description.Origin == null) HideHubSection("Origin");
+            else CreateDataTemplate(_description.Origin);
 
-            if (_description.Creation == null) this.HideHubSection("Creation");
-            else this.CreateDataTemplate(_description.Creation);
+            if (_description.Creation == null) HideHubSection("Creation");
+            else CreateDataTemplate(_description.Creation);
 
-            if (_description.DistinguishingCharacteristics == null) this.HideHubSection("Distinguishing Characteristics");
-            else this.CreateDataTemplate(_description.DistinguishingCharacteristics);
+            if (_description.DistinguishingCharacteristics == null) HideHubSection("Distinguishing Characteristics");
+            else CreateDataTemplate(_description.DistinguishingCharacteristics);
 
-            if (_description.CharacterEvolution == null) this.HideHubSection("Character Evolution");
-            else this.CreateDataTemplate(_description.CharacterEvolution);
+            if (_description.CharacterEvolution == null) HideHubSection("Character Evolution");
+            else CreateDataTemplate(_description.CharacterEvolution);
 
-            if (_description.MajorStoryArcs == null) this.HideHubSection("Major Story Arcs");
-            else this.CreateDataTemplate(_description.MajorStoryArcs);
+            if (_description.MajorStoryArcs == null) HideHubSection("Major Story Arcs");
+            else CreateDataTemplate(_description.MajorStoryArcs);
 
-            if (_description.PowersAndAbilities == null) this.HideHubSection("Powers and Abilities");
-            else this.CreateDataTemplate(_description.PowersAndAbilities);
+            if (_description.PowersAndAbilities == null) HideHubSection("Powers and Abilities");
+            else CreateDataTemplate(_description.PowersAndAbilities);
 
-            if (_description.WeaponsAndEquipment == null) this.HideHubSection("Weapons and Equipment");
-            else this.CreateDataTemplate(_description.WeaponsAndEquipment);
+            if (_description.WeaponsAndEquipment == null) HideHubSection("Weapons and Equipment");
+            else CreateDataTemplate(_description.WeaponsAndEquipment);
 
-            if (_description.AlternateRealities == null) this.HideHubSection("Alternate Realities");
-            else this.CreateDataTemplate(_description.AlternateRealities);
+            if (_description.AlternateRealities == null) HideHubSection("Alternate Realities");
+            else CreateDataTemplate(_description.AlternateRealities);
 
-            if (_description.OtherMedia == null) this.HideHubSection("Other Media");
-            else this.CreateDataTemplate(_description.OtherMedia);
+            if (_description.OtherMedia == null) HideHubSection("Other Media");
+            else CreateDataTemplate(_description.OtherMedia);
         }
 
         private void CreateDataTemplate(Section descriptionSection)
@@ -182,6 +182,22 @@ namespace MyWorldIsComics.ResourcePages
                                                        "</Paragraph>" +
                                                        "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + fig.Text + "</Paragraph>";
                             break;
+                        case "List":
+                            List list = descriptionSection.ContentQueue.Dequeue() as List;
+                            if (list != null)
+                            {
+                                while (list.ContentQueue.Count > 0)
+                                {
+                                    Paragraph listItem = list.ContentQueue.Dequeue() as Paragraph;
+                                    //TODO bulleted paragraph
+                                    if(listItem != null) markup += "" + listItem.FormatLinks();
+                                }
+                            }
+                            break;
+                        case "Quote":
+                            Quote quote = descriptionSection.ContentQueue.Dequeue() as Quote;
+                            if (quote != null) markup += "<Paragraph Margin=\"10\"><Bold>" + quote.FormatLinks() + "</Bold></Paragraph>";
+                            break;
                         case "Section":
                             Section section = descriptionSection.ContentQueue.Dequeue() as Section;
                             if (section != null) markup += MarkupSection(section);
@@ -194,7 +210,7 @@ namespace MyWorldIsComics.ResourcePages
                 markup += "</DataTemplate>";
 
                 DataTemplate dataTemplate = (DataTemplate)XamlReader.Load(markup);
-                this.SetHubSectionContentTemplate(dataTemplate, descriptionSection.Title);
+                SetHubSectionContentTemplate(dataTemplate, descriptionSection.Title);
             }
         }
 
@@ -253,19 +269,19 @@ namespace MyWorldIsComics.ResourcePages
             switch (sectionTitle)
             {
                 case "Current Events":
-                    this.CurrentEventsHubSection.Visibility = Visibility.Collapsed;
+                    CurrentEventsHubSection.Visibility = Visibility.Collapsed;
                     break;
                 case "Origin":
                 case "Origins":
-                    this.OriginHubSection.Visibility = Visibility.Collapsed;
+                    OriginHubSection.Visibility = Visibility.Collapsed;
                     break;
                 case "Creation":
-                    this.CreationHubSection.Visibility = Visibility.Collapsed;
+                    CreationHubSection.Visibility = Visibility.Collapsed;
                     break;
                 case "Distinguishing Characteristics":
                     break;
                 case "Character Evolution":
-                    this.CharacterEvolutionHubSection.Visibility = Visibility.Collapsed;
+                    CharacterEvolutionHubSection.Visibility = Visibility.Collapsed;
                     break;
                 case "Major Story Arcs":
                     break;
@@ -284,19 +300,19 @@ namespace MyWorldIsComics.ResourcePages
             switch (sectionTitle)
             {
                 case "Current Events":
-                    this.CurrentEventsHubSection.ContentTemplate = sectionTemplate;
+                    CurrentEventsHubSection.ContentTemplate = sectionTemplate;
                     break;
                 case "Origin":
                 case "Origins":
-                    this.OriginHubSection.ContentTemplate = sectionTemplate;
+                    OriginHubSection.ContentTemplate = sectionTemplate;
                     break;
                 case "Creation":
-                    this.CreationHubSection.ContentTemplate = sectionTemplate;
+                    CreationHubSection.ContentTemplate = sectionTemplate;
                     break;
                 case "Distinguishing Characteristics":
                     break;
                 case "Character Evolution":
-                    this.CharacterEvolutionHubSection.ContentTemplate = sectionTemplate;
+                    CharacterEvolutionHubSection.ContentTemplate = sectionTemplate;
                     break;
                 case "Major Story Arcs":
                     break;
@@ -314,16 +330,16 @@ namespace MyWorldIsComics.ResourcePages
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            if (this.Frame.CurrentSourcePageType.Name == "HubPage")
+            if (Frame.CurrentSourcePageType.Name == "HubPage")
             {
-                this._character = null;
+                _character = null;
             }
             else
             {
                 // Save response content so don't have to fetch from api service again
-                SavedData.QuickCharacter = this.DefaultViewModel["QuickCharacter"] as Character;
-                SavedData.Character = this.DefaultViewModel["Character"] as Character;
-                SavedData.FirstAppearance = this.DefaultViewModel["FirstAppearance"] as Issue;
+                SavedData.QuickCharacter = DefaultViewModel["QuickCharacter"] as Character;
+                SavedData.Character = DefaultViewModel["Character"] as Character;
+                SavedData.FirstAppearance = DefaultViewModel["FirstAppearance"] as Issue;
             }
         }
 
@@ -331,13 +347,13 @@ namespace MyWorldIsComics.ResourcePages
         {
             if (SavedData.QuickCharacter != null && SavedData.QuickCharacter.Name == name)
             {
-                this.DefaultViewModel["QuickCharacter"] = SavedData.QuickCharacter;
+                DefaultViewModel["QuickCharacter"] = SavedData.QuickCharacter;
             }
             else
             {
                 var quickCharacterString = await ComicVineSource.ExecuteSearchAsync(name);
-                this._character = this.MapQuickCharacter(quickCharacterString);
-                this.DefaultViewModel["QuickCharacter"] = this._character;
+                _character = MapQuickCharacter(quickCharacterString);
+                DefaultViewModel["QuickCharacter"] = _character;
             }
         }
 
@@ -353,21 +369,21 @@ namespace MyWorldIsComics.ResourcePages
         {
             var characterDescription = await ComicVineSource.FormatDescriptionAsync(quickCharacter.DescriptionString);
             _description = characterDescription;
-            this.DefaultViewModel["CharacterDescription"] = characterDescription;
+            DefaultViewModel["CharacterDescription"] = characterDescription;
         }
 
         private async Task LoadCharacter(Character quickCharacter)
         {
             if (SavedData.Character != null && SavedData.Character.Name == quickCharacter.Name)
             {
-                this._character = SavedData.Character;
-                this.DefaultViewModel["Character"] = this._character;
+                _character = SavedData.Character;
+                DefaultViewModel["Character"] = _character;
             }
             else
             {
                 var characterString = await ComicVineSource.GetCharacterAsync(quickCharacter.UniqueId);
-                this._character = this.MapCharacter(characterString);
-                this.DefaultViewModel["Character"] = this._character;
+                _character = MapCharacter(characterString);
+                DefaultViewModel["Character"] = _character;
             }
         }
 
@@ -399,7 +415,7 @@ namespace MyWorldIsComics.ResourcePages
             {
                 foreach (int teamId in character.TeamIds.Take(6))
                 {
-                    Team team = this.MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                    Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
                     if (character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
                     character.Teams.Add(team);
                 }
@@ -416,15 +432,15 @@ namespace MyWorldIsComics.ResourcePages
             if (SavedData.FirstAppearance != null && SavedData.Character != null &&
                 SavedData.Character.FirstAppearanceId == SavedData.FirstAppearance.UniqueId)
             {
-                this.DefaultViewModel["FirstAppearance"] = SavedData.FirstAppearance;
+                DefaultViewModel["FirstAppearance"] = SavedData.FirstAppearance;
             }
             else
             {
                 if (character.FirstAppearanceId != 0)
                 {
-                    Issue issue = this.MapIssue(await ComicVineSource.GetIssueAsync(character.FirstAppearanceId.ToString()));
+                    Issue issue = MapIssue(await ComicVineSource.GetIssueAsync(character.FirstAppearanceId.ToString()));
                     character.FirstAppearanceIssue = issue;
-                    this.DefaultViewModel["FirstAppearance"] = character.FirstAppearanceIssue;
+                    DefaultViewModel["FirstAppearance"] = character.FirstAppearanceIssue;
                 }
             }
         }
@@ -447,12 +463,12 @@ namespace MyWorldIsComics.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            this._navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            this._navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
@@ -463,18 +479,18 @@ namespace MyWorldIsComics.ResourcePages
         private void TeamView_TeamClick(object sender, ItemClickEventArgs e)
         {
             var team = ((Team)e.ClickedItem);
-            this.Frame.Navigate(typeof(TeamPage), team);
+            Frame.Navigate(typeof(TeamPage), team);
         }
 
-        private void Page_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        private void Page_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            this.BackButton.Visibility = this.BackButton.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+            BackButton.Visibility = BackButton.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void Hub_SectionHeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
-            var characterToSend = this._character;
-            this.Frame.Navigate(typeof(TeamsPage), characterToSend);
+            var characterToSend = _character;
+            Frame.Navigate(typeof(TeamsPage), characterToSend);
         }
 
         #endregion

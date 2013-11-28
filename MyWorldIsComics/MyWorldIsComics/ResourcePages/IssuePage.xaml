@@ -33,7 +33,7 @@
         <Grid Grid.Row="1" x:Name="contentRegion"/>
 
         <!-- Back button and page title -->
-        <Grid>
+        <Grid DataContext="{Binding Issue}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="*"/>
@@ -44,8 +44,14 @@
                         AutomationProperties.Name="Back"
                         AutomationProperties.AutomationId="BackButton"
                         AutomationProperties.ItemType="Navigation Button"/>
-            <TextBlock x:Name="pageTitle" Text="{Binding Title}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
+            <TextBlock x:Name="issueTitle" Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
+            <TextBlock x:Name="volumeTitle" Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" Grid.Column="1" 
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40">
+                <Run Text="{Binding VolumeName}"></Run>
+                <Run Text=" #"></Run>
+                <Run Text="{Binding IssueNumber}"></Run>
+            </TextBlock>
         </Grid>
     </Grid>
 </Page>

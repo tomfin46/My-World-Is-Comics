@@ -1,4 +1,5 @@
-﻿using Windows.ApplicationModel.Store;
+﻿using System.Net.Http;
+using Windows.ApplicationModel.Store;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Markup;
 using Paragraph = MyWorldIsComics.DataModel.DescriptionContent.Paragraph;
@@ -79,23 +80,38 @@ namespace MyWorldIsComics.ResourcePages
 
             string name = e.NavigationParameter as string;
 
-            if (SavedData.BasicCharacter != null && SavedData.BasicCharacter.Name == name)
+            try
             {
-                this.basicCharacterForPage = SavedData.BasicCharacter;
+                if (SavedData.BasicCharacter != null && SavedData.BasicCharacter.Name == name)
+                {
+                    this.basicCharacterForPage = SavedData.BasicCharacter;
+                    this.CharacterPageViewModel["BasicCharacter"] = this.basicCharacterForPage;
+                    BioHubSection.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    await this.LoadBasicCharacter(name);
+                }
+
+                await this.LoadDescription();
+
+                if (SavedData.Character != null && SavedData.Character.UniqueId == this.basicCharacterForPage.UniqueId)
+                {
+                    this.filteredCharacterForPage = SavedData.Character;
+                    this.CharacterPageViewModel["FilteredCharacter"] = this.filteredCharacterForPage;
+                    this.HideOrShowFilteredSections();
+                }
+                else
+                {
+                    await this.LoadCharacter();
+                }
+            }
+            catch (HttpRequestException)
+            {
+                this.basicCharacterForPage = new Character();
+                this.basicCharacterForPage.Name = "An internet connection is required here";
                 this.CharacterPageViewModel["BasicCharacter"] = this.basicCharacterForPage;
-                BioHubSection.Visibility = Visibility.Visible;
             }
-            else { await this.LoadBasicCharacter(name); }
-
-            await this.LoadDescription();
-
-            if (SavedData.Character != null && SavedData.Character.UniqueId == this.basicCharacterForPage.UniqueId)
-            {
-                this.filteredCharacterForPage = SavedData.Character;
-                this.CharacterPageViewModel["FilteredCharacter"] = this.filteredCharacterForPage;
-                this.HideOrShowFilteredSections();
-            }
-            else { await this.LoadCharacter(); }
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
@@ -552,7 +568,7 @@ namespace MyWorldIsComics.ResourcePages
             BackButton.Visibility = BackButton.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private void Hub_SectionHeaderClick(object sender, HubSectionHeaderClickEventArgs e)
+        private void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
             Frame.Navigate(typeof(TeamsPage), this.filteredCharacterForPage);
         }

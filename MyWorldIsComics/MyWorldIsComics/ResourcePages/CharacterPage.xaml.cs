@@ -300,6 +300,8 @@ namespace MyWorldIsComics.ResourcePages
                 case "Major Story Arcs":
                     break;
                 case "Powers and Abilities":
+                case "Abilties":
+                case "Powers":
                 case "Powers and Abilties":
                     PowersAndAbilitiesHubSection.Visibility = Visibility.Collapsed;
                     break;
@@ -333,6 +335,8 @@ namespace MyWorldIsComics.ResourcePages
                 case "Major Story Arcs":
                     break;
                 case "Powers and Abilities":
+                case "Abilties":
+                case "Powers":
                 case "Powers and Abilties":
                     PowersAndAbilitiesHubSection.ContentTemplate = sectionTemplate;
                     break;

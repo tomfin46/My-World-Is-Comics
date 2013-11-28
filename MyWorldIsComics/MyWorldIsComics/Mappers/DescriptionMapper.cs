@@ -47,6 +47,8 @@ namespace MyWorldIsComics.Mappers
                         descriptionToReturn.MajorStoryArcs = ProcessSection(link);
                         break;
                     case "Powers and Abilities":
+                    case "Abilties":
+                    case "Powers":
                     case "Powers and Abilties":
                         descriptionToReturn.PowersAndAbilities = ProcessSection(link);
                         break;

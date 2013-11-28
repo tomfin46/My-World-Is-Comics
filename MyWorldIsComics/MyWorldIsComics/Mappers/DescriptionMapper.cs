@@ -83,6 +83,10 @@ namespace MyWorldIsComics.Mappers
                     case "figure":
                         section.ContentQueue.Enqueue(ProcessFigure(nextSibling));
                         break;
+                    case "ul":
+                        break;
+                    case "blockquote":
+                        break;
                     case "h3":
                         section.ContentQueue.Enqueue(ProcessSubSection(nextSibling));
 
@@ -125,11 +129,14 @@ namespace MyWorldIsComics.Mappers
                 var nodes = paragraphNode.ChildNodes;
                 foreach (HtmlNode htmlNode in nodes.Where(htmlNode => htmlNode.Name == "a").Where(htmlNode => htmlNode.GetAttributeValue("rel", String.Empty) != "nofollow"))
                 {
-                    paragraph.Links.Add(new Link
+                    if (paragraph.Links.All(link => link.Href != htmlNode.GetAttributeValue("href", String.Empty)))
                     {
-                        Href = htmlNode.GetAttributeValue("href", String.Empty),
-                        Text = htmlNode.InnerText
-                    });
+                        paragraph.Links.Add(new Link
+                        {
+                            Href = htmlNode.GetAttributeValue("href", String.Empty),
+                            Text = htmlNode.InnerText
+                        });
+                    }
                 }
             }
 

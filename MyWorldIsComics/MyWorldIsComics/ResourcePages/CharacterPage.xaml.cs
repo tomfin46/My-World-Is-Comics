@@ -97,11 +97,11 @@ namespace MyWorldIsComics.ResourcePages
 
                 await this.LoadCharacter(this.DefaultViewModel["QuickCharacter"] as Character);
 
-                this.TeamSection.IsHeaderInteractive = true;
+                if (_character.FirstAppearanceId != 0) { this.TeamSection.IsHeaderInteractive = true; }
 
                 await this.LoadFirstAppearance(this.DefaultViewModel["Character"] as Character, prevName);
 
-                this.FirstAppearanceSection.IsHeaderInteractive = true;
+                if (_character.FirstAppearanceId != 0) { this.FirstAppearanceSection.IsHeaderInteractive = true; }
 
                 await this.LoadQuickTeams(this.DefaultViewModel["Character"] as Character, prevName);
             }
@@ -166,7 +166,7 @@ namespace MyWorldIsComics.ResourcePages
                             if (descriptionSection.ContentQueue.Count > 0 && descriptionSection.ContentQueue.Peek().GetType() == typeof(Figure))
                             {
                                 Figure paraFig = descriptionSection.ContentQueue.Dequeue() as Figure;
-                                if (paraFig != null) markup += "<InlineUIContainer><Image Source=\"" + paraFig.ImageSource+ "\" Stretch=\"Fill\"/></InlineUIContainer>" +
+                                if (paraFig != null) markup += "<InlineUIContainer><Image Source=\"" + paraFig.ImageSource + "\" Stretch=\"Fill\"/></InlineUIContainer>" +
                                                                "</Paragraph>" +
                                                                "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + paraFig.Text + "</Paragraph>";
                             }
@@ -247,7 +247,7 @@ namespace MyWorldIsComics.ResourcePages
 
             return markup;
         }
-        
+
         private void HideHubSection(string sectionTitle)
         {
             switch (sectionTitle)
@@ -413,15 +413,19 @@ namespace MyWorldIsComics.ResourcePages
 
         private async Task LoadFirstAppearance(Character character, string prevName)
         {
-            if (SavedData.FirstAppearance != null && SavedData.Character != null && SavedData.Character.FirstAppearanceId == SavedData.FirstAppearance.UniqueId)
+            if (SavedData.FirstAppearance != null && SavedData.Character != null &&
+                SavedData.Character.FirstAppearanceId == SavedData.FirstAppearance.UniqueId)
             {
                 this.DefaultViewModel["FirstAppearance"] = SavedData.FirstAppearance;
             }
             else
             {
-                Issue issue = this.MapIssue(await ComicVineSource.GetIssueAsync(character.FirstAppearanceId.ToString()));
-                character.FirstAppearanceIssue = issue;
-                this.DefaultViewModel["FirstAppearance"] = character.FirstAppearanceIssue;
+                if (character.FirstAppearanceId != 0)
+                {
+                    Issue issue = this.MapIssue(await ComicVineSource.GetIssueAsync(character.FirstAppearanceId.ToString()));
+                    character.FirstAppearanceIssue = issue;
+                    this.DefaultViewModel["FirstAppearance"] = character.FirstAppearanceIssue;
+                }
             }
         }
 

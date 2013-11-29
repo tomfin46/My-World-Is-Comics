@@ -13,7 +13,7 @@ namespace MyWorldIsComics.Mappers
 
     class IssueMapper
     {
-        private readonly Issue _issueToMap;
+        private Issue _issueToMap;
 
         public IssueMapper()
         {
@@ -37,30 +37,60 @@ namespace MyWorldIsComics.Mappers
             return _issueToMap;
         }
 
-        public Issue MapXmlObject(string xmlString)
+        public Issue MapFilteredXmlObject(Issue basicIssue, string filteredIssueString, string filter)
         {
-            using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
+            _issueToMap = basicIssue;
+            switch (filter)
             {
-                reader.ReadToFollowing("results");
-                ParseComicVineApiUrl(reader);
-                ParseCharacters(reader);
-                ParseConcepts(reader);
-                ParseCoverDate(reader);
-                ParseDeck(reader);
-                ParseDescriptionString(reader);
-                ParseStaffReview(reader);
-                ParseId(reader);
-                ParseImage(reader);
-                ParseIssueNumber(reader);
-                ParseLocations(reader);
-                ParseName(reader);
-                ParseObjects(reader);
-                ParsePeople(reader);
-                ParseComicVineSiteUrl(reader);
-                ParseStoreDate(reader);
-                ParseStoryArcs(reader);
-                ParseTeams(reader);
-                ParseVolume(reader);
+                case "person_credits":
+                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                    {
+                        reader.ReadToFollowing("results");
+                        this.ParsePeople(reader);
+                    }
+                    break;
+                case "character_credits":
+                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                    {
+                        reader.ReadToFollowing("results");
+                        this.ParseCharacters(reader);
+                    }
+                    break;
+                case "team_credits":
+                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                    {
+                        reader.ReadToFollowing("results");
+                        this.ParseTeams(reader);
+                    }
+                    break;
+                case "location_credits":
+                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                    {
+                        reader.ReadToFollowing("results");
+                        this.ParseLocations(reader);
+                    }
+                    break;
+                case "concept_credits":
+                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                    {
+                        reader.ReadToFollowing("results");
+                        this.ParseConcepts(reader);
+                    }
+                    break;
+                case "object_credits":
+                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                    {
+                        reader.ReadToFollowing("results");
+                        this.ParseObjects(reader);
+                    }
+                    break;
+                case "story_arc_credits":
+                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                    {
+                        reader.ReadToFollowing("results");
+                        this.ParseStoryArcs(reader);
+                    }
+                    break;
             }
             return _issueToMap;
         }

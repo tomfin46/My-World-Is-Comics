@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MyWorldIsComics.DataModel.Enums;
 using MyWorldIsComics.DataModel.Interfaces;
 
-namespace MyWorldIsComics.DataModel
+namespace MyWorldIsComics.DataModel.Resources
 {
-    class Creator : IResource, IPerson
+    public class Creator : IResource, IPerson
     {
         #region IResource Fields
 
@@ -27,6 +24,9 @@ namespace MyWorldIsComics.DataModel
         public Gender.GenderEnum Gender { get; set; }
 
         #endregion
+
+        public string Role { get; set; }
+
 
         public override string ToString()
         {

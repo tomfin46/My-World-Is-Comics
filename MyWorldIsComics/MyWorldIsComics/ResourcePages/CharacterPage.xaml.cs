@@ -570,7 +570,17 @@ namespace MyWorldIsComics.ResourcePages
 
         private void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
-            Frame.Navigate(typeof(TeamsPage), this.filteredCharacterForPage);
+            if (e == null) return;
+            if (e.Section.Header != null)
+                switch (e.Section.Header.ToString())
+                {
+                    case "Teams":
+                        Frame.Navigate(typeof(TeamsPage), this.filteredCharacterForPage);
+                        break;
+                    case "First Appearance":
+                        Frame.Navigate(typeof(IssuePage), this.filteredCharacterForPage.FirstAppearanceIssue);
+                        break;
+                }
         }
 
         #endregion

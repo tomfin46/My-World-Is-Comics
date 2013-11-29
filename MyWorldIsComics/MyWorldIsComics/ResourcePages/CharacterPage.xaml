@@ -61,7 +61,7 @@
 
             </Hub.Header>
 
-            <HubSection x:Name="BioHubSection" Width="580" Margin="0,0,20,0" DataContext="{Binding BasicCharacter}" Visibility="Collapsed">
+            <HubSection x:Name="BioHubSection" Width="620" Margin="0,0,20,0" DataContext="{Binding BasicCharacter}" Visibility="Collapsed">
                 <HubSection.Background>
                     <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
                 </HubSection.Background>
@@ -130,8 +130,7 @@
                                     <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
                                         <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,0,0,0">
                                             <Run Text="{Binding FirstAppearanceIssue.VolumeName}"></Run>
-                                            <Run Text=" #"></Run>
-                                            <Run Text="{Binding FirstAppearanceIssue.IssueNumber}"></Run>
+                                            <Run Text="{Binding FirstAppearanceIssue.IssueNumberString}"></Run>
                                         </TextBlock>
                                         <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
                                         <TextBlock Text="{Binding FirstAppearanceIssue.IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>

@@ -55,6 +55,11 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issue, issueId));
         }
 
+        public static async Task<string> GetFilteredIssueAsync(int issueId, string filter)
+        {
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issue, issueId.ToString(), filter));
+        }
+
         public static async Task<Description> FormatDescriptionAsync(string descriptionString)
         {
             return await Task.Run(() => DescriptionMapper.MapDescription(descriptionString));
@@ -130,5 +135,6 @@ namespace MyWorldIsComics.DataSource
         {
             return cts.IsCancellationRequested;
         }
+
     }
 }

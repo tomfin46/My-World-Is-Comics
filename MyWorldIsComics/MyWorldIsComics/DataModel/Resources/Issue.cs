@@ -1,4 +1,6 @@
-﻿namespace MyWorldIsComics.DataModel.Resources
+﻿using System.Collections.ObjectModel;
+
+namespace MyWorldIsComics.DataModel.Resources
 {
     using System;
     using MyWorldIsComics.DataModel.Interfaces;
@@ -28,6 +30,13 @@
         #endregion
 
         public int IssueNumber { get; set; }
+        public string IssueNumberString
+        {
+            get
+            {
+                return " #" + IssueNumber;
+            }
+        }
         public string ResourceString { get; set; }
         public DateTime CoverDate { get; set; }
         public string CoverDateString
@@ -55,11 +64,24 @@
         public List<int> ConceptIds { get; set; }
         public List<int> LocationIds { get; set; }
         public List<int> ObjectIds { get; set; }
+        public ObservableCollection<Creator> Creators { get; set; }
         public Dictionary<int, string> PersonIds { get; set; }
         public List<int> StoryArcIds { get; set; }
         public List<int> TeamIds { get; set; }
 
         #endregion
+
+        public Issue()
+        {
+            CharacterIds = new List<int>();
+            ConceptIds = new List<int>();
+            LocationIds = new List<int>();
+            ObjectIds = new List<int>();
+            Creators = new ObservableCollection<Creator>();
+            PersonIds = new Dictionary<int, string>();
+            StoryArcIds = new List<int>();
+            TeamIds = new List<int>();
+        }
 
         public override string ToString()
         {

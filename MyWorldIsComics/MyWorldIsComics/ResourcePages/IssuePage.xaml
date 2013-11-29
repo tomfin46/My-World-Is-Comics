@@ -1,7 +1,7 @@
 ﻿<Page
     x:Name="pageRoot"
     x:Class="MyWorldIsComics.ResourcePages.IssuePage"
-    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
+    DataContext="{Binding IssuePageViewModel, RelativeSource={RelativeSource Self}}"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MyWorldIsComics.ResourcePages"
@@ -15,7 +15,7 @@
         * Row 0 contains the back button and page title
         * Row 1 contains the rest of the page layout
     -->
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" DataContext="{Binding Issue}">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition/>
@@ -26,32 +26,73 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!--
-            TODO: Content should be placed within the following grid 
-                  to show details for the current item
-        -->
-        <Grid Grid.Row="1" x:Name="contentRegion"/>
-
         <!-- Back button and page title -->
-        <Grid DataContext="{Binding Issue}">
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
+            <Button x:Name="BackButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
                         Style="{StaticResource NavigationBackButtonNormalStyle}"
                         VerticalAlignment="Top"
                         AutomationProperties.Name="Back"
                         AutomationProperties.AutomationId="BackButton"
                         AutomationProperties.ItemType="Navigation Button"/>
-            <TextBlock x:Name="issueTitle" Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
-            <TextBlock x:Name="volumeTitle" Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" Grid.Column="1" 
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40">
-                <Run Text="{Binding VolumeName}"></Run>
-                <Run Text=" #"></Run>
-                <Run Text="{Binding IssueNumber}"></Run>
+            <TextBlock x:Name="VolumnName" Text="{Binding VolumeName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" Margin="0,0,30,40"
+                           IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom"/>
+            <TextBlock x:Name="IssueNumberTitle" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="1" 
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="40,0,0,0">
+                <Run Text="{Binding IssueNumberString}" Foreground="{ThemeResource AppBarSeparatorForegroundThemeBrush}" FontWeight="Bold"/>
+                <Run Text="{Binding Name}"/>
             </TextBlock>
+        </Grid>
+
+        <!--
+            TODO: Content should be placed within the following grid 
+                  to show details for the current item
+        -->
+        <Grid Grid.Row="1" x:Name="contentRegion">
+            <FlipView x:Name="IssuesFlipView" BorderBrush="Black" BorderThickness="1" Margin="50,30">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Image Source="{Binding MainImage}" Stretch="Uniform" HorizontalAlignment="Left"/>
+
+                    <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Hidden" Margin="20,0,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Column="0" Grid.Row="0">
+                                <Run Text="Cover Date: " FontWeight="Bold"/>
+                                <Run Text="{Binding CoverDateString}"/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Column="1" Grid.Row="0">
+                                <Run Text="Cover Date: " FontWeight="Bold"/>
+                                <Run Text="{Binding StoreDateString}"/>
+                            </TextBlock>
+
+                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding DescriptionString}"/>
+
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Text="Creators"/>
+
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </FlipView>
         </Grid>
     </Grid>
 </Page>

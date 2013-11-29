@@ -115,6 +115,7 @@
     <Compile Include="DataModel\Interfaces\IPerson.cs" />
     <Compile Include="DataModel\Interfaces\IResource.cs" />
     <Compile Include="DataSource\ComicBookRoundupSource.cs" />
+    <Compile Include="Mappers\CreatorMapper.cs" />
     <Compile Include="Mappers\IssueMapper.cs" />
     <Compile Include="Mappers\TeamMapper.cs" />
     <Compile Include="ResourcePages\CharacterPage.xaml.cs">

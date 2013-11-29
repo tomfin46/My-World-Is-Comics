@@ -135,14 +135,20 @@ namespace MyWorldIsComics.ResourcePages
             foreach (var person in this.filteredIssueForPage.PersonIds.Take(1))
             {
                 Creator creator = this.GetMappedCreator(await ComicVineSource.GetQuickCreatorAsync(person.Key.ToString()));
+                creator.Role = person.Value;
                 if (this.filteredIssueForPage.Creators.Any(c => c.UniqueId == creator.UniqueId)) continue;
                 this.filteredIssueForPage.Creators.Add(creator);
             }
         }
-
-        private Task FetchCharacters()
+        
+        private async Task FetchCharacters()
         {
-            throw new NotImplementedException();
+            foreach (var characterId in this.filteredIssueForPage.CharacterIds.Take(1))
+            {
+                Character character = this.GetMappedCharacte(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
+                if (this.filteredIssueForPage.Creators.Any(c => c.UniqueId == character.UniqueId)) continue;
+                this.filteredIssueForPage.Chracters.Add(character);
+            }
         }
 
         private Task FetchTeams()
@@ -175,6 +181,11 @@ namespace MyWorldIsComics.ResourcePages
         private Issue GetMappedIssueFromFilter(string filteredIssueString, string filter)
         {
             return filteredIssueString == ServiceConstants.QueryNotFound ? new Issue() : new IssueMapper().MapFilteredXmlObject(this.basicIssueForPage, filteredIssueString, filter);
+        }
+
+        private Creator GetMappedCreator(string quickCreator)
+        {
+            return quickCreator == ServiceConstants.QueryNotFound ? new Creator { Name = "Creator Not Found" } : new CreatorMapper().QuickMapXmlObject(quickCreator);
         }
 
         #region NavigationHelper registration

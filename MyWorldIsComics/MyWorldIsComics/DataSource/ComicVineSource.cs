@@ -60,6 +60,12 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issue, issueId.ToString(), filter));
         }
 
+        public static async Task<string> GetQuickCreatorAsync(string personId)
+        {
+            List<string> filters = new List<string> { "deck", "id", "image", "name" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, personId, filters));
+        }
+
         public static async Task<Description> FormatDescriptionAsync(string descriptionString)
         {
             return await Task.Run(() => DescriptionMapper.MapDescription(descriptionString));

@@ -61,6 +61,7 @@ namespace MyWorldIsComics.DataModel.Resources
         #region Collections
 
         public List<int> CharacterIds { get; set; }
+        public ObservableCollection<Creator> Characters { get; set; }
         public List<int> ConceptIds { get; set; }
         public List<int> LocationIds { get; set; }
         public List<int> ObjectIds { get; set; }

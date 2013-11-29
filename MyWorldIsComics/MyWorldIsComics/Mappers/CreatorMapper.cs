@@ -18,15 +18,12 @@ namespace MyWorldIsComics.Mappers
         {
             _creatorToMap = new Creator();
         }
+
         public Creator QuickMapXmlObject(string xmlString)
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
                 reader.ReadToFollowing("results");
-                ParseBirth(reader);
-                ParseDeck(reader);
-                ParseDescriptionString(reader);
-                ParseGender(reader);
                 ParseId(reader);
                 ParseImage(reader);
                 ParseName(reader);

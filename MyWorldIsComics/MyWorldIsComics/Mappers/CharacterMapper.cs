@@ -24,6 +24,19 @@ namespace MyWorldIsComics.Mappers
             _characterToMap = new Character();
         }
 
+        public Character QuickMapXmlObject(string quickCharacterString)
+        {
+            using (XmlReader reader = XmlReader.Create(new StringReader(quickCharacterString)))
+            {
+                reader.ReadToFollowing("results");
+                ParseDeck(reader);
+                ParseId(reader);
+                ParseImage(reader);
+                ParseName(reader);
+            }
+            return _characterToMap;
+        }
+
         public Character MapSearchXmlObject(string characterSearchString)
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(characterSearchString)))

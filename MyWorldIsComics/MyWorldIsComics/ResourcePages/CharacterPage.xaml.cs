@@ -176,7 +176,6 @@ namespace MyWorldIsComics.ResourcePages
                     this.HideOrShowFilteredSections();
                 }
                 await this.FetchRemainingTeams();
-                this.CharacterPageViewModel["FilteredCharacter"] = this.filteredCharacterForPage;
             }
             catch (TaskCanceledException)
             {
@@ -231,7 +230,7 @@ namespace MyWorldIsComics.ResourcePages
         {
             if (this.basicCharacterForPage.FirstAppearanceId != 0)
             {
-                Issue issue = this.GetMappedIssue(await ComicVineSource.GetIssueAsync(this.basicCharacterForPage.FirstAppearanceId.ToString()));
+                Issue issue = this.GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(this.basicCharacterForPage.FirstAppearanceId));
                 this.filteredCharacterForPage.FirstAppearanceIssue = issue;
             }
         }

@@ -70,7 +70,7 @@ namespace MyWorldIsComics.ResourcePages
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
-        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             this.basicIssueForPage = e.NavigationParameter as Issue;
             this.IssuePageViewModel["Issue"] = this.basicIssueForPage;
@@ -78,7 +78,8 @@ namespace MyWorldIsComics.ResourcePages
             // TODO: Assign a bindable group to this.DefaultViewModel["Group"]
             // TODO: Assign a collection of bindable items to this.DefaultViewModel["Items"]
             // TODO: Assign the selected item to this.flipView.SelectedItem
-
+            
+            await this.LoadIssue();
         }
 
         private async Task LoadIssue()
@@ -94,29 +95,31 @@ namespace MyWorldIsComics.ResourcePages
                     switch (filter)
                     {
                         case "person_credits":
-                            await this.FetchPeople();
+                            await this.FetchFirstPerson();
                             break;
                         case "character_credits":
                             await this.FetchCharacters();
                             break;
                         case "team_credits":
-                            await this.FetchTeams();
+                            //await this.FetchTeams();
                             break;
                         case "location_credits":
-                            await this.FetchLocations();
+                            //await this.FetchLocations();
                             break;
                         case "concept_credits":
-                            await this.FetchConcepts();
+                            //await this.FetchConcepts();
                             break;
                         case "object_credits":
-                            await this.FetchObjects();
+                            //await this.FetchObjects();
                             break;
                         case "story_arc_credits":
-                            await this.FetchStoryArcs();
+                            //await this.FetchStoryArcs();
                             break;
                     }
                     this.IssuePageViewModel["FilteredCharacter"] = this.filteredIssueForPage;
                 }
+                await this.FetchRemainingPeople();
+                await this.FetchRemainingCharacters();
             }
             catch (TaskCanceledException)
             {
@@ -130,9 +133,21 @@ namespace MyWorldIsComics.ResourcePages
             string filteredIssueString = await ComicVineSource.GetFilteredIssueAsync(this.basicIssueForPage.UniqueId, filter);
             this.filteredIssueForPage = this.GetMappedIssueFromFilter(filteredIssueString, filter);
         }
-        private async Task FetchPeople()
+        private async Task FetchFirstPerson()
         {
             foreach (var person in this.filteredIssueForPage.PersonIds.Take(1))
+            {
+                Creator creator = this.GetMappedCreator(await ComicVineSource.GetQuickCreatorAsync(person.Key.ToString()));
+                creator.Role = person.Value;
+                if (this.filteredIssueForPage.Creators.Any(c => c.UniqueId == creator.UniqueId)) continue;
+                this.filteredIssueForPage.Creators.Add(creator);
+            }
+        }
+
+        private async Task FetchRemainingPeople()
+        {
+            var firstId = this.filteredIssueForPage.PersonIds.First();
+            foreach (var person in this.filteredIssueForPage.PersonIds.Where(p => p.Key != firstId.Key).Take(this.filteredIssueForPage.PersonIds.Count - 1))
             {
                 Creator creator = this.GetMappedCreator(await ComicVineSource.GetQuickCreatorAsync(person.Key.ToString()));
                 creator.Role = person.Value;
@@ -145,9 +160,20 @@ namespace MyWorldIsComics.ResourcePages
         {
             foreach (var characterId in this.filteredIssueForPage.CharacterIds.Take(1))
             {
-                Character character = this.GetMappedCharacte(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
+                Character character = this.GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
                 if (this.filteredIssueForPage.Creators.Any(c => c.UniqueId == character.UniqueId)) continue;
-                this.filteredIssueForPage.Chracters.Add(character);
+                this.filteredIssueForPage.Characters.Add(character);
+            }
+        }
+
+        private async Task FetchRemainingCharacters()
+        {
+            var firstId = this.filteredIssueForPage.CharacterIds.First();
+            foreach (var characterId in this.filteredIssueForPage.CharacterIds.Where(c => c != firstId).Take(this.filteredIssueForPage.CharacterIds.Count - 1))
+            {
+                Character character = this.GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
+                if (this.filteredIssueForPage.Creators.Any(c => c.UniqueId == character.UniqueId)) continue;
+                this.filteredIssueForPage.Characters.Add(character);
             }
         }
 
@@ -188,6 +214,10 @@ namespace MyWorldIsComics.ResourcePages
             return quickCreator == ServiceConstants.QueryNotFound ? new Creator { Name = "Creator Not Found" } : new CreatorMapper().QuickMapXmlObject(quickCreator);
         }
 
+        private Character GetMappedCharacter(string quickCharacter)
+        {
+            return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);
+        }
         #region NavigationHelper registration
 
         /// The methods provided in this section are simply used to allow
@@ -210,5 +240,20 @@ namespace MyWorldIsComics.ResourcePages
         }
 
         #endregion
+
+        private void CreatorView_CreatorClick(object sender, ItemClickEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void CharacterView_CharacterClick(object sender, ItemClickEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void TeamView_TeamClick(object sender, ItemClickEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
     }
 }

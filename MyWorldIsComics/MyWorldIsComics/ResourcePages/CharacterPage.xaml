@@ -173,7 +173,6 @@
                     </ScrollViewer>
                 </DataTemplate>
             </HubSection>
-
         </Hub>
     </Grid>
 </Page>

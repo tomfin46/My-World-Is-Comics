@@ -19,6 +19,7 @@ namespace MyWorldIsComics.Mappers
         {
             _issueToMap = new Issue();
         }
+
         public Issue QuickMapXmlObject(string xmlString)
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
@@ -110,7 +111,7 @@ namespace MyWorldIsComics.Mappers
                 if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
                 {
                     reader.ReadToDescendant("id");
-                    _issueToMap.ConceptIds.Add(reader.ReadElementContentAsInt());
+                    _issueToMap.CharacterIds.Add(reader.ReadElementContentAsInt());
                 }
                 else if (reader.Name == "character_credits" && reader.NodeType == XmlNodeType.EndElement)
                 {
@@ -218,7 +219,7 @@ namespace MyWorldIsComics.Mappers
                 reader.ReadToFollowing("location_credits");
                 reader.ReadToNextSibling("name");
             }
-            else
+            else if (reader.Name != "name")
             {
                 reader.ReadToNextSibling("name");
             }

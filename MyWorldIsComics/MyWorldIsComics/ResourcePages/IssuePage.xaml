@@ -10,6 +10,37 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <DataTemplate x:Key="50x50CreatorAvatarItemTemplate">
+            <Grid Height="50" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="50">
+                    <Image Source="{Binding AvatarImage}" Stretch="Uniform" AutomationProperties.Name="{Binding Name}" Height="50" Width="50"/>
+                </Border>
+                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
+                    <TextBlock Text="{Binding Role}" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="NoWrap"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="50x50AvatarItemTemplate">
+            <Grid Height="50" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="50">
+                    <Image Source="{Binding AvatarImage}" Stretch="Uniform" AutomationProperties.Name="{Binding Name}" Height="50" Width="50"/>
+                </Border>
+                <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap" Grid.Column="1" Margin="10,0,0,0"/>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
     <!--
         This grid acts as a root panel for the page that defines two rows:
         * Row 0 contains the back button and page title
@@ -73,9 +104,20 @@
                                 <RowDefinition Height="Auto"></RowDefinition>
                                 <RowDefinition Height="Auto"></RowDefinition>
                                 <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
                                 <RowDefinition Height="*"></RowDefinition>
                             </Grid.RowDefinitions>
-                            
+
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Column="0" Grid.Row="0">
                                 <Run Text="Cover Date: " FontWeight="Bold"/>
                                 <Run Text="{Binding CoverDateString}"/>
@@ -87,8 +129,65 @@
 
                             <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding DescriptionString}"/>
 
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Text="Creators"/>
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Text="Creators" Margin="0,20"/>
 
+                            <GridView Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2"
+                                x:Name="creatorGridView"
+                                ItemsSource="{Binding Creators}"
+                                Margin="-9,-14,0,0"
+                                AutomationProperties.AutomationId="ItemGridView"
+                                AutomationProperties.Name="Items In Group"
+                                ItemTemplate="{StaticResource 50x50CreatorAvatarItemTemplate}"
+                                SelectionMode="None"
+                                IsSwipeEnabled="false"
+                                IsItemClickEnabled="True"
+                                ItemClick="CreatorView_CreatorClick">
+                                <GridView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
+                                    </ItemsPanelTemplate>
+                                </GridView.ItemsPanel>
+                            </GridView>
+
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Text="Characters" Margin="0,20"/>
+
+                            <GridView Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2"
+                                x:Name="characterGridView"
+                                ItemsSource="{Binding Characters}"
+                                Margin="-9,-14,0,0"
+                                AutomationProperties.AutomationId="ItemGridView"
+                                AutomationProperties.Name="Items In Group"
+                                ItemTemplate="{StaticResource 50x50AvatarItemTemplate}"
+                                SelectionMode="None"
+                                IsSwipeEnabled="false"
+                                IsItemClickEnabled="True"
+                                ItemClick="CharacterView_CharacterClick">
+                                <GridView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
+                                    </ItemsPanelTemplate>
+                                </GridView.ItemsPanel>
+                            </GridView>
+
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Text="Teams" Margin="0,20"/>
+
+                            <GridView Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="2"
+                                x:Name="TeamsGridView"
+                                ItemsSource="{Binding Teams}"
+                                Margin="-9,-14,0,0"
+                                AutomationProperties.AutomationId="ItemGridView"
+                                AutomationProperties.Name="Items In Group"
+                                ItemTemplate="{StaticResource 50x50AvatarItemTemplate}"
+                                SelectionMode="None"
+                                IsSwipeEnabled="false"
+                                IsItemClickEnabled="True"
+                                ItemClick="TeamView_TeamClick">
+                                <GridView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
+                                    </ItemsPanelTemplate>
+                                </GridView.ItemsPanel>
+                            </GridView>
                         </Grid>
                     </ScrollViewer>
                 </Grid>

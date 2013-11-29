@@ -3,6 +3,8 @@
 namespace MyWorldIsComics.DataModel.Resources
 {
     using System;
+
+    using MyWorldIsComics.DataModel.Enums;
     using MyWorldIsComics.DataModel.Interfaces;
     using System.Collections.Generic;
 
@@ -26,9 +28,17 @@ namespace MyWorldIsComics.DataModel.Resources
         public string Deck { get; set; }
         public string DescriptionString { get; set; }
         public Uri MainImage { get; set; }
+        public Uri AvatarImage
+        {
+            get
+            {
+                return new Uri(MainImage.AbsoluteUri.Replace(ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.ScaleLarge), ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.SquareAvatar)));
+            }
+        }
 
         #endregion
 
+        #region Image Specific Fields
         public int IssueNumber { get; set; }
         public string IssueNumberString
         {
@@ -58,10 +68,12 @@ namespace MyWorldIsComics.DataModel.Resources
         public int VolumeId { get; set; }
         public string VolumeName { get; set; }
 
+        #endregion
+
         #region Collections
 
         public List<int> CharacterIds { get; set; }
-        public ObservableCollection<Creator> Characters { get; set; }
+        public ObservableCollection<Character> Characters { get; set; }
         public List<int> ConceptIds { get; set; }
         public List<int> LocationIds { get; set; }
         public List<int> ObjectIds { get; set; }
@@ -75,6 +87,7 @@ namespace MyWorldIsComics.DataModel.Resources
         public Issue()
         {
             CharacterIds = new List<int>();
+            Characters = new ObservableCollection<Character>();
             ConceptIds = new List<int>();
             LocationIds = new List<int>();
             ObjectIds = new List<int>();

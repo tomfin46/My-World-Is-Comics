@@ -11,6 +11,7 @@
         string Deck { get; set; }
         string DescriptionString { get; set; }
         Uri MainImage { get; set; }
+        Uri AvatarImage { get; }
 
 
         string ToString();

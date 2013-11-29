@@ -103,6 +103,8 @@ namespace MyWorldIsComics.DataModel.Enums
                     return "team";
                 case ResourcesEnum.Issue:
                     return "issue";
+                case ResourcesEnum.Person:
+                    return "person";
                 default:
                     return String.Empty;
             }
@@ -120,6 +122,8 @@ namespace MyWorldIsComics.DataModel.Enums
                     return "4060-";
                 case ResourcesEnum.Issue:
                     return "4000-";
+                case ResourcesEnum.Person:
+                    return "4040-";
                 default:
                     return String.Empty;
             }

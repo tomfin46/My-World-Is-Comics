@@ -3,6 +3,8 @@
     using System;
     using Interfaces;
 
+    using MyWorldIsComics.DataModel.Enums;
+
     public class Movie : IResource
     {
         #region IResource Fields
@@ -14,6 +16,13 @@
         public string Deck { get; set; }
         public string DescriptionString { get; set; }
         public Uri MainImage { get; set; }
+        public Uri AvatarImage
+        {
+            get
+            {
+                return new Uri(MainImage.AbsoluteUri.Replace(ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.ScaleLarge), ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.SquareAvatar)));
+            }
+        }
 
         #endregion
 

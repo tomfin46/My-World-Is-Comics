@@ -82,7 +82,7 @@
             TODO: Content should be placed within the following grid 
                   to show details for the current item
         -->
-        <Grid Grid.Row="1" x:Name="contentRegion">
+        <Grid Grid.Row="1" x:Name="ContentRegion">
             <FlipView x:Name="IssuesFlipView" BorderBrush="Black" BorderThickness="1" Margin="50,30">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -141,7 +141,7 @@
                                 SelectionMode="None"
                                 IsSwipeEnabled="false"
                                 IsItemClickEnabled="True"
-                                ItemClick="CreatorView_CreatorClick">
+                                ItemClick="CreatorsView_CreatorClick">
                                 <GridView.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
@@ -161,7 +161,7 @@
                                 SelectionMode="None"
                                 IsSwipeEnabled="false"
                                 IsItemClickEnabled="True"
-                                ItemClick="CharacterView_CharacterClick">
+                                ItemClick="CharactersView_CharacterClick">
                                 <GridView.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
@@ -181,7 +181,87 @@
                                 SelectionMode="None"
                                 IsSwipeEnabled="false"
                                 IsItemClickEnabled="True"
-                                ItemClick="TeamView_TeamClick">
+                                ItemClick="TeamsView_TeamClick">
+                                <GridView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
+                                    </ItemsPanelTemplate>
+                                </GridView.ItemsPanel>
+                            </GridView>
+                            
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="9" Grid.ColumnSpan="2" Text="Locations" Margin="0,20"/>
+
+                            <GridView Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="2"
+                                x:Name="LocationsGridView"
+                                ItemsSource="{Binding Locations}"
+                                Margin="-9,-14,0,0"
+                                AutomationProperties.AutomationId="ItemGridView"
+                                AutomationProperties.Name="Items In Group"
+                                ItemTemplate="{StaticResource 50x50AvatarItemTemplate}"
+                                SelectionMode="None"
+                                IsSwipeEnabled="false"
+                                IsItemClickEnabled="True"
+                                ItemClick="LocationsView_LocationClick">
+                                <GridView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
+                                    </ItemsPanelTemplate>
+                                </GridView.ItemsPanel>
+                            </GridView>
+
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="11" Grid.ColumnSpan="2" Text="Concepts" Margin="0,20"/>
+
+                            <GridView Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="2"
+                                x:Name="ConceptsGridView"
+                                ItemsSource="{Binding Concepts}"
+                                Margin="-9,-14,0,0"
+                                AutomationProperties.AutomationId="ItemGridView"
+                                AutomationProperties.Name="Items In Group"
+                                ItemTemplate="{StaticResource 50x50AvatarItemTemplate}"
+                                SelectionMode="None"
+                                IsSwipeEnabled="false"
+                                IsItemClickEnabled="True"
+                                ItemClick="ConceptsView_ConceptClick">
+                                <GridView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
+                                    </ItemsPanelTemplate>
+                                </GridView.ItemsPanel>
+                            </GridView>
+
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" Text="Objects" Margin="0,20"/>
+
+                            <GridView Grid.Column="0" Grid.Row="14" Grid.ColumnSpan="2"
+                                x:Name="ObjectsGridView"
+                                ItemsSource="{Binding Objects}"
+                                Margin="-9,-14,0,0"
+                                AutomationProperties.AutomationId="ItemGridView"
+                                AutomationProperties.Name="Items In Group"
+                                ItemTemplate="{StaticResource 50x50AvatarItemTemplate}"
+                                SelectionMode="None"
+                                IsSwipeEnabled="false"
+                                IsItemClickEnabled="True"
+                                ItemClick="ObjectsView_ObjectClick">
+                                <GridView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
+                                    </ItemsPanelTemplate>
+                                </GridView.ItemsPanel>
+                            </GridView>
+
+                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="15" Grid.ColumnSpan="2" Text="Story Arcs" Margin="0,20"/>
+
+                            <GridView Grid.Column="0" Grid.Row="16" Grid.ColumnSpan="2"
+                                x:Name="StoryArcsGridView"
+                                ItemsSource="{Binding StoryArcs}"
+                                Margin="-9,-14,0,0"
+                                AutomationProperties.AutomationId="ItemGridView"
+                                AutomationProperties.Name="Items In Group"
+                                ItemTemplate="{StaticResource 50x50AvatarItemTemplate}"
+                                SelectionMode="None"
+                                IsSwipeEnabled="false"
+                                IsItemClickEnabled="True"
+                                ItemClick="StoryArcsView_StoryArcClick">
                                 <GridView.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>

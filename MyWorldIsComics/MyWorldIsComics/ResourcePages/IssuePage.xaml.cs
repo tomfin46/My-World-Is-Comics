@@ -78,7 +78,7 @@ namespace MyWorldIsComics.ResourcePages
             // TODO: Assign a bindable group to this.DefaultViewModel["Group"]
             // TODO: Assign a collection of bindable items to this.DefaultViewModel["Items"]
             // TODO: Assign the selected item to this.flipView.SelectedItem
-            
+
             await this.LoadIssue();
         }
 
@@ -101,7 +101,7 @@ namespace MyWorldIsComics.ResourcePages
                             await this.FetchCharacters();
                             break;
                         case "team_credits":
-                            //await this.FetchTeams();
+                            await this.FetchFirstTeam();
                             break;
                         case "location_credits":
                             //await this.FetchLocations();
@@ -120,6 +120,7 @@ namespace MyWorldIsComics.ResourcePages
                 }
                 await this.FetchRemainingPeople();
                 await this.FetchRemainingCharacters();
+                await this.FetchRemainingTeams();
             }
             catch (TaskCanceledException)
             {
@@ -155,7 +156,7 @@ namespace MyWorldIsComics.ResourcePages
                 this.filteredIssueForPage.Creators.Add(creator);
             }
         }
-        
+
         private async Task FetchCharacters()
         {
             foreach (var characterId in this.filteredIssueForPage.CharacterIds.Take(1))
@@ -177,9 +178,25 @@ namespace MyWorldIsComics.ResourcePages
             }
         }
 
-        private Task FetchTeams()
+        private async Task FetchFirstTeam()
         {
-            throw new NotImplementedException();
+            foreach (int teamId in this.filteredIssueForPage.TeamIds.Take(1))
+            {
+                Team team = this.GetMappedTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                if (this.filteredIssueForPage.TeamIds.Any(t => t == team.UniqueId)) continue;
+                this.filteredIssueForPage.Teams.Add(team);
+            }
+        }
+
+        private async Task FetchRemainingTeams()
+        {
+            var firstId = this.filteredIssueForPage.TeamIds.First();
+            foreach (int teamId in this.filteredIssueForPage.TeamIds.Where(t => t != firstId).Take(this.filteredIssueForPage.TeamIds.Count - 1))
+            {
+                Team team = this.GetMappedTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                if (this.filteredIssueForPage.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
+                this.filteredIssueForPage.Teams.Add(team);
+            }
         }
 
         private Task FetchLocations()
@@ -204,6 +221,8 @@ namespace MyWorldIsComics.ResourcePages
 
         #endregion
 
+        #region Get Mappins Methods
+
         private Issue GetMappedIssueFromFilter(string filteredIssueString, string filter)
         {
             return filteredIssueString == ServiceConstants.QueryNotFound ? new Issue() : new IssueMapper().MapFilteredXmlObject(this.basicIssueForPage, filteredIssueString, filter);
@@ -218,6 +237,14 @@ namespace MyWorldIsComics.ResourcePages
         {
             return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);
         }
+
+        private Team GetMappedTeam(string quickTeam)
+        {
+            return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
+        }
+
+        #endregion
+
         #region NavigationHelper registration
 
         /// The methods provided in this section are simply used to allow
@@ -241,19 +268,45 @@ namespace MyWorldIsComics.ResourcePages
 
         #endregion
 
-        private void CreatorView_CreatorClick(object sender, ItemClickEventArgs e)
+        #region Event Handlers
+
+        private void CreatorsView_CreatorClick(object sender, ItemClickEventArgs e)
         {
             //throw new NotImplementedException();
         }
 
-        private void CharacterView_CharacterClick(object sender, ItemClickEventArgs e)
+        private void CharactersView_CharacterClick(object sender, ItemClickEventArgs e)
+        {
+            var character = ((Character)e.ClickedItem);
+            Frame.Navigate(typeof(CharacterPage), character.Name);
+        }
+
+        private void TeamsView_TeamClick(object sender, ItemClickEventArgs e)
+        {
+            var team = ((Team)e.ClickedItem);
+            Frame.Navigate(typeof(TeamPage), team);
+        }
+
+        private void LocationsView_LocationClick(object sender, ItemClickEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void ConceptsView_ConceptClick(object sender, ItemClickEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        private void ObjectsView_ObjectClick(object sender, ItemClickEventArgs e)
         {
             throw new NotImplementedException();
         }
 
-        private void TeamView_TeamClick(object sender, ItemClickEventArgs e)
+        private void StoryArcsView_StoryArcClick(object sender, ItemClickEventArgs e)
         {
             //throw new NotImplementedException();
         }
+
+        #endregion
     }
 }

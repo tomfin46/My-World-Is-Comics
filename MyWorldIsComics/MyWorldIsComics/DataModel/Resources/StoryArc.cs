@@ -5,7 +5,7 @@
 
     using MyWorldIsComics.DataModel.Enums;
 
-    class StoryArc : IResource
+    public class StoryArc : IResource
     {
         #region IResource Fields
 

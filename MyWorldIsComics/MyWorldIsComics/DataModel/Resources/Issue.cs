@@ -77,10 +77,12 @@ namespace MyWorldIsComics.DataModel.Resources
         public List<int> ConceptIds { get; set; }
         public List<int> LocationIds { get; set; }
         public List<int> ObjectIds { get; set; }
-        public ObservableCollection<Creator> Creators { get; set; }
         public Dictionary<int, string> PersonIds { get; set; }
+        public ObservableCollection<Creator> Creators { get; set; }
         public List<int> StoryArcIds { get; set; }
+        public ObservableCollection<StoryArc> StoryArcs { get; set; }
         public List<int> TeamIds { get; set; }
+        public ObservableCollection<Team> Teams { get; set; }
 
         #endregion
 
@@ -94,6 +96,7 @@ namespace MyWorldIsComics.DataModel.Resources
             Creators = new ObservableCollection<Creator>();
             PersonIds = new Dictionary<int, string>();
             StoryArcIds = new List<int>();
+            Teams = new ObservableCollection<Team>();
             TeamIds = new List<int>();
         }
 

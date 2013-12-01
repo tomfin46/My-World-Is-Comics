@@ -51,6 +51,12 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issue, issueId.ToString(), filters));
         }
 
+        public static async Task<string> GetSpecificIssueAsync(int volumeId, int issueId)
+        {
+            List<string> filters = new List<string> { "cover_date", "description", "id", "image", "issue_number", "name", "store_date", "volume" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issues, volumeId.ToString(), issueId.ToString(), filters));
+        }
+
         #endregion
 
         #region GetQuick methods
@@ -135,6 +141,9 @@ namespace MyWorldIsComics.DataSource
                 case Resources.ResourcesEnum.Search:
                     uri += Resources.GetResourceId(resourcesEnum) + query + "&limit=1" + "&";
                     break;
+                case Resources.ResourcesEnum.Issues:
+                    uri += "?";
+                    break;
                 default:
                     uri += Resources.GetResourceId(resourcesEnum) + query + "/?";
                     break;
@@ -154,6 +163,14 @@ namespace MyWorldIsComics.DataSource
         {
             string uri = this.ContructUrl(resourcesEnum, query).AbsoluteUri;
             uri += "&field_list=" + string.Join(",", filters);
+            return new Uri(uri);
+        }
+
+        private Uri ContructUrl(Resources.ResourcesEnum resourcesEnum, string volumeId, string issueId, IEnumerable<string> filters)
+        {
+            string uri = this.ContructUrl(resourcesEnum, volumeId).AbsoluteUri;
+            uri += "&field_list=" + string.Join(",", filters);
+            uri += "&filter=volume:" + volumeId + ",issue_number:" + issueId;
             return new Uri(uri);
         }
 

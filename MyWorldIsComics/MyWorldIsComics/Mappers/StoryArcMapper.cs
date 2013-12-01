@@ -22,6 +22,7 @@ namespace MyWorldIsComics.Mappers
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _storyArcToMap;
                 reader.ReadToFollowing("results");
                 _storyArcToMap = GenericResourceMapper.ParseId(reader, _storyArcToMap) as StoryArc;
                 _storyArcToMap = GenericResourceMapper.ParseImage(reader, _storyArcToMap) as StoryArc;

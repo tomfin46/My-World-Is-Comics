@@ -28,6 +28,7 @@ namespace MyWorldIsComics.Mappers
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(quickCharacterString)))
             {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _characterToMap;
                 reader.ReadToFollowing("results");
                 _characterToMap = GenericResourceMapper.ParseDeck(reader, _characterToMap) as Character;
                 _characterToMap = GenericResourceMapper.ParseId(reader, _characterToMap) as Character;
@@ -41,6 +42,8 @@ namespace MyWorldIsComics.Mappers
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(characterSearchString)))
             {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _characterToMap;
+
                 reader.ReadToFollowing("results");
                 ParseAliases(reader);
                 reader.ReadToFollowing("birth");
@@ -61,23 +64,27 @@ namespace MyWorldIsComics.Mappers
 
         public Character MapFilteredXmlObject(Character basicCharacter, string filteredCharacterString, string filter)
         {
-            _characterToMap = basicCharacter;
-            switch (filter)
+            using (XmlReader readerInit = XmlReader.Create(new StringReader(filteredCharacterString)))
             {
-                case "teams":
-                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredCharacterString)))
-                    {
-                        reader.ReadToFollowing("results");
-                        this.ParseTeamsMemberOf(reader);
-                    }
-                    break;
-                case "first_appeared_in_issue":
-                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredCharacterString)))
-                    {
-                        reader.ReadToFollowing("results");
-                        this.ParseFirstAppearance(reader);
-                    }
-                    break;
+                if (!GenericResourceMapper.EnsureResultsExist(readerInit)) return _characterToMap;
+                _characterToMap = basicCharacter;
+                switch (filter)
+                {
+                    case "teams":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredCharacterString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseTeamsMemberOf(reader);
+                        }
+                        break;
+                    case "first_appeared_in_issue":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredCharacterString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseFirstAppearance(reader);
+                        }
+                        break;
+                }
             }
             return _characterToMap;
         }

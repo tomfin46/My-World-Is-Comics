@@ -30,19 +30,17 @@ namespace MyWorldIsComics.ResourcePages
     /// </summary>
     public sealed partial class CharacterPage : Page
     {
-        private readonly NavigationHelper navigationHelper;
+        private readonly NavigationHelper _navigationHelper;
+        private ObservableDictionary _characterPageViewModel = new ObservableDictionary();
 
-
-        private ObservableDictionary characterPageViewModel = new ObservableDictionary();
-
-        private Character basicCharacterForPage;
-        private Character filteredCharacterForPage;
-        private Description characterDescriptionForPage;
+        private Character _basicCharacterForPage;
+        private Character _filteredCharacterForPage;
+        private Description _characterDescriptionForPage;
 
         public ObservableDictionary CharacterPageViewModel
         {
-            get { return characterPageViewModel; }
-            set { characterPageViewModel = value; }
+            get { return _characterPageViewModel; }
+            set { _characterPageViewModel = value; }
         }
 
         /// <summary>
@@ -51,16 +49,16 @@ namespace MyWorldIsComics.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         public CharacterPage()
         {
             InitializeComponent();
 
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
-            this.navigationHelper.SaveState += navigationHelper_SaveState;
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -84,43 +82,43 @@ namespace MyWorldIsComics.ResourcePages
             {
                 if (SavedData.BasicCharacter != null && SavedData.BasicCharacter.Name == name)
                 {
-                    this.basicCharacterForPage = SavedData.BasicCharacter;
-                    this.CharacterPageViewModel["BasicCharacter"] = this.basicCharacterForPage;
+                    _basicCharacterForPage = SavedData.BasicCharacter;
+                    CharacterPageViewModel["BasicCharacter"] = _basicCharacterForPage;
                     BioHubSection.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    await this.LoadBasicCharacter(name);
+                    await LoadBasicCharacter(name);
                 }
 
-                await this.LoadDescription();
+                await LoadDescription();
 
-                if (SavedData.Character != null && SavedData.Character.UniqueId == this.basicCharacterForPage.UniqueId)
+                if (SavedData.Character != null && SavedData.Character.UniqueId == _basicCharacterForPage.UniqueId)
                 {
-                    this.filteredCharacterForPage = SavedData.Character;
-                    this.CharacterPageViewModel["FilteredCharacter"] = this.filteredCharacterForPage;
-                    this.HideOrShowFilteredSections();
+                    _filteredCharacterForPage = SavedData.Character;
+                    CharacterPageViewModel["FilteredCharacter"] = _filteredCharacterForPage;
+                    HideOrShowFilteredSections();
                 }
                 else
                 {
-                    await this.LoadCharacter();
+                    await LoadCharacter();
                 }
             }
             catch (HttpRequestException)
             {
-                this.basicCharacterForPage = new Character();
-                this.basicCharacterForPage.Name = "An internet connection is required here";
-                this.CharacterPageViewModel["BasicCharacter"] = this.basicCharacterForPage;
+                _basicCharacterForPage = new Character();
+                _basicCharacterForPage.Name = "An internet connection is required here";
+                CharacterPageViewModel["BasicCharacter"] = _basicCharacterForPage;
             }
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            if (this.Frame.CurrentSourcePageType.Name == "HubPage") { return; }
+            if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
 
             // Save response content so don't have to fetch from api service again
-            SavedData.BasicCharacter = this.basicCharacterForPage;
-            SavedData.Character = this.filteredCharacterForPage;
+            SavedData.BasicCharacter = _basicCharacterForPage;
+            SavedData.Character = _filteredCharacterForPage;
         }
 
         #region Load Character
@@ -129,8 +127,8 @@ namespace MyWorldIsComics.ResourcePages
         {
             try
             {
-                await this.SearchForCharacter(name);
-                this.CharacterPageViewModel["BasicCharacter"] = this.basicCharacterForPage;
+                await SearchForCharacter(name);
+                CharacterPageViewModel["BasicCharacter"] = _basicCharacterForPage;
                 BioHubSection.Visibility = Visibility.Visible;
             }
             catch (TaskCanceledException)
@@ -143,10 +141,10 @@ namespace MyWorldIsComics.ResourcePages
         {
             try
             {
-                await this.FormatDescriptionForPage();
-                this.characterDescriptionForPage.UniqueId = this.basicCharacterForPage.UniqueId;
+                await FormatDescriptionForPage();
+                _characterDescriptionForPage.UniqueId = _basicCharacterForPage.UniqueId;
                 CreateDataTemplates();
-                this.CharacterPageViewModel["CharacterDescription"] = this.characterDescriptionForPage;
+                CharacterPageViewModel["CharacterDescription"] = _characterDescriptionForPage;
             }
             catch (TaskCanceledException)
             {
@@ -162,20 +160,20 @@ namespace MyWorldIsComics.ResourcePages
 
                 foreach (string filter in filters)
                 {
-                    await this.FetchFilteredCharacterResource(filter);
+                    await FetchFilteredCharacterResource(filter);
                     switch (filter)
                     {
                         case "first_appeared_in_issue":
-                            await this.FetchFirstAppearance();
+                            await FetchFirstAppearance();
                             break;
                         case "teams":
-                            await this.FetchFirstTeam();
+                            await FetchFirstTeam();
                             break;
                     }
-                    this.CharacterPageViewModel["FilteredCharacter"] = this.filteredCharacterForPage;
-                    this.HideOrShowFilteredSections();
+                    CharacterPageViewModel["FilteredCharacter"] = _filteredCharacterForPage;
+                    HideOrShowFilteredSections();
                 }
-                await this.FetchRemainingTeams();
+                await FetchRemainingTeams();
             }
             catch (TaskCanceledException)
             {
@@ -185,8 +183,8 @@ namespace MyWorldIsComics.ResourcePages
 
         private void HideOrShowFilteredSections()
         {
-            this.TeamSection.Visibility = this.filteredCharacterForPage.TeamIds.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            this.FirstAppearanceSection.Visibility = this.filteredCharacterForPage.FirstAppearanceIssue.UniqueId != 0 ? Visibility.Visible : Visibility.Collapsed;
+            TeamSection.Visibility = _filteredCharacterForPage.TeamIds.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            FirstAppearanceSection.Visibility = _filteredCharacterForPage.FirstAppearanceIssue.UniqueId != 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
@@ -194,44 +192,44 @@ namespace MyWorldIsComics.ResourcePages
         private async Task SearchForCharacter(string name)
         {
             var characterSearchString = await ComicVineSource.ExecuteSearchAsync(name);
-            this.basicCharacterForPage = this.GetMappedCharacterFromSearch(characterSearchString);
+            _basicCharacterForPage = GetMappedCharacterFromSearch(characterSearchString);
         }
 
         #region Fetch methods
 
         private async Task FetchFilteredCharacterResource(string filter)
         {
-            string filteredCharacterString = await ComicVineSource.GetFilteredCharacterAsync(this.basicCharacterForPage.UniqueId, filter);
-            this.filteredCharacterForPage = this.GetMappedCharacterFromFilter(filteredCharacterString, filter);
+            string filteredCharacterString = await ComicVineSource.GetFilteredCharacterAsync(_basicCharacterForPage.UniqueId, filter);
+            _filteredCharacterForPage = GetMappedCharacterFromFilter(filteredCharacterString, filter);
         }
 
         private async Task FetchFirstTeam()
         {
-            foreach (int teamId in this.filteredCharacterForPage.TeamIds.Take(1))
+            foreach (int teamId in _filteredCharacterForPage.TeamIds.Take(1))
             {
-                Team team = this.GetMappedQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
-                if (this.filteredCharacterForPage.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
-                this.filteredCharacterForPage.Teams.Add(team);
+                Team team = GetMappedQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                if (_filteredCharacterForPage.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
+                _filteredCharacterForPage.Teams.Add(team);
             }
         }
 
         private async Task FetchRemainingTeams()
         {
-            var firstId = this.filteredCharacterForPage.TeamIds.First();
-            foreach (int teamId in this.filteredCharacterForPage.TeamIds.Where(id => id != firstId).Take(this.filteredCharacterForPage.TeamIds.Count - 1))
+            var firstId = _filteredCharacterForPage.TeamIds.First();
+            foreach (int teamId in _filteredCharacterForPage.TeamIds.Where(id => id != firstId).Take(_filteredCharacterForPage.TeamIds.Count - 1))
             {
-                Team team = this.GetMappedQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
-                if (this.filteredCharacterForPage.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
-                this.filteredCharacterForPage.Teams.Add(team);
+                Team team = GetMappedQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                if (_filteredCharacterForPage.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
+                _filteredCharacterForPage.Teams.Add(team);
             }
         }
 
         private async Task FetchFirstAppearance()
         {
-            if (this.basicCharacterForPage.FirstAppearanceId != 0)
+            if (_basicCharacterForPage.FirstAppearanceId != 0)
             {
-                Issue issue = this.GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(this.basicCharacterForPage.FirstAppearanceId));
-                this.filteredCharacterForPage.FirstAppearanceIssue = issue;
+                Issue issue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(_basicCharacterForPage.FirstAppearanceId));
+                _filteredCharacterForPage.FirstAppearanceIssue = issue;
             }
         }
 
@@ -268,7 +266,7 @@ namespace MyWorldIsComics.ResourcePages
                     }
                 };
             }
-            return new CharacterMapper().MapFilteredXmlObject(this.basicCharacterForPage, filteredCharacterString, filter);
+            return new CharacterMapper().MapFilteredXmlObject(_basicCharacterForPage, filteredCharacterString, filter);
         }
 
         private Team GetMappedQuickTeam(string quickTeam)
@@ -285,42 +283,42 @@ namespace MyWorldIsComics.ResourcePages
 
         private async Task FormatDescriptionForPage()
         {
-            characterDescriptionForPage = await ComicVineSource.FormatDescriptionAsync(this.basicCharacterForPage.DescriptionString);
+            _characterDescriptionForPage = await ComicVineSource.FormatDescriptionAsync(_basicCharacterForPage.DescriptionString);
         }
 
         #region DataTemplate Creation
 
         private void CreateDataTemplates()
         {
-            if (this.characterDescriptionForPage.CurrentEvents == null) HideHubSection("Current Events");
-            else CreateDataTemplate(this.characterDescriptionForPage.CurrentEvents);
+            if (_characterDescriptionForPage.CurrentEvents == null || _characterDescriptionForPage.CurrentEvents.ContentQueue.Count == 0) HideHubSection("Current Events");
+            else CreateDataTemplate(_characterDescriptionForPage.CurrentEvents);
 
-            if (this.characterDescriptionForPage.Origin == null) HideHubSection("Origin");
-            else CreateDataTemplate(this.characterDescriptionForPage.Origin);
+            if (_characterDescriptionForPage.Origin == null || _characterDescriptionForPage.Origin.ContentQueue.Count == 0) HideHubSection("Origin");
+            else CreateDataTemplate(_characterDescriptionForPage.Origin);
 
-            if (this.characterDescriptionForPage.Creation == null) HideHubSection("Creation");
-            else CreateDataTemplate(this.characterDescriptionForPage.Creation);
+            if (_characterDescriptionForPage.Creation == null || _characterDescriptionForPage.Creation.ContentQueue.Count == 0) HideHubSection("Creation");
+            else CreateDataTemplate(_characterDescriptionForPage.Creation);
 
-            if (this.characterDescriptionForPage.DistinguishingCharacteristics == null) HideHubSection("Distinguishing Characteristics");
-            else CreateDataTemplate(this.characterDescriptionForPage.DistinguishingCharacteristics);
+            if (_characterDescriptionForPage.DistinguishingCharacteristics == null || _characterDescriptionForPage.DistinguishingCharacteristics.ContentQueue.Count == 0) HideHubSection("Distinguishing Characteristics");
+            else CreateDataTemplate(_characterDescriptionForPage.DistinguishingCharacteristics);
 
-            if (this.characterDescriptionForPage.CharacterEvolution == null) HideHubSection("Character Evolution");
-            else CreateDataTemplate(this.characterDescriptionForPage.CharacterEvolution);
+            if (_characterDescriptionForPage.CharacterEvolution == null || _characterDescriptionForPage.CharacterEvolution.ContentQueue.Count == 0) HideHubSection("Character Evolution");
+            else CreateDataTemplate(_characterDescriptionForPage.CharacterEvolution);
 
-            if (this.characterDescriptionForPage.MajorStoryArcs == null) HideHubSection("Major Story Arcs");
-            else CreateDataTemplate(this.characterDescriptionForPage.MajorStoryArcs);
+            if (_characterDescriptionForPage.MajorStoryArcs == null || _characterDescriptionForPage.MajorStoryArcs.ContentQueue.Count == 0) HideHubSection("Major Story Arcs");
+            else CreateDataTemplate(_characterDescriptionForPage.MajorStoryArcs);
 
-            if (this.characterDescriptionForPage.PowersAndAbilities == null) HideHubSection("Powers and Abilities");
-            else CreateDataTemplate(this.characterDescriptionForPage.PowersAndAbilities);
+            if (_characterDescriptionForPage.PowersAndAbilities == null || _characterDescriptionForPage.PowersAndAbilities.ContentQueue.Count == 0) HideHubSection("Powers and Abilities");
+            else CreateDataTemplate(_characterDescriptionForPage.PowersAndAbilities);
 
-            if (this.characterDescriptionForPage.WeaponsAndEquipment == null) HideHubSection("Weapons and Equipment");
-            else CreateDataTemplate(this.characterDescriptionForPage.WeaponsAndEquipment);
+            if (_characterDescriptionForPage.WeaponsAndEquipment == null || _characterDescriptionForPage.WeaponsAndEquipment.ContentQueue.Count == 0) HideHubSection("Weapons and Equipment");
+            else CreateDataTemplate(_characterDescriptionForPage.WeaponsAndEquipment);
 
-            if (this.characterDescriptionForPage.AlternateRealities == null) HideHubSection("Alternate Realities");
-            else CreateDataTemplate(this.characterDescriptionForPage.AlternateRealities);
+            if (_characterDescriptionForPage.AlternateRealities == null || _characterDescriptionForPage.AlternateRealities.ContentQueue.Count == 0) HideHubSection("Alternate Realities");
+            else CreateDataTemplate(_characterDescriptionForPage.AlternateRealities);
 
-            if (this.characterDescriptionForPage.OtherMedia == null) HideHubSection("Other Media");
-            else CreateDataTemplate(this.characterDescriptionForPage.OtherMedia);
+            if (_characterDescriptionForPage.OtherMedia == null || _characterDescriptionForPage.OtherMedia.ContentQueue.Count == 0) HideHubSection("Other Media");
+            else CreateDataTemplate(_characterDescriptionForPage.OtherMedia);
         }
 
         private void CreateDataTemplate(Section descriptionSection)
@@ -544,12 +542,12 @@ namespace MyWorldIsComics.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            this.navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            this.navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
@@ -574,10 +572,10 @@ namespace MyWorldIsComics.ResourcePages
                 switch (e.Section.Header.ToString())
                 {
                     case "Teams":
-                        Frame.Navigate(typeof(TeamsPage), this.filteredCharacterForPage);
+                        Frame.Navigate(typeof(TeamsPage), _filteredCharacterForPage);
                         break;
                     case "First Appearance":
-                        Frame.Navigate(typeof(IssuePage), this.filteredCharacterForPage.FirstAppearanceIssue);
+                        Frame.Navigate(typeof(IssuePage), _filteredCharacterForPage.FirstAppearanceIssue);
                         break;
                 }
         }

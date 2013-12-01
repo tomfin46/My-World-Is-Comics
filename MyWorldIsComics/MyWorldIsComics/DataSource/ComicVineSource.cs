@@ -57,6 +57,11 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issues, volumeId.ToString(), issueId.ToString(), filters));
         }
 
+        public static async Task<string> GetFilteredVolumeAsync(int volumeId, List<string> filters)
+        {
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Volume, volumeId.ToString(), filters));
+        }
+
         #endregion
 
         #region GetQuick methods

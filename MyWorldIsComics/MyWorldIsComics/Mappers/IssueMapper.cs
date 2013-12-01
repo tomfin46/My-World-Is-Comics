@@ -24,6 +24,8 @@ namespace MyWorldIsComics.Mappers
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _issueToMap;
+
                 reader.ReadToFollowing("results");
                 ParseCoverDate(reader);
                 _issueToMap = GenericResourceMapper.ParseDescriptionString(reader, _issueToMap) as Issue;
@@ -40,62 +42,67 @@ namespace MyWorldIsComics.Mappers
 
         public Issue MapFilteredXmlObject(Issue basicIssue, string filteredIssueString, string filter)
         {
-            _issueToMap = basicIssue;
-            switch (filter)
+            using (XmlReader readerInit = XmlReader.Create(new StringReader(filteredIssueString)))
             {
-                case "person_credits":
-                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
-                    {
-                        reader.ReadToFollowing("results");
-                        this.ParsePeople(reader);
-                    }
-                    break;
-                case "character_credits":
-                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
-                    {
-                        reader.ReadToFollowing("results");
-                        this.ParseCharacters(reader);
-                    }
-                    break;
-                case "team_credits":
-                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
-                    {
-                        reader.ReadToFollowing("results");
-                        this.ParseTeams(reader);
-                    }
-                    break;
-                case "location_credits":
-                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
-                    {
-                        reader.ReadToFollowing("results");
-                        this.ParseLocations(reader);
-                    }
-                    break;
-                case "concept_credits":
-                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
-                    {
-                        reader.ReadToFollowing("results");
-                        this.ParseConcepts(reader);
-                    }
-                    break;
-                case "object_credits":
-                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
-                    {
-                        reader.ReadToFollowing("results");
-                        this.ParseObjects(reader);
-                    }
-                    break;
-                case "story_arc_credits":
-                    using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
-                    {
-                        reader.ReadToFollowing("results");
-                        this.ParseStoryArcs(reader);
-                    }
-                    break;
+                if (!GenericResourceMapper.EnsureResultsExist(readerInit)) return _issueToMap;
+
+                _issueToMap = basicIssue;
+                switch (filter)
+                {
+                    case "person_credits":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParsePeople(reader);
+                        }
+                        break;
+                    case "character_credits":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseCharacters(reader);
+                        }
+                        break;
+                    case "team_credits":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseTeams(reader);
+                        }
+                        break;
+                    case "location_credits":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseLocations(reader);
+                        }
+                        break;
+                    case "concept_credits":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseConcepts(reader);
+                        }
+                        break;
+                    case "object_credits":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseObjects(reader);
+                        }
+                        break;
+                    case "story_arc_credits":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredIssueString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseStoryArcs(reader);
+                        }
+                        break;
+                }
             }
             return _issueToMap;
         }
-        
+
         private void ParseCharacters(XmlReader reader)
         {
             if (reader.Name != "character_credits") { reader.ReadToFollowing("character_credits"); }
@@ -150,7 +157,7 @@ namespace MyWorldIsComics.Mappers
             reader.ReadToDescendant("id");
             _issueToMap.StaffReviewId = reader.ReadElementContentAsInt();
         }
-        
+
         private void ParseIssueNumber(XmlReader reader)
         {
             if (reader.Name != "issue_number") { reader.ReadToFollowing("issue_number"); }
@@ -220,6 +227,7 @@ namespace MyWorldIsComics.Mappers
                     var id = reader.ReadElementContentAsInt();
                     reader.ReadToNextSibling("role");
                     var role = reader.ReadElementContentAsString();
+                    if (_issueToMap.PersonIds.Any(p => p.Key == id)) continue;
                     _issueToMap.PersonIds.Add(id, role);
                 }
                 else if (reader.Name == "person_credits" && reader.NodeType == XmlNodeType.EndElement)

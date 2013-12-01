@@ -24,6 +24,8 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
             var text = Text;
             foreach (Link link in Links)
             {
+                if (link.Text == String.Empty) continue;
+
                 var hyperlink = "<Hyperlink NavigateUri=\"http://www.comicvine.com" + link.Href + "\">" + link.Text + "</Hyperlink>";
                 
                 Link linkCopy = link;

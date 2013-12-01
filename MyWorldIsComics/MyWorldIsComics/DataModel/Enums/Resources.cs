@@ -115,6 +115,8 @@ namespace MyWorldIsComics.DataModel.Enums
                     return "object";
                 case ResourcesEnum.StoryArc:
                     return "story_arc";
+                case ResourcesEnum.Volume:
+                    return "volume";
                 default:
                     return String.Empty;
             }
@@ -142,6 +144,8 @@ namespace MyWorldIsComics.DataModel.Enums
                     return "4055-";
                 case ResourcesEnum.StoryArc:
                     return "4045-";
+                case ResourcesEnum.Volume:
+                    return "4050-";
                 default:
                     return String.Empty;
             }

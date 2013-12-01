@@ -126,12 +126,13 @@
     <Compile Include="Mappers\ObjectMapper.cs" />
     <Compile Include="Mappers\StoryArcMapper.cs" />
     <Compile Include="Mappers\TeamMapper.cs" />
+    <Compile Include="Mappers\VolumeMapper.cs" />
     <Compile Include="ResourcePages\CharacterPage.xaml.cs">
       <DependentUpon>CharacterPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="DataSource\ServiceConstants.cs" />
     <Compile Include="DataModel\Resources\Character.cs" />
-    <Compile Include="DataModel\Resources\ComicSeriesVolume.cs" />
+    <Compile Include="DataModel\Resources\Volume.cs" />
     <Compile Include="DataModel\Resources\Creator.cs" />
     <Compile Include="DataModel\DescriptionContent\Description.cs" />
     <Compile Include="DataModel\Enums\Gender.cs" />

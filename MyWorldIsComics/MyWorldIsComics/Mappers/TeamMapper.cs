@@ -26,6 +26,7 @@
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _teamToMap;
                 reader.ReadToFollowing("results");
                 _teamToMap = GenericResourceMapper.ParseDeck(reader, _teamToMap) as Team;
                 _teamToMap = GenericResourceMapper.ParseId(reader, _teamToMap) as Team;
@@ -40,6 +41,7 @@
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _teamToMap;
                 reader.ReadToFollowing("results");
                 ParseAliases(reader);
                 _teamToMap = GenericResourceMapper.ParseComicVineApiUrl(reader, _teamToMap) as Team;

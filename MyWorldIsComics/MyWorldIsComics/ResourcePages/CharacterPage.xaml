@@ -72,7 +72,7 @@
                         <StackPanel x:Name="BioStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Real Name: " />
-                                <Run Text="{Binding RealName}" FontWeight="Normal"/>
+                                <Run Text="{Binding RealNameString}" FontWeight="Normal"/>
                             </TextBlock>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">

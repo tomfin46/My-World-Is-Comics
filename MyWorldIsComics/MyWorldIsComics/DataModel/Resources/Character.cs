@@ -26,7 +26,17 @@ namespace MyWorldIsComics.DataModel.Resources
         {
             get
             {
-                return new Uri(MainImage.AbsoluteUri.Replace(ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.ScaleLarge), ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.SquareAvatar)));
+                Uri uri = default(Uri);
+                if (MainImage != null)
+                {
+                    uri =
+                        new Uri(
+                            MainImage.AbsoluteUri.Replace(
+                                ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.ScaleLarge),
+                                ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.SquareAvatar)));
+                }
+
+                return uri;
             }
         }
 
@@ -49,6 +59,15 @@ namespace MyWorldIsComics.DataModel.Resources
         #region Character Specific Fields
 
         public string RealName { get; set; }
+
+        public string RealNameString
+        {
+            get
+            {
+                return RealName == String.Empty ? Name : RealName;
+            }
+        }
+
         public int IssueAppearancesCount { get; set; }
         public int FirstAppearanceId { get; set; }
         public Issue FirstAppearanceIssue { get; set; }
@@ -63,8 +82,8 @@ namespace MyWorldIsComics.DataModel.Resources
         }
 
         #region Collections
-        
-        public List<String> Aliases { get; set; } 
+
+        public List<String> Aliases { get; set; }
         public List<int> EnemyIds { get; set; }
         public List<int> FriendIds { get; set; }
         public List<int> CreatorIds { get; set; }

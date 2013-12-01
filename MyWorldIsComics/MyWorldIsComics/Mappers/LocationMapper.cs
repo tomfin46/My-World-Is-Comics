@@ -22,6 +22,7 @@ namespace MyWorldIsComics.Mappers
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _locationToMap;
                 reader.ReadToFollowing("results");
                 _locationToMap = GenericResourceMapper.ParseId(reader, _locationToMap) as Location;
                 _locationToMap = GenericResourceMapper.ParseImage(reader, _locationToMap) as Location;

@@ -85,5 +85,12 @@ namespace MyWorldIsComics.Mappers
 
             return resourceToMap;
         }
+
+        public static bool EnsureResultsExist(XmlReader reader)
+        {
+            reader.ReadToFollowing("number_of_total_results");
+            int noOfResults = reader.ReadElementContentAsInt();
+            return noOfResults > 0;
+        }
     }
 }

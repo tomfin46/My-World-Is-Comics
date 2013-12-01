@@ -29,10 +29,10 @@ namespace MyWorldIsComics.Mappers
             using (XmlReader reader = XmlReader.Create(new StringReader(quickCharacterString)))
             {
                 reader.ReadToFollowing("results");
-                ParseDeck(reader);
-                ParseId(reader);
-                ParseImage(reader);
-                ParseName(reader);
+                _characterToMap = GenericResourceMapper.ParseDeck(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseId(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseImage(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseName(reader, _characterToMap) as Character;
             }
             return _characterToMap;
         }
@@ -46,13 +46,13 @@ namespace MyWorldIsComics.Mappers
                 reader.ReadToFollowing("birth");
                 ParseBirth(reader);
                 ParseAppearanceCount(reader);
-                ParseDeck(reader);
-                ParseDescriptionString(reader);
+                _characterToMap = GenericResourceMapper.ParseDeck(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseDescriptionString(reader, _characterToMap) as Character;
                 ParseFirstAppearance(reader);
                 ParseGender(reader);
-                ParseId(reader);
-                ParseImage(reader);
-                ParseName(reader);
+                _characterToMap = GenericResourceMapper.ParseId(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseImage(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseName(reader, _characterToMap) as Character;
                 ParsePublisher(reader);
                 ParseRealName(reader);
             }

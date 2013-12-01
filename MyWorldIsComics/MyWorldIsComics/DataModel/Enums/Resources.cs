@@ -105,6 +105,14 @@ namespace MyWorldIsComics.DataModel.Enums
                     return "issue";
                 case ResourcesEnum.Person:
                     return "person";
+                case ResourcesEnum.Location:
+                    return "location";
+                case ResourcesEnum.Concept:
+                    return "concept";
+                case ResourcesEnum.Object:
+                    return "object";
+                case ResourcesEnum.StoryArc:
+                    return "story_arc";
                 default:
                     return String.Empty;
             }
@@ -124,6 +132,14 @@ namespace MyWorldIsComics.DataModel.Enums
                     return "4000-";
                 case ResourcesEnum.Person:
                     return "4040-";
+                case ResourcesEnum.Location:
+                    return "4020-";
+                case ResourcesEnum.Concept:
+                    return "4015-";
+                case ResourcesEnum.Object:
+                    return "4055-";
+                case ResourcesEnum.StoryArc:
+                    return "4045-";
                 default:
                     return String.Empty;
             }

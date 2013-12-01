@@ -34,26 +34,37 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query));
         }
 
-        public static async Task<string> GetQuickCharacterAsync(string characterId)
-        {
-            List<string> filters = new List<string> { "deck", "id", "image", "name" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, characterId, filters));
-        }
+        #region GetFiltered methods
 
         public static async Task<string> GetFilteredCharacterAsync(int id, string filter)
         {
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, id.ToString(), filter));
         }
 
-        public static async Task<string> GetQuickTeamAsync(string teamId)
-        {
-            List<string> filters = new List<string>{ "deck", "id", "image", "name"};
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId, filters));
-        }
-
         public static async Task<string> GetFilteredTeamAsync(int teamId, string filter)
         {
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId.ToString(), filter));
+        }
+
+        public static async Task<string> GetFilteredIssueAsync(int issueId, List<string> filters)
+        {
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issue, issueId.ToString(), filters));
+        }
+
+        #endregion
+
+        #region GetQuick methods
+
+        public static async Task<string> GetQuickCharacterAsync(string characterId)
+        {
+            List<string> filters = new List<string> { "deck", "id", "image", "name" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, characterId, filters));
+        }
+
+        public static async Task<string> GetQuickTeamAsync(string teamId)
+        {
+            List<string> filters = new List<string> { "deck", "id", "image", "name" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId, filters));
         }
 
         public static async Task<string> GetQuickIssueAsync(int issueId)
@@ -62,16 +73,37 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issue, issueId.ToString(), filters));
         }
 
-        public static async Task<string> GetFilteredIssueAsync(int issueId, string filter)
-        {
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issue, issueId.ToString(), filter));
-        }
-
         public static async Task<string> GetQuickCreatorAsync(string personId)
         {
             List<string> filters = new List<string> { "id", "image", "name" };
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Person, personId, filters));
         }
+
+        public static async Task<string> GetQuickLocationAsync(string locationId)
+        {
+            List<string> filters = new List<string> { "id", "image", "name" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Location, locationId, filters));
+        }
+
+        public static async Task<string> GetQuickConceptAsync(string conceptId)
+        {
+            List<string> filters = new List<string> { "id", "image", "name" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Concept, conceptId, filters));
+        }
+
+        public static async Task<string> GetQuickObjectAsync(string objectId)
+        {
+            List<string> filters = new List<string> { "id", "image", "name" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Object, objectId, filters));
+        }
+
+        public static async Task<string> GetQuickStoryArcAsync(string storyArcId)
+        {
+            List<string> filters = new List<string> { "id", "image", "name" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.StoryArc, storyArcId, filters));
+        }
+
+        #endregion
 
         public static async Task<Description> FormatDescriptionAsync(string descriptionString)
         {
@@ -103,20 +135,8 @@ namespace MyWorldIsComics.DataSource
                 case Resources.ResourcesEnum.Search:
                     uri += Resources.GetResourceId(resourcesEnum) + query + "&limit=1" + "&";
                     break;
-                case Resources.ResourcesEnum.Character:
-                    uri += Resources.GetResourceId(resourcesEnum) + query + "/?";
-                    break;
-                case Resources.ResourcesEnum.Team:
-                    uri += Resources.GetResourceId(resourcesEnum) + query + "/?";
-                    break;
-                case Resources.ResourcesEnum.Issue:
-                    uri += Resources.GetResourceId(resourcesEnum) + query + "/?";
-                    break;
-                case Resources.ResourcesEnum.Person:
-                    uri += Resources.GetResourceId(resourcesEnum) + query + "/?";
-                    break;
                 default:
-                    uri += query + "/";
+                    uri += Resources.GetResourceId(resourcesEnum) + query + "/?";
                     break;
             }
             uri += ServiceConstants.ComicVineApiKey + "&" + ServiceConstants.ComicVineFormat;

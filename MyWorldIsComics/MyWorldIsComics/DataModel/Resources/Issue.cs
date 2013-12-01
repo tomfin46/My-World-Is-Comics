@@ -75,8 +75,11 @@ namespace MyWorldIsComics.DataModel.Resources
         public List<int> CharacterIds { get; set; }
         public ObservableCollection<Character> Characters { get; set; }
         public List<int> ConceptIds { get; set; }
+        public ObservableCollection<Concept> Concepts { get; set; }
         public List<int> LocationIds { get; set; }
+        public ObservableCollection<Location> Locations { get; set; }
         public List<int> ObjectIds { get; set; }
+        public ObservableCollection<Object> Objects { get; set; }
         public Dictionary<int, string> PersonIds { get; set; }
         public ObservableCollection<Creator> Creators { get; set; }
         public List<int> StoryArcIds { get; set; }
@@ -91,13 +94,17 @@ namespace MyWorldIsComics.DataModel.Resources
             CharacterIds = new List<int>();
             Characters = new ObservableCollection<Character>();
             ConceptIds = new List<int>();
+            Concepts = new ObservableCollection<Concept>();
             LocationIds = new List<int>();
+            Locations = new ObservableCollection<Location>();
             ObjectIds = new List<int>();
-            Creators = new ObservableCollection<Creator>();
+            Objects = new ObservableCollection<Object>();
             PersonIds = new Dictionary<int, string>();
+            Creators = new ObservableCollection<Creator>();
             StoryArcIds = new List<int>();
-            Teams = new ObservableCollection<Team>();
+            StoryArcs = new ObservableCollection<StoryArc>();
             TeamIds = new List<int>();
+            Teams = new ObservableCollection<Team>();
         }
 
         public override string ToString()

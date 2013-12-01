@@ -1,25 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using MyWorldIsComics.Common;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-// The Item Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234232
-using MyWorldIsComics.DataModel;
 using MyWorldIsComics.DataModel.Resources;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Mappers;
+using Object = MyWorldIsComics.DataModel.Resources.Object;
 
 namespace MyWorldIsComics.ResourcePages
 {
@@ -31,6 +20,9 @@ namespace MyWorldIsComics.ResourcePages
     {
         private readonly NavigationHelper _navigationHelper;
         private readonly ObservableDictionary _issuePageViewModel = new ObservableDictionary();
+
+        private static Issue BasicIssue;
+        private static Issue FilteredIssue;
 
         private Issue basicIssueForPage;
         private Issue filteredIssueForPage;
@@ -57,6 +49,7 @@ namespace MyWorldIsComics.ResourcePages
             this.InitializeComponent();
             this._navigationHelper = new NavigationHelper(this);
             this._navigationHelper.LoadState += navigationHelper_LoadState;
+            this._navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -72,55 +65,60 @@ namespace MyWorldIsComics.ResourcePages
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            this.basicIssueForPage = e.NavigationParameter as Issue;
-            this.IssuePageViewModel["Issue"] = this.basicIssueForPage;
+            Issue issue = e.NavigationParameter as Issue;
+            if (issue != null && BasicIssue != null && BasicIssue.UniqueId == issue.UniqueId)
+            {
+                this.basicIssueForPage = BasicIssue;
+                this.filteredIssueForPage = FilteredIssue;
+                this.IssuePageViewModel["Issue"] = this.basicIssueForPage;
+            }
+            else
+            {
+                this.basicIssueForPage = issue;
+                this.filteredIssueForPage = this.basicIssueForPage;
+                this.IssuePageViewModel["Issue"] = this.basicIssueForPage;
+                await this.LoadIssue();
+                
+            }
 
             // TODO: Assign a bindable group to this.DefaultViewModel["Group"]
             // TODO: Assign a collection of bindable items to this.DefaultViewModel["Items"]
             // TODO: Assign the selected item to this.flipView.SelectedItem
 
-            await this.LoadIssue();
+        }
+
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            if (this.Frame.CurrentSourcePageType.Name == "HubPage") { return; }
+
+            // Save response content so don't have to fetch from api service again
+            BasicIssue = this.basicIssueForPage;
+            FilteredIssue = this.filteredIssueForPage;
         }
 
         private async Task LoadIssue()
         {
             try
             {
-                List<string> filters = new List<string> { "person_credits", "character_credits", "team_credits", "location_credits",
-                    "concept_credits", "object_credits", "story_arc_credits" };
-
-                foreach (string filter in filters)
+                List<string> filters = new List<string>
                 {
-                    await this.FetchFilteredIssueResource(filter);
-                    switch (filter)
-                    {
-                        case "person_credits":
-                            await this.FetchFirstPerson();
-                            break;
-                        case "character_credits":
-                            await this.FetchCharacters();
-                            break;
-                        case "team_credits":
-                            await this.FetchFirstTeam();
-                            break;
-                        case "location_credits":
-                            //await this.FetchLocations();
-                            break;
-                        case "concept_credits":
-                            //await this.FetchConcepts();
-                            break;
-                        case "object_credits":
-                            //await this.FetchObjects();
-                            break;
-                        case "story_arc_credits":
-                            //await this.FetchStoryArcs();
-                            break;
-                    }
-                    this.IssuePageViewModel["FilteredCharacter"] = this.filteredIssueForPage;
-                }
-                await this.FetchRemainingPeople();
-                await this.FetchRemainingCharacters();
-                await this.FetchRemainingTeams();
+                    "person_credits",
+                    "character_credits",
+                    "team_credits",
+                    "location_credits",
+                    "concept_credits",
+                    "object_credits",
+                    "story_arc_credits"
+                };
+                await this.FetchFilteredIssueResource(filters);
+
+                await this.FetchPeople();
+                await this.FetchCharacters();
+                await this.FetchTeams();
+                await this.FetchLocations();
+                await this.FetchConcepts();
+                await this.FetchObjects();
+                await this.FetchStoryArcs();
             }
             catch (TaskCanceledException)
             {
@@ -128,27 +126,20 @@ namespace MyWorldIsComics.ResourcePages
             }
         }
 
-        #region Fetch Methods
-        private async Task FetchFilteredIssueResource(string filter)
+        private async Task FetchFilteredIssueResource(List<string> filters)
         {
-            string filteredIssueString = await ComicVineSource.GetFilteredIssueAsync(this.basicIssueForPage.UniqueId, filter);
-            this.filteredIssueForPage = this.GetMappedIssueFromFilter(filteredIssueString, filter);
-        }
-        private async Task FetchFirstPerson()
-        {
-            foreach (var person in this.filteredIssueForPage.PersonIds.Take(1))
+            string filteredIssueString = await ComicVineSource.GetFilteredIssueAsync(this.basicIssueForPage.UniqueId, filters);
+            foreach (string filter in filters)
             {
-                Creator creator = this.GetMappedCreator(await ComicVineSource.GetQuickCreatorAsync(person.Key.ToString()));
-                creator.Role = person.Value;
-                if (this.filteredIssueForPage.Creators.Any(c => c.UniqueId == creator.UniqueId)) continue;
-                this.filteredIssueForPage.Creators.Add(creator);
+                this.filteredIssueForPage = this.GetMappedIssueFromFilter(filteredIssueString, filter);
             }
         }
 
-        private async Task FetchRemainingPeople()
+        #region Fetch Methods
+
+        private async Task FetchPeople()
         {
-            var firstId = this.filteredIssueForPage.PersonIds.First();
-            foreach (var person in this.filteredIssueForPage.PersonIds.Where(p => p.Key != firstId.Key).Take(this.filteredIssueForPage.PersonIds.Count - 1))
+            foreach (var person in this.filteredIssueForPage.PersonIds)
             {
                 Creator creator = this.GetMappedCreator(await ComicVineSource.GetQuickCreatorAsync(person.Key.ToString()));
                 creator.Role = person.Value;
@@ -159,7 +150,7 @@ namespace MyWorldIsComics.ResourcePages
 
         private async Task FetchCharacters()
         {
-            foreach (var characterId in this.filteredIssueForPage.CharacterIds.Take(1))
+            foreach (var characterId in this.filteredIssueForPage.CharacterIds)
             {
                 Character character = this.GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
                 if (this.filteredIssueForPage.Creators.Any(c => c.UniqueId == character.UniqueId)) continue;
@@ -167,31 +158,9 @@ namespace MyWorldIsComics.ResourcePages
             }
         }
 
-        private async Task FetchRemainingCharacters()
+        private async Task FetchTeams()
         {
-            var firstId = this.filteredIssueForPage.CharacterIds.First();
-            foreach (var characterId in this.filteredIssueForPage.CharacterIds.Where(c => c != firstId).Take(this.filteredIssueForPage.CharacterIds.Count - 1))
-            {
-                Character character = this.GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
-                if (this.filteredIssueForPage.Creators.Any(c => c.UniqueId == character.UniqueId)) continue;
-                this.filteredIssueForPage.Characters.Add(character);
-            }
-        }
-
-        private async Task FetchFirstTeam()
-        {
-            foreach (int teamId in this.filteredIssueForPage.TeamIds.Take(1))
-            {
-                Team team = this.GetMappedTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
-                if (this.filteredIssueForPage.TeamIds.Any(t => t == team.UniqueId)) continue;
-                this.filteredIssueForPage.Teams.Add(team);
-            }
-        }
-
-        private async Task FetchRemainingTeams()
-        {
-            var firstId = this.filteredIssueForPage.TeamIds.First();
-            foreach (int teamId in this.filteredIssueForPage.TeamIds.Where(t => t != firstId).Take(this.filteredIssueForPage.TeamIds.Count - 1))
+            foreach (int teamId in this.filteredIssueForPage.TeamIds)
             {
                 Team team = this.GetMappedTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
                 if (this.filteredIssueForPage.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
@@ -199,29 +168,49 @@ namespace MyWorldIsComics.ResourcePages
             }
         }
 
-        private Task FetchLocations()
+        private async Task FetchLocations()
         {
-            throw new NotImplementedException();
+            foreach (int locationId in this.filteredIssueForPage.LocationIds)
+            {
+                Location location = this.GetMappedLocation(await ComicVineSource.GetQuickLocationAsync(locationId.ToString()));
+                if (this.filteredIssueForPage.Locations.Any(l => l.UniqueId == location.UniqueId)) continue;
+                this.filteredIssueForPage.Locations.Add(location);
+            }
         }
 
-        private Task FetchConcepts()
+        private async Task FetchConcepts()
         {
-            throw new NotImplementedException();
+            foreach (int conceptId in this.filteredIssueForPage.ConceptIds)
+            {
+                Concept concept = this.GetMappedConcept(await ComicVineSource.GetQuickConceptAsync(conceptId.ToString()));
+                if (this.filteredIssueForPage.Concepts.Any(c => c.UniqueId == concept.UniqueId)) continue;
+                this.filteredIssueForPage.Concepts.Add(concept);
+            }
         }
 
-        private Task FetchObjects()
+        private async Task FetchObjects()
         {
-            throw new NotImplementedException();
+            foreach (int objectId in this.filteredIssueForPage.ObjectIds)
+            {
+                Object mappedObject = this.GetMappedObject(await ComicVineSource.GetQuickObjectAsync(objectId.ToString()));
+                if (this.filteredIssueForPage.Objects.Any(o => o.UniqueId == mappedObject.UniqueId)) continue;
+                this.filteredIssueForPage.Objects.Add(mappedObject);
+            }
         }
 
-        private Task FetchStoryArcs()
+        private async Task FetchStoryArcs()
         {
-            throw new NotImplementedException();
+            foreach (int storyArcId in this.filteredIssueForPage.StoryArcIds)
+            {
+                StoryArc storyArc = this.GetMappedStoryArc(await ComicVineSource.GetQuickStoryArcAsync(storyArcId.ToString()));
+                if (this.filteredIssueForPage.StoryArcs.Any(sA => sA.UniqueId == storyArc.UniqueId)) continue;
+                this.filteredIssueForPage.StoryArcs.Add(storyArc);
+            }
         }
 
         #endregion
 
-        #region Get Mappins Methods
+        #region Get Mapping Methods
 
         private Issue GetMappedIssueFromFilter(string filteredIssueString, string filter)
         {
@@ -241,6 +230,26 @@ namespace MyWorldIsComics.ResourcePages
         private Team GetMappedTeam(string quickTeam)
         {
             return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
+        }
+
+        private Location GetMappedLocation(string quickLocation)
+        {
+            return quickLocation == ServiceConstants.QueryNotFound ? new Location { Name = "Location Not Found" } : new LocationMapper().QuickMapXmlObject(quickLocation);
+        }
+
+        private Concept GetMappedConcept(string quickConcept)
+        {
+            return quickConcept == ServiceConstants.QueryNotFound ? new Concept() { Name = "Concept Not Found" } : new ConceptMapper().QuickMapXmlObject(quickConcept);
+        }
+
+        private Object GetMappedObject(string quickObject)
+        {
+            return quickObject == ServiceConstants.QueryNotFound ? new Object { Name = "Object Not Found" } : new ObjectMapper().QuickMapXmlObject(quickObject);
+        }
+
+        private StoryArc GetMappedStoryArc(string quickStoryArc)
+        {
+            return quickStoryArc == ServiceConstants.QueryNotFound ? new StoryArc { Name = "Story Arc Not Found" } : new StoryArcMapper().QuickMapXmlObject(quickStoryArc);
         }
 
         #endregion
@@ -299,7 +308,7 @@ namespace MyWorldIsComics.ResourcePages
 
         private void ObjectsView_ObjectClick(object sender, ItemClickEventArgs e)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         private void StoryArcsView_StoryArcClick(object sender, ItemClickEventArgs e)

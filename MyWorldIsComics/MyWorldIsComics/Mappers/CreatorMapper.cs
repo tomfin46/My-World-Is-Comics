@@ -24,9 +24,9 @@ namespace MyWorldIsComics.Mappers
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
                 reader.ReadToFollowing("results");
-                ParseId(reader);
-                ParseImage(reader);
-                ParseName(reader);
+                _creatorToMap = GenericResourceMapper.ParseId(reader, _creatorToMap) as Creator;
+                _creatorToMap = GenericResourceMapper.ParseImage(reader, _creatorToMap) as Creator;
+                _creatorToMap = GenericResourceMapper.ParseName(reader, _creatorToMap) as Creator;
             }
             return _creatorToMap;
         }
@@ -45,61 +45,6 @@ namespace MyWorldIsComics.Mappers
                     break;
             }
             return _creatorToMap;
-        }
-
-        private
-            void ParseBirth(XmlReader reader)
-        {
-            if (reader.Name != "birth") { reader.ReadToFollowing("birth"); }
-            var date = reader.ReadElementContentAsString();
-
-            if (date == String.Empty) { return; }
-
-            var commaPos = date.IndexOf(',');
-            var year = int.Parse(date.Substring(commaPos + 1));
-            var month = Month.GetMonthInt(date.Substring(0, 3));
-            var day = int.Parse(date.Substring(4, commaPos - 4));
-
-            _creatorToMap.Birth = new DateTime(year, month, day);
-        }
-
-        private void ParseDeck(XmlReader reader)
-        {
-            if (reader.Name != "deck") { reader.ReadToFollowing("deck"); }
-            _creatorToMap.Deck = reader.ReadElementContentAsString();
-        }
-
-        private void ParseDescriptionString(XmlReader reader)
-        {
-            if (reader.Name != "description") { reader.ReadToFollowing("description"); }
-            _creatorToMap.DescriptionString = reader.ReadElementContentAsString();
-        }
-
-        private void ParseGender(XmlReader reader)
-        {
-            if (reader.Name != "gender") { reader.ReadToFollowing("gender"); }
-            _creatorToMap.Gender = Gender.GetGender(reader.ReadElementContentAsInt());
-        }
-
-        private void ParseId(XmlReader reader)
-        {
-            if (reader.Name != "id") { reader.ReadToFollowing("id"); }
-            _creatorToMap.UniqueId = reader.ReadElementContentAsInt();
-        }
-
-        private void ParseImage(XmlReader reader)
-        {
-            if (reader.Name != "image") { reader.ReadToFollowing("image"); }
-            if (reader.IsEmptyElement) return;
-
-            reader.ReadToFollowing("super_url");
-            _creatorToMap.MainImage = new Uri(reader.ReadElementContentAsString());
-        }
-       
-        private void ParseName(XmlReader reader)
-        {
-            if (reader.Name != "name") { reader.ReadToFollowing("name"); }
-            _creatorToMap.Name = reader.ReadElementContentAsString();
         }
     }
 }

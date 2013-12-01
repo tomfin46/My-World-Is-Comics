@@ -26,11 +26,11 @@ namespace MyWorldIsComics.Mappers
             {
                 reader.ReadToFollowing("results");
                 ParseCoverDate(reader);
-                ParseDescriptionString(reader);
-                ParseId(reader);
-                ParseImage(reader);
+                _issueToMap = GenericResourceMapper.ParseDescriptionString(reader, _issueToMap) as Issue;
+                _issueToMap = GenericResourceMapper.ParseId(reader, _issueToMap) as Issue;
+                _issueToMap = GenericResourceMapper.ParseImage(reader, _issueToMap) as Issue;
                 ParseIssueNumber(reader);
-                ParseName(reader);
+                _issueToMap = GenericResourceMapper.ParseName(reader, _issueToMap) as Issue;
                 ParseStoreDate(reader);
                 ParseVolume(reader);
                 _issueToMap.ResourceString = xmlString;
@@ -96,12 +96,6 @@ namespace MyWorldIsComics.Mappers
             return _issueToMap;
         }
         
-        private void ParseComicVineApiUrl(XmlReader reader)
-        {
-            if (reader.Name != "api_detail_url") { reader.ReadToFollowing("api_detail_url"); }
-            _issueToMap.ComicVineApiUrl = new Uri(reader.ReadElementContentAsString());
-        }
-
         private void ParseCharacters(XmlReader reader)
         {
             if (reader.Name != "character_credits") { reader.ReadToFollowing("character_credits"); }
@@ -148,18 +142,6 @@ namespace MyWorldIsComics.Mappers
             _issueToMap.CoverDate = new DateTime(int.Parse(dateVals[0]), int.Parse(dateVals[1]), int.Parse(dateVals[2]));
         }
 
-        private void ParseDeck(XmlReader reader)
-        {
-            if (reader.Name != "deck") { reader.ReadToFollowing("deck"); }
-            _issueToMap.Deck = reader.ReadElementContentAsString();
-        }
-
-        private void ParseDescriptionString(XmlReader reader)
-        {
-            if (reader.Name != "description") { reader.ReadToFollowing("description"); }
-            _issueToMap.DescriptionString = reader.ReadElementContentAsString();
-        }
-
         private void ParseStaffReview(XmlReader reader)
         {
             if (reader.Name != "has_staff_review") { reader.ReadToFollowing("has_staff_review"); }
@@ -169,25 +151,6 @@ namespace MyWorldIsComics.Mappers
             _issueToMap.StaffReviewId = reader.ReadElementContentAsInt();
         }
         
-        private void ParseId(XmlReader reader)
-        {
-            if (reader.Name != "id")
-            {
-                reader.ReadToFollowing("has_staff_review");
-                reader.ReadToNextSibling("id");
-            }
-            _issueToMap.UniqueId = reader.ReadElementContentAsInt();
-        }
-
-        private void ParseImage(XmlReader reader)
-        {
-            if (reader.Name != "image") { reader.ReadToFollowing("image"); }
-            if (reader.IsEmptyElement) return;
-
-            reader.ReadToFollowing("super_url");
-            _issueToMap.MainImage = new Uri(reader.ReadElementContentAsString());
-        }
-
         private void ParseIssueNumber(XmlReader reader)
         {
             if (reader.Name != "issue_number") { reader.ReadToFollowing("issue_number"); }
@@ -264,12 +227,6 @@ namespace MyWorldIsComics.Mappers
                     return;
                 }
             }
-        }
-
-        private void ParseComicVineSiteUrl(XmlReader reader)
-        {
-            if (reader.Name != "site_detail_url") { reader.ReadToFollowing("site_detail_url"); }
-            _issueToMap.ComicVineSiteUrl = new Uri(reader.ReadElementContentAsString());
         }
 
         private void ParseStoreDate(XmlReader reader)

@@ -34,6 +34,17 @@ namespace MyWorldIsComics.ResourcePages
         private Issue nextIssue = new Issue();
         private Issue previousIssue = new Issue();
 
+        List<string> filters = new List<string>
+                {
+                    "person_credits",
+                    "character_credits",
+                    "team_credits",
+                    "location_credits",
+                    "concept_credits",
+                    "object_credits",
+                    "story_arc_credits"
+                };
+
         private ObservableCollection<Issue> adjacentIssues;
 
         /// <summary>
@@ -91,24 +102,18 @@ namespace MyWorldIsComics.ResourcePages
                 await FetchBasicNextIssueResource();
                 await FetchBasicPreviousIssueResource();
 
-                var issues = new ObservableCollection<Issue>();
-                issues.Add(this.previousIssue);
-                issues.Add(this.filteredIssueForPage);
-                issues.Add(this.nextIssue);
+                InitialiseFlipView();
 
-                adjacentIssues = new ObservableCollection<Issue>(issues.OrderBy(i => i.IssueNumber));
-
-                FlipView issuesFlipView = new FlipView();
-                issuesFlipView.ItemsSource = adjacentIssues;
-                issuesFlipView.ItemTemplate = Resources["IssueTemplate"] as DataTemplate;
-                issuesFlipView.SelectedItem = this.basicIssueForPage;
-                issuesFlipView.SelectionChanged += IssueImagesFlipView_SelectionChanged;
-
-                ContentRegion.Children.Insert(0, issuesFlipView);
-
-                await this.LoadIssue();
-                await this.LoadNextIssue();
-                await this.LoadPreviousIssue();
+                try
+                {
+                    await this.LoadIssue();
+                    await this.LoadNextIssue();
+                    await this.LoadPreviousIssue();
+                }
+                catch (TaskCanceledException)
+                {
+                    ComicVineSource.ReinstateCts();
+                }
             }
         }
 
@@ -121,85 +126,68 @@ namespace MyWorldIsComics.ResourcePages
             FilteredIssue = this.filteredIssueForPage;
         }
 
+        private void InitialiseFlipView()
+        {
+            var issues = new ObservableCollection<Issue>();
+            issues.Add(this.previousIssue);
+            issues.Add(this.filteredIssueForPage);
+            issues.Add(this.nextIssue);
+
+            adjacentIssues = new ObservableCollection<Issue>(issues.OrderBy(i => i.IssueNumber));
+
+            FlipView issuesFlipView = new FlipView();
+            issuesFlipView.ItemsSource = adjacentIssues;
+            issuesFlipView.ItemTemplate = Resources["IssueTemplate"] as DataTemplate;
+            issuesFlipView.SelectedItem = this.basicIssueForPage;
+            issuesFlipView.SelectionChanged += IssueImagesFlipView_SelectionChanged;
+
+            ContentRegion.Children.Insert(0, issuesFlipView);
+        }
+
+        #region Load Issues
+
         private async Task LoadIssue()
         {
-            try
-            {
-                List<string> filters = new List<string>
-                {
-                    "person_credits",
-                    "character_credits",
-                    "team_credits",
-                    "location_credits",
-                    "concept_credits",
-                    "object_credits",
-                    "story_arc_credits"
-                };
-                await this.FetchFilteredIssueResource(filters);
+            await this.FetchFilteredIssueResource(this.filters);
 
-                await this.FetchPeople("current");
-                //await this.FetchCharacters();
-                //await this.FetchTeams();
-                //await this.FetchLocations();
-                //await this.FetchConcepts();
-                //await this.FetchObjects();
-                //await this.FetchStoryArcs();
-            }
-            catch (TaskCanceledException)
-            {
-                ComicVineSource.ReinstateCts();
-            }
+            await this.FetchPeople(this.filteredIssueForPage);
+            await this.FetchCharacters(this.filteredIssueForPage);
+            await this.FetchTeams(this.filteredIssueForPage);
+            await this.FetchLocations(this.filteredIssueForPage);
+            await this.FetchConcepts(this.filteredIssueForPage);
+            await this.FetchObjects(this.filteredIssueForPage);
+            await this.FetchStoryArcs(this.filteredIssueForPage);
         }
 
         private async Task LoadNextIssue()
         {
-            try
-            {
-                List<string> filters = new List<string>
-                {
-                    "person_credits",
-                    "character_credits",
-                    "team_credits",
-                    "location_credits",
-                    "concept_credits",
-                    "object_credits",
-                    "story_arc_credits"
-                };
-                await this.FetchNextIssueResource(filters);
+            await this.FetchNextIssueResource(this.filters);
 
-                await this.FetchPeople("next");
-                //await this.FetchNextCharacters();
-            }
-            catch (TaskCanceledException)
-            {
-                ComicVineSource.ReinstateCts();
-            }
+            await this.FetchPeople(this.nextIssue);
+            await this.FetchCharacters(this.nextIssue);
+            await this.FetchTeams(this.nextIssue);
+            await this.FetchLocations(this.nextIssue);
+            await this.FetchConcepts(this.nextIssue);
+            await this.FetchObjects(this.nextIssue);
+            await this.FetchStoryArcs(this.nextIssue);
         }
 
         private async Task LoadPreviousIssue()
         {
-            try
-            {
-                List<string> filters = new List<string>
-                {
-                    "person_credits",
-                    "character_credits",
-                    "team_credits",
-                    "location_credits",
-                    "concept_credits",
-                    "object_credits",
-                    "story_arc_credits"
-                };
-                await this.FetchPreviousIssueResource(filters);
+            await this.FetchPreviousIssueResource(this.filters);
 
-                await this.FetchPeople("previous");
-                //await this.FetchNextCharacters();
-            }
-            catch (TaskCanceledException)
-            {
-                ComicVineSource.ReinstateCts();
-            }
+            await this.FetchPeople(this.previousIssue);
+            await this.FetchCharacters(this.previousIssue);
+            await this.FetchTeams(this.previousIssue);
+            await this.FetchLocations(this.previousIssue);
+            await this.FetchConcepts(this.previousIssue);
+            await this.FetchObjects(this.previousIssue);
+            await this.FetchStoryArcs(this.previousIssue);
         }
+
+        #endregion
+
+        #region Fetch Resources
 
         private async Task FetchBasicNextIssueResource()
         {
@@ -238,98 +226,11 @@ namespace MyWorldIsComics.ResourcePages
             }
         }
 
-        #region Current Issue Fetch Methods
-
-        private async Task FetchPeople()
-        {
-            foreach (var person in this.filteredIssueForPage.PersonIds)
-            {
-                Creator creator = await this.FetchPerson(person);
-                if (this.filteredIssueForPage.Creators.Any(c => c.UniqueId == creator.UniqueId)) continue;
-                this.filteredIssueForPage.Creators.Add(creator);
-            }
-        }
-
-        private async Task FetchCharacters()
-        {
-            foreach (var characterId in this.filteredIssueForPage.CharacterIds)
-            {
-                Character character = await this.FetchCharacter(characterId);
-                if (this.filteredIssueForPage.Creators.Any(c => c.UniqueId == character.UniqueId)) continue;
-                this.filteredIssueForPage.Characters.Add(character);
-            }
-        }
-
-        private async Task FetchTeams()
-        {
-            foreach (int teamId in this.filteredIssueForPage.TeamIds)
-            {
-                Team team = await this.FetchTeam(teamId);
-                if (this.filteredIssueForPage.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
-                this.filteredIssueForPage.Teams.Add(team);
-            }
-        }
-
-        private async Task FetchLocations()
-        {
-            foreach (int locationId in this.filteredIssueForPage.LocationIds)
-            {
-                Location location = await this.FetchLocation(locationId);
-                if (this.filteredIssueForPage.Locations.Any(l => l.UniqueId == location.UniqueId)) continue;
-                this.filteredIssueForPage.Locations.Add(location);
-            }
-        }
-
-        private async Task FetchConcepts()
-        {
-            foreach (int conceptId in this.filteredIssueForPage.ConceptIds)
-            {
-                Concept concept = await this.FetchConcept(conceptId);
-                if (this.filteredIssueForPage.Concepts.Any(c => c.UniqueId == concept.UniqueId)) continue;
-                this.filteredIssueForPage.Concepts.Add(concept);
-            }
-        }
-
-        private async Task FetchObjects()
-        {
-            foreach (int objectId in this.filteredIssueForPage.ObjectIds)
-            {
-                Object mappedObject = await this.FetchObject(objectId);
-                if (this.filteredIssueForPage.Objects.Any(o => o.UniqueId == mappedObject.UniqueId)) continue;
-                this.filteredIssueForPage.Objects.Add(mappedObject);
-            }
-        }
-
-        private async Task FetchStoryArcs()
-        {
-            foreach (int storyArcId in this.filteredIssueForPage.StoryArcIds)
-            {
-                StoryArc storyArc = await this.FetchStoryArc(storyArcId);
-                if (this.filteredIssueForPage.StoryArcs.Any(sA => sA.UniqueId == storyArc.UniqueId)) continue;
-                this.filteredIssueForPage.StoryArcs.Add(storyArc);
-            }
-        }
-
         #endregion
 
-        private async Task FetchPeople(string issueNode)
-        {
-            switch (issueNode)
-            {
-                case "current":
-                    this.filteredIssueForPage = await FetchPeople(this.filteredIssueForPage);
-                    break;
-                case "next":
-                    this.nextIssue = await FetchPeople(this.nextIssue);
-                    break;
-                case "previous":
-                    this.previousIssue = await FetchPeople(this.previousIssue);
-                    break;
-            }
-            
-        }
+        #region General Multiple Fetch Methods
 
-        private async Task<Issue> FetchPeople(Issue issue)
+        private async Task FetchPeople(Issue issue)
         {
             foreach (var person in issue.PersonIds)
             {
@@ -337,37 +238,71 @@ namespace MyWorldIsComics.ResourcePages
                 if (issue.Creators.Any(c => c.UniqueId == creator.UniqueId)) continue;
                 issue.Creators.Add(creator);
             }
-            return issue;
         }
 
-        
-
-
-        #region Next Issue Fetch Methods
-
-        private async Task FetchNextPeople()
+        private async Task FetchCharacters(Issue issue)
         {
-            foreach (var person in this.nextIssue.PersonIds)
+            foreach (var characterId in issue.CharacterIds)
             {
-                Creator creator = await this.FetchPerson(person);
-                if (this.nextIssue.Creators.Any(c => c.UniqueId == creator.UniqueId)) continue;
-                this.nextIssue.Creators.Add(creator);
+                Character character = await this.FetchCharacter(characterId);
+                if (issue.Creators.Any(c => c.UniqueId == character.UniqueId)) continue;
+                issue.Characters.Add(character);
             }
         }
 
-        private async Task FetchNextCharacters()
+        private async Task FetchTeams(Issue issue)
         {
-            foreach (var characterId in this.nextIssue.CharacterIds)
+            foreach (int teamId in issue.TeamIds)
             {
-                Character character = await this.FetchCharacter(characterId);
-                if (this.nextIssue.Creators.Any(c => c.UniqueId == character.UniqueId)) continue;
-                this.nextIssue.Characters.Add(character);
+                Team team = await this.FetchTeam(teamId);
+                if (issue.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
+                issue.Teams.Add(team);
+            }
+        }
+
+        private async Task FetchLocations(Issue issue)
+        {
+            foreach (int locationId in issue.LocationIds)
+            {
+                Location location = await this.FetchLocation(locationId);
+                if (issue.Locations.Any(l => l.UniqueId == location.UniqueId)) continue;
+                issue.Locations.Add(location);
+            }
+        }
+
+        private async Task FetchConcepts(Issue issue)
+        {
+            foreach (int conceptId in issue.ConceptIds)
+            {
+                Concept concept = await this.FetchConcept(conceptId);
+                if (issue.Concepts.Any(c => c.UniqueId == concept.UniqueId)) continue;
+                issue.Concepts.Add(concept);
+            }
+        }
+
+        private async Task FetchObjects(Issue issue)
+        {
+            foreach (int objectId in issue.ObjectIds)
+            {
+                Object mappedObject = await this.FetchObject(objectId);
+                if (issue.Objects.Any(o => o.UniqueId == mappedObject.UniqueId)) continue;
+                issue.Objects.Add(mappedObject);
+            }
+        }
+
+        private async Task FetchStoryArcs(Issue issue)
+        {
+            foreach (int storyArcId in issue.StoryArcIds)
+            {
+                StoryArc storyArc = await this.FetchStoryArc(storyArcId);
+                if (issue.StoryArcs.Any(sA => sA.UniqueId == storyArc.UniqueId)) continue;
+                issue.StoryArcs.Add(storyArc);
             }
         }
 
         #endregion
 
-        #region General Fetch Methods
+        #region General Singular Fetch Methods
 
         private async Task<Creator> FetchPerson(KeyValuePair<int, string> person)
         {
@@ -519,12 +454,14 @@ namespace MyWorldIsComics.ResourcePages
             //throw new NotImplementedException();
         }
 
-        #endregion
-
         private void IssueImagesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             FlipView flipView = sender as FlipView;
             if (flipView != null) GridTitles.DataContext = flipView.SelectedItem;
+
+
         }
+
+        #endregion
     }
 }

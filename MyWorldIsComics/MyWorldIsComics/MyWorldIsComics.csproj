@@ -105,6 +105,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CharactersPage.xaml.cs">
+      <DependentUpon>CharactersPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DataModel\DescriptionContent\Figure.cs" />
     <Compile Include="DataModel\DescriptionContent\Link.cs" />
     <Compile Include="DataModel\DescriptionContent\List.cs" />
@@ -193,6 +196,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="CharactersPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ResourcePages\CharacterPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

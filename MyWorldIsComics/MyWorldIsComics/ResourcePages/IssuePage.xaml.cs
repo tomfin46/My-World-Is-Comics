@@ -105,7 +105,6 @@ namespace MyWorldIsComics.ResourcePages
                     IssuePageViewModel["Issue"] = _basicIssueForPage;
 
                     await FetchBasicNextIssueResource();
-                    //if (_basicIssueForPage.IssueNumber != 1) 
                     await FetchBasicPreviousIssueResource();
 
                     InitialiseFlipView();

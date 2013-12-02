@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Windows.ApplicationModel.Activation;
 using MyWorldIsComics.DataModel.Resources;
 using MyWorldIsComics.Mappers;
 
@@ -68,7 +69,6 @@ namespace MyWorldIsComics.ResourcePages
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            // TODO: Assign a collection of bindable groups to this.DefaultViewModel["Groups"]
             _team = e.NavigationParameter as Team;
             TeamPageViewModel["Team"] = _team;
             await LoadTeam();
@@ -141,6 +141,9 @@ namespace MyWorldIsComics.ResourcePages
         private void HideOrShowFilteredSections()
         {
             FirstAppearanceSection.Visibility = _team.FirstAppearanceIssue.UniqueId != 0 ? Visibility.Visible : Visibility.Collapsed;
+            MemberSection.Visibility = _team.Members.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            EnemiesSection.Visibility = _team.Members.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            FriendSection.Visibility = _team.Members.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #region NavigationHelper registration
@@ -175,7 +178,31 @@ namespace MyWorldIsComics.ResourcePages
                 case "First Appearance":
                     Frame.Navigate(typeof(IssuePage), _team.FirstAppearanceIssue);
                     break;
+                case "Members":
+                    Frame.Navigate(typeof (CharactersPage), _team.Members);
+                    break;
+                case "Enemies":
+                    Frame.Navigate(typeof(CharactersPage), _team.Enemies);
+                    break;
+                case "Friends":
+                    Frame.Navigate(typeof(CharactersPage), _team.Friends);
+                    break;
+                case "Issues Dispanded In":
+                    // TODO Frame.Navigate(typeof(IssuesPage), _team.Friends);
+                    break;
             }
+        }
+
+        private void GridView_CharacterClick(object sender, ItemClickEventArgs e)
+        {
+            var character = ((Character)e.ClickedItem);
+            Frame.Navigate(typeof(CharacterPage), character.Name);
+        }
+
+        private void GridView_IssueClick(object sender, ItemClickEventArgs e)
+        {
+            var issue = ((Issue)e.ClickedItem);
+            Frame.Navigate(typeof(IssuePage), issue);
         }
     }
 }

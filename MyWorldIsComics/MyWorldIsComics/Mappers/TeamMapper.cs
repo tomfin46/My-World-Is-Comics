@@ -79,6 +79,13 @@
                             this.ParseFirstAppearance(reader);
                         }
                         break;
+                    case "disbanded_in_issues":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredTeamString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseIssuesDispandedIn(reader);
+                        }
+                        break;
                     case "characters":
                         using (XmlReader reader = XmlReader.Create(new StringReader(filteredTeamString)))
                         {

@@ -1,23 +1,21 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Windows.ApplicationModel.Activation;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
+using MyWorldIsComics.Common;
 using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Mappers;
+using MyWorldIsComics.Pages.CollectionPages;
 
-namespace MyWorldIsComics.ResourcePages
+namespace MyWorldIsComics.Pages.ResourcePages
 {
     #region usings
 
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-
-    using Windows.UI.Xaml;
-    using Windows.UI.Xaml.Controls;
-    using Windows.UI.Xaml.Navigation;
-
-    using Common;
-    using DataSource;
+    
 
     #endregion
 
@@ -67,7 +65,7 @@ namespace MyWorldIsComics.ResourcePages
         /// The source of the event; typically <see cref="NavigationHelper"/>
         /// </param>
         /// <param name="e">Event data that provides both the navigation parameter passed to
-        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
+        /// <see cref="Frame.Navigate(Type, object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
@@ -127,7 +125,7 @@ namespace MyWorldIsComics.ResourcePages
                     HideOrShowFilteredSections();
                 }
 
-                if (_team.IssuesDispandedIn.Count > 1) await FetchRemainingDisbandedIssues();
+                if (_team.IssuesDispandedInIds.Count > 1) await FetchRemainingDisbandedIssues();
                 if (_team.MemberIds.Count > 1) await FetchRemainingMembers();
                 if (_team.EnemyIds.Count > 1) await FetchRemainingEnemies();
                 if (_team.FriendIds.Count > 1) await FetchRemainingFriends();
@@ -215,7 +213,7 @@ namespace MyWorldIsComics.ResourcePages
         private async Task FetchRemainingMembers()
         {
             var firstId = _team.MemberIds.First();
-            foreach (int memberId in _team.MemberIds.Where(id => id != firstId).Take(_team.MemberIds.Count - 1).Take(9))
+            foreach (int memberId in _team.MemberIds.Where(id => id != firstId).Take(_team.MemberIds.Count - 1).Take(8))
             {
                 Character member = await FetchCharacter(memberId);
                 if (_team.Members.Any(m => m.UniqueId == member.UniqueId)) continue;
@@ -226,7 +224,7 @@ namespace MyWorldIsComics.ResourcePages
         private async Task FetchRemainingEnemies()
         {
             var firstId = _team.EnemyIds.First();
-            foreach (int enemyId in _team.EnemyIds.Where(id => id != firstId).Take(_team.EnemyIds.Count - 1).Take(9))
+            foreach (int enemyId in _team.EnemyIds.Where(id => id != firstId).Take(_team.EnemyIds.Count - 1).Take(8))
             {
                 Character enemy = await FetchCharacter(enemyId);
                 if (_team.Enemies.Any(e => e.UniqueId == enemy.UniqueId)) continue;
@@ -237,7 +235,7 @@ namespace MyWorldIsComics.ResourcePages
         private async Task FetchRemainingFriends()
         {
             var firstId = _team.FriendIds.First();
-            foreach (int friendId in _team.FriendIds.Where(id => id != firstId).Take(_team.FriendIds.Count - 1).Take(9))
+            foreach (int friendId in _team.FriendIds.Where(id => id != firstId).Take(_team.FriendIds.Count - 1).Take(8))
             {
                 Character friend = await FetchCharacter(friendId);
                 if (_team.Friends.Any(f => f.UniqueId == friend.UniqueId)) continue;

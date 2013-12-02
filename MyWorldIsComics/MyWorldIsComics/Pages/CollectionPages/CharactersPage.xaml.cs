@@ -1,30 +1,19 @@
-﻿using System;
+﻿// The Group Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234229
+using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using MyWorldIsComics.Common;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-// The Group Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234229
-using MyWorldIsComics.ResourcePages;
+using MyWorldIsComics.Common;
+using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Mappers;
+using MyWorldIsComics.Pages.ResourcePages;
 
-namespace MyWorldIsComics
+namespace MyWorldIsComics.Pages.CollectionPages
 {
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-
-    using MyWorldIsComics.DataModel.Resources;
-    using MyWorldIsComics.DataSource;
-    using MyWorldIsComics.Mappers;
-
     /// <summary>
     /// A page that displays an overview of a single group, including a preview of the items
     /// within the group.
@@ -174,6 +163,9 @@ namespace MyWorldIsComics
 
         private void GridView_CharacterClick(object sender, ItemClickEventArgs e)
         {
+            SavedTeam = this.team;
+            SavedCollectionName = this.collectionName;
+
             var character = ((Character)e.ClickedItem);
             Frame.Navigate(typeof(CharacterPage), character.Name);
         }

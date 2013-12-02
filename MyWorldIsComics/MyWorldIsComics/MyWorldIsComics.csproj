@@ -105,7 +105,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CharactersPage.xaml.cs">
+    <Compile Include="Pages\CollectionPages\CharactersPage.xaml.cs">
       <DependentUpon>CharactersPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="DataModel\DescriptionContent\Figure.cs" />
@@ -130,7 +130,7 @@
     <Compile Include="Mappers\StoryArcMapper.cs" />
     <Compile Include="Mappers\TeamMapper.cs" />
     <Compile Include="Mappers\VolumeMapper.cs" />
-    <Compile Include="ResourcePages\CharacterPage.xaml.cs">
+    <Compile Include="Pages\ResourcePages\CharacterPage.xaml.cs">
       <DependentUpon>CharacterPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="DataSource\ServiceConstants.cs" />
@@ -153,14 +153,14 @@
     </Compile>
     <Compile Include="Mappers\CharacterMapper.cs" />
     <Compile Include="Mappers\DescriptionMapper.cs" />
-    <Compile Include="ResourcePages\IssuePage.xaml.cs">
+    <Compile Include="Pages\ResourcePages\IssuePage.xaml.cs">
       <DependentUpon>IssuePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ResourcePages\TeamPage.xaml.cs">
+    <Compile Include="Pages\ResourcePages\TeamPage.xaml.cs">
       <DependentUpon>TeamPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SavedData.cs" />
-    <Compile Include="TeamsPage.xaml.cs">
+    <Compile Include="Pages\CollectionPages\TeamsPage.xaml.cs">
       <DependentUpon>TeamsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -196,11 +196,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="CharactersPage.xaml">
+    <Page Include="Pages\CollectionPages\CharactersPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ResourcePages\CharacterPage.xaml">
+    <Page Include="Pages\ResourcePages\CharacterPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -208,15 +208,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ResourcePages\IssuePage.xaml">
+    <Page Include="Pages\ResourcePages\IssuePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ResourcePages\TeamPage.xaml">
+    <Page Include="Pages\ResourcePages\TeamPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TeamsPage.xaml">
+    <Page Include="Pages\CollectionPages\TeamsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

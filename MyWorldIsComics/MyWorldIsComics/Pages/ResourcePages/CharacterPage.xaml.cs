@@ -1,30 +1,24 @@
-﻿using System.Net.Http;
-using Windows.ApplicationModel.Store;
-using Windows.UI.Xaml.Documents;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Markup;
+using Windows.UI.Xaml.Navigation;
+using MyWorldIsComics.Common;
+using MyWorldIsComics.DataModel.DescriptionContent;
+using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Mappers;
+using MyWorldIsComics.Pages.CollectionPages;
 using Paragraph = MyWorldIsComics.DataModel.DescriptionContent.Paragraph;
 
-namespace MyWorldIsComics.ResourcePages
+namespace MyWorldIsComics.Pages.ResourcePages
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Threading.Tasks;
-
-    using Windows.UI.Xaml;
-    using Windows.UI.Xaml.Controls;
-    using Windows.UI.Xaml.Input;
-    using Windows.UI.Xaml.Navigation;
-
-    using Common;
-    using DataModel;
-    using DataModel.DescriptionContent;
-    using DataModel.Interfaces;
-    using DataModel.Resources;
-    using DataSource;
-    using Mappers;
-
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>

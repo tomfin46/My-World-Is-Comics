@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Contacts;
 using Windows.UI.Xaml;
-using MyWorldIsComics.Common;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using MyWorldIsComics.Common;
 using MyWorldIsComics.DataModel.Resources;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Mappers;
 using Object = MyWorldIsComics.DataModel.Resources.Object;
 
-namespace MyWorldIsComics.ResourcePages
+namespace MyWorldIsComics.Pages.ResourcePages
 {
     /// <summary>
     /// A page that displays details for a single item within a group while allowing gestures to

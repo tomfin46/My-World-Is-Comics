@@ -2,6 +2,9 @@
 
 // The Hub Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=321224
 
+using MyWorldIsComics.Pages.CollectionPages;
+using MyWorldIsComics.Pages.ResourcePages;
+
 namespace MyWorldIsComics
 {
     #region usings
@@ -11,8 +14,6 @@ namespace MyWorldIsComics
     using Windows.UI.Xaml.Navigation;
     using Common;
     using Data;
-
-    using MyWorldIsComics.ResourcePages;
 
     #endregion
    

@@ -32,13 +32,23 @@ namespace MyWorldIsComics.DataModel.Resources
         {
             get
             {
-                return new Uri(MainImage.AbsoluteUri.Replace(ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.ScaleLarge), ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.SquareAvatar)));
+                Uri uri = default(Uri);
+                if (MainImage != null)
+                {
+                    uri =
+                        new Uri(
+                            MainImage.AbsoluteUri.Replace(
+                                ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.ScaleLarge),
+                                ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.SquareAvatar)));
+                }
+
+                return uri;
             }
         }
 
         #endregion
 
-        #region Image Specific Fields
+        #region Issue Specific Fields
         public int IssueNumber { get; set; }
         public string IssueNumberString
         {

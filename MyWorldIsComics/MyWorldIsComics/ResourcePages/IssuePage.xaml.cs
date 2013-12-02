@@ -496,7 +496,11 @@ namespace MyWorldIsComics.ResourcePages
                         if (flipView.Items != null)
                         {
                             var contains = false;
-                            foreach (int issuePos in flipView.Items.Cast<Issue>().Where(issue => issue.UniqueId == _nextIssue.UniqueId).Select(issue => flipView.Items.IndexOf(issue)))
+                            foreach (
+                                int issuePos in
+                                    flipView.Items.Cast<Issue>()
+                                        .Where(issue => issue.UniqueId == _nextIssue.UniqueId)
+                                        .Select(issue => flipView.Items.IndexOf(issue)))
                             {
                                 flipView.Items.RemoveAt(issuePos);
                                 flipView.Items.Insert(issuePos, _nextIssue);
@@ -520,17 +524,21 @@ namespace MyWorldIsComics.ResourcePages
                         _nextIssue = _basicIssueForPage;
                         _basicIssueForPage = _previousIssue;
                         await FetchBasicPreviousIssueResource();
-                       
+
                         if (flipView.Items != null)
                         {
                             var contains = false;
-                            foreach (int issuePos in flipView.Items.Cast<Issue>().Where(issue => issue.UniqueId == _previousIssue.UniqueId).Select(issue => flipView.Items.IndexOf(issue)))
+                            foreach (
+                                int issuePos in
+                                    flipView.Items.Cast<Issue>()
+                                        .Where(issue => issue.UniqueId == _previousIssue.UniqueId)
+                                        .Select(issue => flipView.Items.IndexOf(issue)))
                             {
                                 flipView.Items.RemoveAt(issuePos);
                                 flipView.Items.Insert(issuePos, _previousIssue);
                                 contains = true;
                             }
-                            
+
                             if (!contains)
                             {
                                 flipView.Items.Insert(flipView.SelectedIndex, _previousIssue);
@@ -547,7 +555,16 @@ namespace MyWorldIsComics.ResourcePages
                 {
                     ComicVineSource.ReinstateCts();
                 }
+                catch (InvalidOperationException ioe)
+                {
+                    
+                }
             }
+        }
+
+        private void VolumeHeader_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+
         }
 
         #endregion

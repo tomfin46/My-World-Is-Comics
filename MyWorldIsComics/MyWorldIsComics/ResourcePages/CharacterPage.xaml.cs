@@ -568,16 +568,16 @@ namespace MyWorldIsComics.ResourcePages
         private void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
             if (e == null) return;
-            if (e.Section.Header != null)
-                switch (e.Section.Header.ToString())
-                {
-                    case "Teams":
-                        Frame.Navigate(typeof(TeamsPage), _filteredCharacterForPage);
-                        break;
-                    case "First Appearance":
-                        Frame.Navigate(typeof(IssuePage), _filteredCharacterForPage.FirstAppearanceIssue);
-                        break;
-                }
+            if (e.Section.Header == null) return;
+            switch (e.Section.Header.ToString())
+            {
+                case "Teams":
+                    Frame.Navigate(typeof(TeamsPage), _filteredCharacterForPage);
+                    break;
+                case "First Appearance":
+                    Frame.Navigate(typeof(IssuePage), _filteredCharacterForPage.FirstAppearanceIssue);
+                    break;
+            }
         }
 
         #endregion

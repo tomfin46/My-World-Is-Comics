@@ -1,4 +1,6 @@
-﻿using MyWorldIsComics.DataModel.Resources;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using MyWorldIsComics.DataModel.Resources;
 using MyWorldIsComics.Mappers;
 
 namespace MyWorldIsComics.ResourcePages
@@ -24,14 +26,16 @@ namespace MyWorldIsComics.ResourcePages
     public sealed partial class TeamPage : Page
     {
         private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private ObservableDictionary teamPageViewModel = new ObservableDictionary();
+
+        private Team _team;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
-        public ObservableDictionary DefaultViewModel
+        public ObservableDictionary TeamPageViewModel
         {
-            get { return defaultViewModel; }
+            get { return teamPageViewModel; }
         }
 
         /// <summary>
@@ -65,19 +69,78 @@ namespace MyWorldIsComics.ResourcePages
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             // TODO: Assign a collection of bindable groups to this.DefaultViewModel["Groups"]
-            var team = e.NavigationParameter as Team;
-
-            DefaultViewModel["QuickTeam"] = team;
+            _team = e.NavigationParameter as Team;
+            TeamPageViewModel["Team"] = _team;
+            await LoadTeam();
         }
-        private async Task LoadTeam(Team quickTeam)
+        private async Task LoadTeam()
         {
-            Team team = this.MapTeam(quickTeam.ResourceString);
-            DefaultViewModel["Team"] = team;
+            try
+            {
+                List<string> filters = new List<string> { "first_appeared_in_issue" };
+
+                foreach (string filter in filters)
+                {
+                    await FetchFilteredTeamResource(filter);
+                    switch (filter)
+                    {
+                        case "first_appeared_in_issue":
+                            await FetchFirstAppearance();
+                            break;
+                    }
+                    TeamPageViewModel["Team"] = _team;
+                    HideOrShowFilteredSections();
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
+        }
+
+        private async Task FetchFilteredTeamResource(string filter)
+        {
+            string filteredTeamString = await ComicVineSource.GetFilteredTeamAsync(_team.UniqueId, filter);
+            _team = GetMappedTeamFromFilter(filteredTeamString, filter);
+        }
+
+        private async Task FetchFirstAppearance()
+        {
+            if (_team.FirstAppearanceId != 0)
+            {
+                Issue issue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(_team.FirstAppearanceId));
+                _team.FirstAppearanceIssue = issue;
+            }
+        }
+
+        private Team GetMappedTeamFromFilter(string filteredTeamString, string filter)
+        {
+            if (filteredTeamString == ServiceConstants.QueryNotFound)
+            {
+                return new Team
+                {
+                    FirstAppearanceIssue = new Issue
+                    {
+                        Name = filteredTeamString
+                    }
+                };
+            }
+            return new TeamMapper().MapFilteredXmlObject(_team, filteredTeamString, filter);
+        }
+
+        private Issue GetMappedIssue(string issue)
+        {
+            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
         }
 
         private Team MapTeam(string teamString)
         {
             return teamString == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().MapXmlObject(teamString);
+        }
+
+        private void HideOrShowFilteredSections()
+        {
+            FirstAppearanceSection.Visibility = _team.FirstAppearanceIssue.UniqueId != 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #region NavigationHelper registration
@@ -102,5 +165,17 @@ namespace MyWorldIsComics.ResourcePages
         }
 
         #endregion
+
+        private void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
+        {
+            if (e == null) return;
+            if (e.Section.Header == null) return;
+            switch (e.Section.Header.ToString())
+            {
+                case "First Appearance":
+                    Frame.Navigate(typeof(IssuePage), _team.FirstAppearanceIssue);
+                    break;
+            }
+        }
     }
 }

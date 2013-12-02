@@ -20,7 +20,17 @@
         {
             get
             {
-                return new Uri(MainImage.AbsoluteUri.Replace(ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.ScaleLarge), ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.SquareAvatar)));
+                Uri uri = default(Uri);
+                if (MainImage != null)
+                {
+                    uri =
+                        new Uri(
+                            MainImage.AbsoluteUri.Replace(
+                                ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.ScaleLarge),
+                                ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.SquareAvatar)));
+                }
+
+                return uri;
             }
         }
 

@@ -23,7 +23,17 @@
         {
             get
             {
-                return new Uri(MainImage.AbsoluteUri.Replace(ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.ScaleLarge), ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.SquareAvatar)));
+                Uri uri = default(Uri);
+                if (MainImage != null)
+                {
+                    uri =
+                        new Uri(
+                            MainImage.AbsoluteUri.Replace(
+                                ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.ScaleLarge),
+                                ImageTypes.GetImageType(ImageTypes.ImageTypesEnum.SquareAvatar)));
+                }
+
+                return uri;
             }
         }
 
@@ -32,6 +42,7 @@
         #region Team Specific Fields
 
         public int FirstAppearanceId { get; set; }
+        public Issue FirstAppearanceIssue { get; set; }
         public int IssueAppearancesCount { get; set; }
         public int MembersCount { get; set; }
         public int PublisherId { get; set; }

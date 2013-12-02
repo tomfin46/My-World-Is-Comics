@@ -260,7 +260,7 @@
                         AutomationProperties.AutomationId="BackButton"
                         AutomationProperties.ItemType="Navigation Button"/>
             <TextBlock x:Name="VolumnName" Text="{Binding VolumeName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" Margin="0,0,30,40"
-                           IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom"/>
+                           IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Tapped="VolumeHeader_Tapped"/>
             <TextBlock x:Name="IssueNumberTitle" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="40,0,0,0">
                 <Run Text="{Binding IssueNumberString}" Foreground="{ThemeResource AppBarSeparatorForegroundThemeBrush}" FontWeight="Bold"/>

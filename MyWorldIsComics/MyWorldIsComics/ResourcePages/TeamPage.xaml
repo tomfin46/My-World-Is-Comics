@@ -1,7 +1,7 @@
 ﻿<Page
     x:Name="pageRoot"
     x:Class="MyWorldIsComics.ResourcePages.TeamPage"
-    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
+    DataContext="{Binding TeamPageViewModel, RelativeSource={RelativeSource Self}}"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MyWorldIsComics.ResourcePages"
@@ -24,7 +24,7 @@
             </TransitionCollection>
         </Grid.ChildrenTransitions>
 
-        <Hub DataContext="{Binding QuickTeam}">
+        <Hub SectionHeaderClick="HubSection_HeaderClick" DataContext="{Binding Team}">
             <Hub.Header>
                 <!-- Back button and page title -->
                 <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0" Padding="25">
@@ -69,6 +69,41 @@
                             <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Deck}" TextWrapping="Wrap" />
                         </ScrollViewer>
                     </StackPanel>
+                </DataTemplate>
+            </HubSection>
+            
+            <HubSection x:Name="FirstAppearanceSection" Width="540" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed">
+                <DataTemplate>
+                    <Grid Margin="10,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                            <StackPanel Orientation="Vertical">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="270"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
+                                    <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
+                                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,0,20,0" TextWrapping="Wrap">
+                                            <Run Text="{Binding FirstAppearanceIssue.VolumeName}"></Run>
+                                            <Run Text="{Binding FirstAppearanceIssue.IssueNumberString}"></Run>
+                                        </TextBlock>
+                                        <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding FirstAppearanceIssue.IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
+
+                                        <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding FirstAppearanceIssue.CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+
+                                        <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding FirstAppearanceIssue.StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
                 </DataTemplate>
             </HubSection>
             

@@ -64,6 +64,26 @@
             return _teamToMap;
         }
 
+        public Team MapFilteredXmlObject(Team basicTeam, string filteredTeamString, string filter)
+        {
+            using (XmlReader readerInit = XmlReader.Create(new StringReader(filteredTeamString)))
+            {
+                if (!GenericResourceMapper.EnsureResultsExist(readerInit)) return _teamToMap;
+                _teamToMap = basicTeam;
+                switch (filter)
+                {
+                    case "first_appeared_in_issue":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredTeamString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseFirstAppearance(reader);
+                        }
+                        break;
+                }
+            }
+            return _teamToMap;
+        }
+
         private void ParseAliases(XmlReader reader)
         {
             _teamToMap.Aliases.Clear();
@@ -132,6 +152,7 @@
             if (reader.Name != "count_of_issue_appearances") { reader.ReadToFollowing("count_of_issue_appearances"); }
             _teamToMap.IssueAppearancesCount = reader.ReadElementContentAsInt();
         }
+
         private void ParseMembersCount(XmlReader reader)
         {
             if (reader.Name != "count_of_team_members") { reader.ReadToFollowing("count_of_team_members"); }

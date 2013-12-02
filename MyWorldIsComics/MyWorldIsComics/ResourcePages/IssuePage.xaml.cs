@@ -473,7 +473,7 @@ namespace MyWorldIsComics.ResourcePages
 
         private async void IssueImagesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            FlipView flipView = sender as FlipView;
+            ;FlipView flipView = sender as FlipView;
             if (flipView != null)
             {
                 Issue selectedIssue = flipView.SelectedItem as Issue;

@@ -79,6 +79,27 @@
                             this.ParseFirstAppearance(reader);
                         }
                         break;
+                    case "characters":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredTeamString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseMembers(reader);
+                        }
+                        break;
+                    case "character_enemies":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredTeamString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseEnemies(reader);
+                        }
+                        break;
+                    case "character_friends":
+                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredTeamString)))
+                        {
+                            reader.ReadToFollowing("results");
+                            this.ParseFriends(reader);
+                        }
+                        break;
                 }
             }
             return _teamToMap;
@@ -95,55 +116,51 @@
         private void ParseEnemies(XmlReader reader)
         {
             if (reader.Name != "character_enemies") { reader.ReadToFollowing("character_enemies"); }
-            reader.ReadToDescendant("character");
-
-            for (int i = 0; i < 10; i++)
+            while (reader.Read())
             {
-                reader.ReadToDescendant("id");
-                _teamToMap.EnemyIds.Add(reader.ReadElementContentAsInt());
-
-                reader.ReadToFollowing("site_detail_url");
-                reader.Read();
-                reader.Read();
-                reader.Read();
-                reader.Read();
-                if (reader.Name != "character") { i = 10; }
+                if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
+                {
+                    reader.ReadToDescendant("id");
+                    _teamToMap.EnemyIds.Add(reader.ReadElementContentAsInt());
+                }
+                else if (reader.Name == "character_enemies" && reader.NodeType == XmlNodeType.EndElement)
+                {
+                    return;
+                }
             }
         }
 
         private void ParseFriends(XmlReader reader)
         {
             if (reader.Name != "character_friends") { reader.ReadToFollowing("character_friends"); }
-            reader.ReadToDescendant("character");
-            for (int i = 0; i < 10; i++)
+            while (reader.Read())
             {
-                reader.ReadToDescendant("id");
-                _teamToMap.FriendIds.Add(reader.ReadElementContentAsInt());
-
-                reader.ReadToFollowing("site_detail_url");
-                reader.Read();
-                reader.Read();
-                reader.Read();
-                reader.Read();
-                if (reader.Name != "character") { i = 10; }
+                if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
+                {
+                    reader.ReadToDescendant("id");
+                    _teamToMap.FriendIds.Add(reader.ReadElementContentAsInt());
+                }
+                else if (reader.Name == "character_friends" && reader.NodeType == XmlNodeType.EndElement)
+                {
+                    return;
+                }
             }
         }
 
         private void ParseMembers(XmlReader reader)
         {
             if (reader.Name != "characters") { reader.ReadToFollowing("characters"); }
-            reader.ReadToDescendant("character");
-            for (int i = 0; i < 10; i++)
+            while (reader.Read())
             {
-                reader.ReadToDescendant("id");
-                _teamToMap.MemberIds.Add(reader.ReadElementContentAsInt());
-
-                reader.ReadToFollowing("site_detail_url");
-                reader.Read();
-                reader.Read();
-                reader.Read();
-                reader.Read();
-                if (reader.Name != "character") { i = 10; }
+                if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
+                {
+                    reader.ReadToDescendant("id");
+                    _teamToMap.MemberIds.Add(reader.ReadElementContentAsInt());
+                }
+                else if (reader.Name == "characters" && reader.NodeType == XmlNodeType.EndElement)
+                {
+                    return;
+                }
             }
         }
 

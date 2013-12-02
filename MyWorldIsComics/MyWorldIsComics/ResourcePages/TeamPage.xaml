@@ -149,58 +149,6 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection Width="520" Header="Section 2">
-                <DataTemplate>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,10"
-                                   Text="Item Title" />
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Row="1" 
-                                   Text="Quisque in porta lorem dolor amet sed consectetuer ising elit, sed diam non my nibh uis mod wisi quip."/>
-                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Grid.Row="2" Margin="0,20,0,0"
-                                   Text="Item Sub Title"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Row="3" 
-                                   Text="Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper. Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper."/>
-                    </Grid>
-                </DataTemplate>
-            </HubSection>
-
-            <HubSection Header="Section 3">
-                <DataTemplate>
-                    <!-- width of 400 -->
-                    <StackPanel Orientation="Vertical">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="130"/>
-                                <ColumnDefinition Width="5"/>
-                                <ColumnDefinition Width="130"/>
-                                <ColumnDefinition Width="5"/>
-                                <ColumnDefinition Width="130"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="270"/>
-                                <RowDefinition Height="95"/>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <Image Grid.ColumnSpan="5" Stretch="Fill" Margin="0,0,0,10"/>
-                            <Image Grid.Row="1" Stretch="Fill"/>
-                            <Image Grid.Row="1" Grid.Column="2" Stretch="Fill"/>
-                            <Image Grid.Row="1" Grid.Column="4" Stretch="Fill"/>
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Row="2" Grid.ColumnSpan="5" Margin="0,15,0,0"
-                                       Text="Description Text:"/>
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Row="3" Grid.ColumnSpan="5" 
-                                       Text="Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper. Lorem ipsum dolor sit amet, consectetuer ising elit, sed diam nonummy nibh uismod tincidunt ut laoreet suscipit lobortis ni ut wisi quipexerci quis consequat minim veniam, quis nostrud exerci tation ullam corper."/>
-                        </Grid>
-                    </StackPanel>
-                </DataTemplate>
-            </HubSection>
-
             <HubSection x:Name="IssuesDispandedInSection" Header="Issues Dispanded In" Padding="40,40,40,32" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
@@ -273,7 +221,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="FriendSection" Header="Members" Padding="40,40,40,32" IsHeaderInteractive="True" Visibility="Collapsed">
+            <HubSection x:Name="FriendSection" Header="Friends" Padding="40,40,40,32" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView

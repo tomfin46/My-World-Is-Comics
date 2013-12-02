@@ -138,6 +138,8 @@ namespace MyWorldIsComics.DataSource
             return content;
         }
 
+        #region ConstructUrl
+
         private Uri ContructUrl(Resources.ResourcesEnum resourcesEnum, string query)
         {
             string uri = ServiceConstants.ComicVineBaseUrl + Resources.GetResourceTerm(resourcesEnum) + "/";
@@ -179,6 +181,10 @@ namespace MyWorldIsComics.DataSource
             return new Uri(uri);
         }
 
+        #endregion
+
+        #region CancellationTokenSource
+
         public static void CancelTask()
         {
             cts.Cancel();
@@ -194,5 +200,6 @@ namespace MyWorldIsComics.DataSource
             return cts.IsCancellationRequested;
         }
 
+        #endregion
     }
 }

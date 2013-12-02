@@ -13,8 +13,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-
 // The Group Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234229
+using MyWorldIsComics.ResourcePages;
 
 namespace MyWorldIsComics
 {
@@ -37,6 +37,9 @@ namespace MyWorldIsComics
         private string collectionName;
         private ObservableCollection<Character> collection;
         private List<int> collectionIds;
+
+        private static Team SavedTeam;
+        private static string SavedCollectionName;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -61,6 +64,7 @@ namespace MyWorldIsComics
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
+            this.navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -76,13 +80,21 @@ namespace MyWorldIsComics
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            var teamFromNav = e.NavigationParameter as Dictionary<string, Team>;
-            if (teamFromNav == null) return;
-
-            foreach (KeyValuePair<string, Team> keyValuePair in teamFromNav.Take(1))
+            if (SavedTeam != null && SavedCollectionName != null && e.NavigationParameter == null)
             {
-                this.team = keyValuePair.Value;
-                this.collectionName = keyValuePair.Key;
+                this.team = SavedTeam;
+                this.collectionName = SavedCollectionName;
+            }
+            else
+            {
+                var teamFromNav = e.NavigationParameter as Dictionary<string, Team>;
+                if (teamFromNav == null) return;
+
+                foreach (KeyValuePair<string, Team> keyValuePair in teamFromNav.Take(1))
+                {
+                    this.team = keyValuePair.Value;
+                    this.collectionName = keyValuePair.Key;
+                } 
             }
 
             switch (this.collectionName)
@@ -119,6 +131,14 @@ namespace MyWorldIsComics
             }
         }
 
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
+            // Save response content so don't have to fetch from api service again
+            SavedTeam = this.team;
+            SavedCollectionName = this.collectionName;
+        }
+
         private async Task<Character> FetchCharacter(int characterId)
         {
             return GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
@@ -151,5 +171,11 @@ namespace MyWorldIsComics
         }
 
         #endregion
+
+        private void GridView_CharacterClick(object sender, ItemClickEventArgs e)
+        {
+            var character = ((Character)e.ClickedItem);
+            Frame.Navigate(typeof(CharacterPage), character.Name);
+        }
     }
 }

@@ -43,7 +43,7 @@
             Padding="120,126,120,50"
             ItemsSource="{Binding Source={StaticResource itemsViewSource}}"
             SelectionMode="None"
-            IsSwipeEnabled="false">
+            IsSwipeEnabled="false" ItemClick="GridView_CharacterClick">
             <GridView.ItemTemplate>
                 <DataTemplate>
                     <Grid Height="110" Width="480" Margin="10">

@@ -100,7 +100,7 @@ namespace MyWorldIsComics.ResourcePages
         {
             try
             {
-                List<string> filters = new List<string> { "first_appeared_in_issue", "characters", "character_enemies", "character_friends" };
+                List<string> filters = new List<string> { "first_appeared_in_issue", "disbanded_in_issues", "characters", "character_enemies", "character_friends" };
 
                 foreach (string filter in filters)
                 {
@@ -109,6 +109,9 @@ namespace MyWorldIsComics.ResourcePages
                     {
                         case "first_appeared_in_issue":
                             await FetchFirstAppearance();
+                            break;
+                        case "disbanded_in_issues":
+                            await FetchFirstDisbandIssue();
                             break;
                         case "characters":
                             await FetchFirstMember();
@@ -124,7 +127,8 @@ namespace MyWorldIsComics.ResourcePages
                     HideOrShowFilteredSections();
                 }
 
-                if(_team.MemberIds.Count > 1) await FetchRemainingMembers();
+                if (_team.IssuesDispandedIn.Count > 1) await FetchRemainingDisbandedIssues();
+                if (_team.MemberIds.Count > 1) await FetchRemainingMembers();
                 if (_team.EnemyIds.Count > 1) await FetchRemainingEnemies();
                 if (_team.FriendIds.Count > 1) await FetchRemainingFriends();
             }
@@ -148,6 +152,18 @@ namespace MyWorldIsComics.ResourcePages
             {
                 Issue issue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(_team.FirstAppearanceId));
                 _team.FirstAppearanceIssue = issue;
+            }
+        }
+
+        #region Fetch First
+
+        private async Task FetchFirstDisbandIssue()
+        {
+            foreach (var issueId in _team.IssuesDispandedInIds.Take(1))
+            {
+                Issue issue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(issueId));
+                if (_team.IssuesDispandedIn.Any(i => i.UniqueId == issue.UniqueId)) continue;
+                _team.IssuesDispandedIn.Add(issue);
             }
         }
 
@@ -178,6 +194,21 @@ namespace MyWorldIsComics.ResourcePages
                 Character friend = await FetchCharacter(friendId);
                 if (_team.Friends.Any(f => f.UniqueId == friend.UniqueId)) continue;
                 _team.Friends.Add(friend);
+            }
+        }
+
+        #endregion
+
+        #region Fetch Remaining
+
+        private async Task FetchRemainingDisbandedIssues()
+        {
+            var firstId = _team.IssuesDispandedInIds.First();
+            foreach (int issueId in _team.IssuesDispandedInIds.Where(id => id != firstId).Take(_team.IssuesDispandedInIds.Count - 1))
+            {
+                Issue issue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(issueId));
+                if (_team.IssuesDispandedIn.Any(i => i.UniqueId == issue.UniqueId)) continue;
+                _team.IssuesDispandedIn.Add(issue);
             }
         }
 
@@ -213,6 +244,8 @@ namespace MyWorldIsComics.ResourcePages
                 _team.Friends.Add(friend);
             }
         }
+
+        #endregion
 
         private async Task<Character> FetchCharacter(int characterId)
         {
@@ -253,6 +286,7 @@ namespace MyWorldIsComics.ResourcePages
         private void HideOrShowFilteredSections()
         {
             FirstAppearanceSection.Visibility = _team.FirstAppearanceIssue.UniqueId != 0 ? Visibility.Visible : Visibility.Collapsed;
+            IssuesDispandedInSection.Visibility = _team.IssuesDispandedIn.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             MemberSection.Visibility = _team.Members.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             EnemiesSection.Visibility = _team.Enemies.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             FriendSection.Visibility = _team.Friends.Count > 0 ? Visibility.Visible : Visibility.Collapsed;

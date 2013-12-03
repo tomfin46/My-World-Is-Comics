@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.Common;
 using MyWorldIsComics.DataModel.Resources;
@@ -338,6 +339,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
             var issue = ((Issue)e.ClickedItem);
             IssuePage.BasicIssue = issue;
             Frame.Navigate(typeof(IssuePage), issue);
+        }
+
+        private void ImageHubSection_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            HeaderBorder.Opacity = HeaderBorder.Opacity <= 0 ? 100 : 0;
+            BackButton.Visibility = BackButton.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

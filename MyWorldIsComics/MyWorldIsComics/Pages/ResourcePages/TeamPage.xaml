@@ -68,27 +68,27 @@
         <Hub SectionHeaderClick="HubSection_HeaderClick" DataContext="{Binding Team}">
             <Hub.Header>
                 <!-- Back button and page title -->
-                <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0" Padding="25">
+                <Border x:Name="HeaderBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Button  x:Name="backButton" Margin="-1,-1,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
-                        Style="{StaticResource NavigationBackButtonNormalStyle}"
-                        VerticalAlignment="Top"
-                        AutomationProperties.Name="Back"
-                        AutomationProperties.AutomationId="BackButton"
-                        AutomationProperties.ItemType="Navigation Button"/>
+                        <Button  x:Name="BackButton" Margin="-1,-1,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
+                            Style="{StaticResource NavigationBackButtonNormalStyle}"
+                            VerticalAlignment="Top"
+                            AutomationProperties.Name="Back"
+                            AutomationProperties.AutomationId="BackButton"
+                            AutomationProperties.ItemType="Navigation Button"/>
                         <TextBlock x:Name="pageTitle" Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Top"/>
+                            IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Top"/>
                     </Grid>
                 </Border>
             </Hub.Header>
 
-            <HubSection Width="780" Margin="0,0,20,0">
+            <HubSection x:Name="ImageHubSection" Width="780" Margin="0,0,20,0" Tapped="ImageHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" />
+                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" AlignmentX="Left" />
                 </HubSection.Background>
             </HubSection>
 
@@ -102,9 +102,9 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="FirstAppearanceSection" Width="540" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed">
+            <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>
-                    <Grid Margin="10,0">
+                    <Grid>
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
                             <StackPanel Orientation="Vertical">
                                 <Grid>

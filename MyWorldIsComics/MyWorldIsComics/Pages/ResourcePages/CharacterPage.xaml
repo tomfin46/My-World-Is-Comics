@@ -41,7 +41,7 @@
         <Hub x:Name="Hub" SectionHeaderClick="HubSection_HeaderClick">
             <Hub.Header>
                 <!-- Back button and page title -->
-                <Border x:Name="HeaderBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0" Padding="0,25,25,25" Grid.Column="1">
+                <Border x:Name="HeaderBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25" Grid.Column="1">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>

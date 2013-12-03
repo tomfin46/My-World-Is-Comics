@@ -35,7 +35,7 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
-            get { return this.defaultViewModel; }
+            get { return defaultViewModel; }
         }
 
         /// <summary>
@@ -44,16 +44,16 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return navigationHelper; }
         }
 
 
         public CharactersPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
-            this.navigationHelper.SaveState += navigationHelper_SaveState;
+            InitializeComponent();
+            navigationHelper = new NavigationHelper(this);
+            navigationHelper.LoadState += navigationHelper_LoadState;
+            navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -69,10 +69,12 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
+
             if (SavedTeam != null && SavedCollectionName != null && e.NavigationParameter == null)
             {
-                this.team = SavedTeam;
-                this.collectionName = SavedCollectionName;
+                team = SavedTeam;
+                collectionName = SavedCollectionName;
             }
             else
             {
@@ -81,37 +83,38 @@ namespace MyWorldIsComics.Pages.CollectionPages
 
                 foreach (KeyValuePair<string, Team> keyValuePair in teamFromNav.Take(1))
                 {
-                    this.team = keyValuePair.Value;
-                    this.collectionName = keyValuePair.Key;
+                    team = keyValuePair.Value;
+                    collectionName = keyValuePair.Key;
                 } 
             }
 
-            switch (this.collectionName)
+            switch (collectionName)
             {
                 case "members":
-                    this.collection = this.team.Members;
-                    this.collectionIds = this.team.MemberIds;
+                    collection = team.Members;
+                    collectionIds = team.MemberIds;
                     break;
                 case "enemies":
-                    this.collection = this.team.Enemies;
-                    this.collectionIds = this.team.EnemyIds;
+                    collection = team.Enemies;
+                    collectionIds = team.EnemyIds;
                     break;
                 case "friends":
-                    this.collection = this.team.Friends;
-                    this.collectionIds = this.team.FriendIds;
+                    collection = team.Friends;
+                    collectionIds = team.FriendIds;
                     break;
             }
 
-            this.DefaultViewModel["Team"] = this.team;
-            this.DefaultViewModel["Items"] = this.collection;
+            DefaultViewModel["Team"] = team;
+            pageTitle.Text = char.ToUpper(collectionName[0]) + collectionName.Substring(1);
+            DefaultViewModel["Items"] = collection;
 
             try
             {
-                foreach (int characterId in this.collectionIds.GetRange(this.collection.Count, this.collectionIds.Count - this.collection.Count))
+                foreach (int characterId in collectionIds.GetRange(collection.Count, collectionIds.Count - collection.Count))
                 {
-                    Character character = await FetchCharacter(characterId);
-                    if (this.collection.Any(m => m.UniqueId == character.UniqueId)) continue;
-                    this.collection.Add(character);
+                    Character character = GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
+                    if (collection.Any(m => m.UniqueId == character.UniqueId)) continue;
+                    collection.Add(character);
                 }
             }
             catch (TaskCanceledException)
@@ -124,13 +127,8 @@ namespace MyWorldIsComics.Pages.CollectionPages
         {
             if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
             // Save response content so don't have to fetch from api service again
-            SavedTeam = this.team;
-            SavedCollectionName = this.collectionName;
-        }
-
-        private async Task<Character> FetchCharacter(int characterId)
-        {
-            return GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
+            SavedTeam = team;
+            SavedCollectionName = collectionName;
         }
 
         private Character GetMappedCharacter(string quickCharacter)
@@ -163,11 +161,11 @@ namespace MyWorldIsComics.Pages.CollectionPages
 
         private void GridView_CharacterClick(object sender, ItemClickEventArgs e)
         {
-            SavedTeam = this.team;
-            SavedCollectionName = this.collectionName;
+            SavedTeam = team;
+            SavedCollectionName = collectionName;
 
             var character = ((Character)e.ClickedItem);
-            Frame.Navigate(typeof(CharacterPage), character.Name);
+            Frame.Navigate(typeof(CharacterPage), character.UniqueId);
         }
     }
 }

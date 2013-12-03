@@ -34,6 +34,17 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query));
         }
 
+        #region GetBasic methods
+
+        public static async Task<string> GetCharacterAsync(int characterId)
+        {
+            List<string> filters = new List<string> { "aliases", "birth", "count_of_issue_appearances", "deck", "description", "first_appeared_in_issue", 
+                "id", "image", "name", "real_name", "teams" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, characterId.ToString(), filters));
+        }
+
+        #endregion
+
         #region GetFiltered methods
 
         public static async Task<string> GetFilteredCharacterAsync(int id, string filter)

@@ -1,8 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
-using Windows.UI.Xaml;
 
 namespace MyWorldIsComics.DataModel.Resources
 {
@@ -75,9 +72,8 @@ namespace MyWorldIsComics.DataModel.Resources
         public int PublisherId { get; set; }
         public string AliasesString
         {
-            get
-            {
-                return string.Join(", ", Aliases);
+            get {
+                return Aliases.Count == 1 && Aliases.First() == String.Empty ? "None" : string.Join(", ", Aliases);
             }
         }
 
@@ -108,11 +104,6 @@ namespace MyWorldIsComics.DataModel.Resources
             Powers = new List<String>();
             TeamIds = new List<int>();
             Teams = new ObservableCollection<Team>();
-        }
-
-        private string FormatAliases()
-        {
-            return string.Join(", ", Aliases);
         }
 
         public override string ToString()

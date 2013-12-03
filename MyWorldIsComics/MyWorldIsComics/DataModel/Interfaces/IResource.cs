@@ -1,4 +1,6 @@
-﻿namespace MyWorldIsComics.DataModel.Interfaces
+﻿using MyWorldIsComics.DataModel.DescriptionContent;
+
+namespace MyWorldIsComics.DataModel.Interfaces
 {
     using System;
 
@@ -12,7 +14,6 @@
         string DescriptionString { get; set; }
         Uri MainImage { get; set; }
         Uri AvatarImage { get; }
-
 
         string ToString();
     }

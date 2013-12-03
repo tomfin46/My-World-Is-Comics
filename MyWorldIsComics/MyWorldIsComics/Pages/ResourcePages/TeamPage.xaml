@@ -88,19 +88,8 @@
 
             <HubSection Width="780" Margin="0,0,20,0">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" AlignmentX="Left" />
+                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" />
                 </HubSection.Background>
-
-                <DataTemplate>
-                    <Grid>
-                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="Uniform" />
-                        <StackPanel x:Name="BioStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
-                            <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Deck}" TextWrapping="Wrap" />
-                            </ScrollViewer>
-                        </StackPanel>
-                    </Grid>
-                </DataTemplate>
             </HubSection>
 
             <HubSection Width="500" Header="Bio">
@@ -172,7 +161,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="MemberSection" Header="Members" Padding="40,40,40,32" IsHeaderInteractive="True" Visibility="Collapsed">
+            <HubSection x:Name="MemberSection" Header="Members" Padding="40,40,40,32" IsHeaderInteractive="False" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView
@@ -196,7 +185,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="EnemiesSection" Header="Enemies" Padding="40,40,40,32" IsHeaderInteractive="True" Visibility="Collapsed">
+            <HubSection x:Name="EnemiesSection" Header="Enemies" Padding="40,40,40,32" IsHeaderInteractive="False" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView
@@ -220,7 +209,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="FriendSection" Header="Friends" Padding="40,40,40,32" IsHeaderInteractive="True" Visibility="Collapsed">
+            <HubSection x:Name="FriendSection" Header="Allies" Padding="40,40,40,32" IsHeaderInteractive="False" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView

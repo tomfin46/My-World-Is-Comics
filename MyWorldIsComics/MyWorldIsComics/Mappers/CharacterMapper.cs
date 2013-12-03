@@ -62,6 +62,28 @@ namespace MyWorldIsComics.Mappers
             return _characterToMap;
         }
 
+        public Character MapCharacterXmlObject(string characterSearchString)
+        {
+            using (XmlReader reader = XmlReader.Create(new StringReader(characterSearchString)))
+            {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _characterToMap;
+
+                reader.ReadToFollowing("results");
+                ParseAliases(reader);
+                ParseBirth(reader);
+                ParseAppearanceCount(reader);
+                _characterToMap = GenericResourceMapper.ParseDeck(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseDescriptionString(reader, _characterToMap) as Character;
+                ParseFirstAppearance(reader);
+                _characterToMap = GenericResourceMapper.ParseId(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseImage(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseName(reader, _characterToMap) as Character;
+                ParseRealName(reader);
+                ParseTeamsMemberOf(reader);
+            }
+            return _characterToMap;
+        }
+
         public Character MapFilteredXmlObject(Character basicCharacter, string filteredCharacterString, string filter)
         {
             using (XmlReader readerInit = XmlReader.Create(new StringReader(filteredCharacterString)))

@@ -23,7 +23,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private readonly NavigationHelper _navigationHelper;
         private readonly ObservableDictionary _issuePageViewModel = new ObservableDictionary();
 
-        private static Issue BasicIssue;
+        public static Issue BasicIssue;
         private static Issue FilteredIssue;
 
         private Issue _basicIssueForPage;
@@ -89,40 +89,39 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
             if (issue == null) return;
 
-            if (BasicIssue != null && BasicIssue.UniqueId == issue.UniqueId)
+            if (BasicIssue != null)
             {
                 _basicIssueForPage = BasicIssue;
-                _filteredIssueForPage = FilteredIssue;
+                _filteredIssueForPage = _basicIssueForPage;
                 IssuePageViewModel["Issue"] = _basicIssueForPage;
             }
             else
             {
-                try
+                _basicIssueForPage = issue;
+                _filteredIssueForPage = _basicIssueForPage;
+                IssuePageViewModel["Issue"] = _basicIssueForPage;
+            }
+
+            try
+            {
+                await FetchBasicNextIssueResource();
+                await FetchBasicPreviousIssueResource();
+
+                InitialiseFlipView();
+
+                await LoadIssue();
+                await LoadNextIssue();
+                await LoadPreviousIssue();
+            }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
+            catch (InvalidOperationException ioe)
+            {
+                if (ioe.Message == "Collection was modified; enumeration operation may not execute.")
                 {
-                    _basicIssueForPage = issue;
-                    _filteredIssueForPage = _basicIssueForPage;
-                    IssuePageViewModel["Issue"] = _basicIssueForPage;
 
-                    await FetchBasicNextIssueResource();
-                    await FetchBasicPreviousIssueResource();
-
-                    InitialiseFlipView();
-
-
-                    await LoadIssue();
-                    await LoadNextIssue();
-                    await LoadPreviousIssue();
-                }
-                catch (TaskCanceledException)
-                {
-                    ComicVineSource.ReinstateCts();
-                }
-                catch (InvalidOperationException ioe)
-                {
-                    if (ioe.Message == "Collection was modified; enumeration operation may not execute.")
-                    {
-
-                    }
                 }
             }
         }
@@ -130,7 +129,6 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
-
             // Save response content so don't have to fetch from api service again
             BasicIssue = _basicIssueForPage;
             FilteredIssue = _filteredIssueForPage;
@@ -138,13 +136,6 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void InitialiseFlipView()
         {
-            _tempIssues = new ObservableCollection<Issue>();
-            _tempIssues.Add(_previousIssue);
-            _tempIssues.Add(_filteredIssueForPage);
-            _tempIssues.Add(_nextIssue);
-
-            _adjacentIssues = new ObservableCollection<Issue>(_tempIssues.OrderBy(i => i.IssueNumber));
-
             FlipView issuesFlipView = new FlipView();
             if (issuesFlipView.Items != null)
             {
@@ -152,7 +143,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 issuesFlipView.Items.Add(_basicIssueForPage);
                 issuesFlipView.Items.Add(_nextIssue);
             }
-            //issuesFlipView.ItemsSource = _adjacentIssues;
+
             issuesFlipView.ItemTemplate = Resources["IssueTemplate"] as DataTemplate;
             issuesFlipView.SelectedItem = _basicIssueForPage;
             issuesFlipView.SelectionChanged += IssueImagesFlipView_SelectionChanged;
@@ -441,7 +432,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private void CharactersView_CharacterClick(object sender, ItemClickEventArgs e)
         {
             var character = ((Character)e.ClickedItem);
-            Frame.Navigate(typeof(CharacterPage), character.Name);
+            Frame.Navigate(typeof(CharacterPage), character.UniqueId);
         }
 
         private void TeamsView_TeamClick(object sender, ItemClickEventArgs e)
@@ -472,7 +463,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async void IssueImagesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ;FlipView flipView = sender as FlipView;
+            ; FlipView flipView = sender as FlipView;
             if (flipView != null)
             {
                 Issue selectedIssue = flipView.SelectedItem as Issue;
@@ -555,7 +546,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 }
                 catch (InvalidOperationException ioe)
                 {
-                    
+
                 }
             }
         }

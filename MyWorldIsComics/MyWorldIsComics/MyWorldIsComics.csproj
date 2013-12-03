@@ -130,6 +130,9 @@
     <Compile Include="Mappers\StoryArcMapper.cs" />
     <Compile Include="Mappers\TeamMapper.cs" />
     <Compile Include="Mappers\VolumeMapper.cs" />
+    <Compile Include="Pages\FurtherDescription.xaml.cs">
+      <DependentUpon>FurtherDescription.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\ResourcePages\CharacterPage.xaml.cs">
       <DependentUpon>CharacterPage.xaml</DependentUpon>
     </Compile>
@@ -197,6 +200,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Pages\CollectionPages\CharactersPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\FurtherDescription.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

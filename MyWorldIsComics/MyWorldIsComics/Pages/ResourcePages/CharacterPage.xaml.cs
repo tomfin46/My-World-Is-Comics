@@ -77,7 +77,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             }
             catch (ArgumentNullException)
             {
-                id = (int) e.NavigationParameter;
+                id = (int)e.NavigationParameter;
             }
 
             try
@@ -237,19 +237,32 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (_characterDescription.WeaponsAndEquipment == null || _characterDescription.WeaponsAndEquipment.ContentQueue.Count == 0) HideHubSection("Weapons and Equipment");
             else CreateDataTemplate(_characterDescription.WeaponsAndEquipment);
 
+            if (_characterDescription.HulksIncarnations == null || _characterDescription.HulksIncarnations.ContentQueue.Count == 0) HideHubSection("Hulk's Incarnations");
+            else CreateDataTemplate(_characterDescription.HulksIncarnations);
+
             if (_characterDescription.AlternateRealities == null || _characterDescription.AlternateRealities.ContentQueue.Count == 0) HideHubSection("Alternate Realities");
             else CreateDataTemplate(_characterDescription.AlternateRealities);
 
             if (_characterDescription.OtherMedia == null || _characterDescription.OtherMedia.ContentQueue.Count == 0) HideHubSection("Other Media");
             else CreateDataTemplate(_characterDescription.OtherMedia);
+
+            if (_characterDescription.Miscellaneous == null || _characterDescription.Miscellaneous.ContentQueue.Count == 0) HideHubSection("Miscellaneous");
+            else CreateDataTemplate(_characterDescription.Miscellaneous);
         }
 
         private void CreateDataTemplate(Section descriptionSection)
         {
             String markup = String.Empty;
             markup += "<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">";
-            markup += "<ScrollViewer VerticalScrollBarVisibility=\"Hidden\">";
-            markup += "<RichTextBlock>";
+            markup += "<Grid>";
+            markup += "<Grid.ColumnDefinitions> "
+                      + "<ColumnDefinition Width=\"520\"/> "
+                      + "<ColumnDefinition Width=\"520\"/> "
+                      + "<ColumnDefinition Width=\"520\"/> "
+                      + "<ColumnDefinition Width=\"520\"/> "
+                      + "<ColumnDefinition Width=\"520\"/> " + 
+                      "</Grid.ColumnDefinitions>";
+            markup += "<RichTextBlock Grid.Column=\"0\" OverflowContentTarget=\"{Binding ElementName=firstOverflowContainer}\">";
 
             if (descriptionSection == null) return;
 
@@ -266,7 +279,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
                         if (descriptionSection.ContentQueue.Count > 0 && descriptionSection.ContentQueue.Peek().GetType() == typeof(Figure))
                         {
                             Figure paraFig = descriptionSection.ContentQueue.Dequeue() as Figure;
-                            if (paraFig != null) markup += "<InlineUIContainer><Image Source=\"" + paraFig.ImageSource + "\" Stretch=\"Fill\"/></InlineUIContainer>" +
+                            if (paraFig != null) markup += "</Paragraph><Paragraph></Paragraph><Paragraph TextAlignment=\"Center\">"
+                                                           + "<InlineUIContainer><Image Source=\"" + paraFig.ImageSource + "\" Stretch=\"Uniform\"/></InlineUIContainer>" +
                                                            "</Paragraph>" +
                                                            "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + paraFig.Text + "</Paragraph>";
                         }
@@ -277,8 +291,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
                         break;
                     case "Figure":
                         Figure fig = descriptionSection.ContentQueue.Dequeue() as Figure;
-                        if (fig != null) markup += "<Paragraph>" +
-                                                   "<InlineUIContainer><Image Source=\"" + fig.ImageSource + "\" Stretch=\"Fill\"/>" + "</InlineUIContainer>" +
+                        if (fig != null) markup += "<Paragraph></Paragraph><Paragraph TextAlignment=\"Center\">" +
+                                                   "<InlineUIContainer><Image Source=\"" + fig.ImageSource + "\" Stretch=\"Uniform\"/>" + "</InlineUIContainer>" +
                                                    "</Paragraph>" +
                                                    "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + fig.Text + "</Paragraph>";
                         break;
@@ -305,7 +319,13 @@ namespace MyWorldIsComics.Pages.ResourcePages
             }
 
             markup += "</RichTextBlock>";
+            markup += "<RichTextBlockOverflow x:Name=\"firstOverflowContainer\" Grid.Column=\"1\" Margin=\"20,0\" OverflowContentTarget=\"{Binding ElementName=secondOverflowContainer}\"/>";
+            markup += "<RichTextBlockOverflow x:Name=\"secondOverflowContainer\" Grid.Column=\"2\" Margin=\"20,0\" OverflowContentTarget=\"{Binding ElementName=thirdOverflowContainer}\"/>";
+            markup += "<RichTextBlockOverflow x:Name=\"thirdOverflowContainer\" Grid.Column=\"3\" Margin=\"20,0\" OverflowContentTarget=\"{Binding ElementName=fourthOverflowContainer}\"/>";
+            markup += "<ScrollViewer VerticalScrollBarVisibility=\"Hidden\" Grid.Column=\"4\" Margin=\"20,0\">";
+            markup += "<RichTextBlockOverflow x:Name=\"fourthOverflowContainer\"/>";
             markup += "</ScrollViewer>";
+            markup += "</Grid>";
             markup += "</DataTemplate>";
 
             DataTemplate dataTemplate = (DataTemplate)XamlReader.Load(markup);
@@ -335,7 +355,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
                         if (sectionToMarkup.ContentQueue.Count > 0 && sectionToMarkup.ContentQueue.Peek().GetType() == typeof(Figure))
                         {
                             Figure paraFig = sectionToMarkup.ContentQueue.Dequeue() as Figure;
-                            if (paraFig != null) markup += "<InlineUIContainer><Image Source=\"" + paraFig.ImageSource + "\" Stretch=\"Fill\"/></InlineUIContainer>" +
+                            if (paraFig != null) markup += "</Paragraph><Paragraph></Paragraph><Paragraph TextAlignment=\"Center\">"
+                                                           + "<InlineUIContainer><Image Source=\"" + paraFig.ImageSource + "\" Stretch=\"Uniform\"/></InlineUIContainer>" +
                                                            "</Paragraph>" +
                                                            "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + paraFig.Text + "</Paragraph>";
                         }
@@ -346,8 +367,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
                         break;
                     case "Figure":
                         Figure fig = sectionToMarkup.ContentQueue.Dequeue() as Figure;
-                        if (fig != null) markup += "<Paragraph>" +
-                                                   "<InlineUIContainer><Image Source=\"" + fig.ImageSource + "\" Stretch=\"Fill\"/>" + "</InlineUIContainer>" +
+                        if (fig != null) markup += "<Paragraph></Paragraph><Paragraph TextAlignment=\"Center\">" +
+                                                   "<InlineUIContainer><Image Source=\"" + fig.ImageSource + "\" Stretch=\"Uniform\"/>" + "</InlineUIContainer>" +
                                                    "</Paragraph>" +
                                                    "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + fig.Text + "</Paragraph>";
                         break;
@@ -391,11 +412,13 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     CreationHubSection.Visibility = Visibility.Collapsed;
                     break;
                 case "Distinguishing Characteristics":
+                    DistinguishingCharacteristicsHubSection.Visibility = Visibility.Collapsed;
                     break;
                 case "Character Evolution":
                     CharacterEvolutionHubSection.Visibility = Visibility.Collapsed;
                     break;
                 case "Major Story Arcs":
+                    MajorStoryArcsHubSection.Visibility = Visibility.Collapsed;
                     break;
                 case "Powers and Abilities":
                 case "Abilties":
@@ -403,10 +426,21 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 case "Powers and Abilties":
                     PowersAndAbilitiesHubSection.Visibility = Visibility.Collapsed;
                     break;
+                case "Weapons and Equipment":
+                    WeaponsAndEquipmentHubSection.Visibility = Visibility.Collapsed;
+                    break;
+                case "Miscellaneous":
+                    MiscellaneousHubSection.Visibility = Visibility.Collapsed;
+                    break;
+                case "Hulk's Incarnations":
+                    HulksIncarnationsHubSection.Visibility = Visibility.Collapsed;
+                    break;
                 case "Other Versions":
                 case "Alternate Realities":
+                    AlternateRealitiesHubSection.Visibility = Visibility.Collapsed;
                     break;
                 case "Other Media":
+                    OtherMediaHubSection.Visibility = Visibility.Collapsed;
                     break;
             }
         }
@@ -429,12 +463,16 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     CreationHubSection.Visibility = Visibility.Visible;
                     break;
                 case "Distinguishing Characteristics":
+                    DistinguishingCharacteristicsHubSection.ContentTemplate = sectionTemplate;
+                    DistinguishingCharacteristicsHubSection.Visibility = Visibility.Visible;
                     break;
                 case "Character Evolution":
                     CharacterEvolutionHubSection.ContentTemplate = sectionTemplate;
                     CharacterEvolutionHubSection.Visibility = Visibility.Visible;
                     break;
                 case "Major Story Arcs":
+                    MajorStoryArcsHubSection.ContentTemplate = sectionTemplate;
+                    MajorStoryArcsHubSection.Visibility = Visibility.Visible;
                     break;
                 case "Powers and Abilities":
                 case "Abilties":
@@ -444,11 +482,25 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     PowersAndAbilitiesHubSection.Visibility = Visibility.Visible;
                     break;
                 case "Weapons and Equipment":
+                    WeaponsAndEquipmentHubSection.ContentTemplate = sectionTemplate;
+                    WeaponsAndEquipmentHubSection.Visibility = Visibility.Visible;
+                    break;
+                case "Miscellaneous":
+                    MiscellaneousHubSection.ContentTemplate = sectionTemplate;
+                    MiscellaneousHubSection.Visibility = Visibility.Visible;
+                    break;
+                case "Hulk's Incarnations":
+                    HulksIncarnationsHubSection.ContentTemplate = sectionTemplate;
+                    HulksIncarnationsHubSection.Visibility = Visibility.Visible;
                     break;
                 case "Other Versions":
                 case "Alternate Realities":
+                    AlternateRealitiesHubSection.ContentTemplate = sectionTemplate;
+                    AlternateRealitiesHubSection.Visibility = Visibility.Visible;
                     break;
                 case "Other Media":
+                    OtherMediaHubSection.ContentTemplate = sectionTemplate;
+                    OtherMediaHubSection.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -485,7 +537,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             var team = ((Team)e.ClickedItem);
             Frame.Navigate(typeof(TeamPage), team);
         }
-        
+
         private void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
             if (e == null) return;

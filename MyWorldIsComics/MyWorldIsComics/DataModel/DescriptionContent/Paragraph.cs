@@ -27,10 +27,12 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
                 if (link.Text == String.Empty) continue;
 
                 var hyperlink = "<Hyperlink NavigateUri=\"http://www.comicvine.com" + link.Href + "\">" + link.Text + "</Hyperlink>";
-                
+
                 Link linkCopy = link;
                 Boolean contains = false;
-                foreach (Link link2 in this.Links.Where(link1 => link1.Text != linkCopy.Text).Where(link2 => link2.Text.Contains(linkCopy.Text))) { contains = true; }
+                foreach (Link link2 in this.Links
+                    .Where(link1 => link1.Text != linkCopy.Text)
+                    .Where(link2 => link2.Text.Contains(linkCopy.Text))) { contains = true; }
 
                 if (!contains)
                 {

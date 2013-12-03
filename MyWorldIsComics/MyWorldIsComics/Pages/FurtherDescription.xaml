@@ -1,0 +1,113 @@
+﻿<Page
+    x:Name="pageRoot"
+    x:Class="MyWorldIsComics.Pages.FurtherDescription"
+    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MyWorldIsComics.Pages"
+    xmlns:common="using:MyWorldIsComics.Common"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <!-- TODO: Delete this line if the key AppName is declared in App.xaml -->
+        <x:String x:Key="AppName">My Application</x:String>
+    </Page.Resources>
+
+    <!--
+        This grid acts as a root panel for the page that defines two rows:
+        * Row 0 contains the back button and page title
+        * Row 1 contains the rest of the page layout
+    -->
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="140"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <!--Back button and page title-->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
+                        Style="{StaticResource NavigationBackButtonNormalStyle}"
+                        VerticalAlignment="Top"
+                        AutomationProperties.Name="Back"
+                        AutomationProperties.AutomationId="BackButton"
+                        AutomationProperties.ItemType="Navigation Button"/>
+            <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
+        </Grid>
+
+        <StackPanel Grid.Row="1">
+            <Button Content="Show Popup (using Offset)" Click="ShowPopupOffsetClicked" />
+        </StackPanel>
+        <Popup Grid.Row="1" VerticalOffset="10" HorizontalOffset="200" x:Name="StandardPopup">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="520"/>
+                    <ColumnDefinition Width="520"/>
+                    <ColumnDefinition Width="520"/>
+                    <ColumnDefinition Width="520"/>
+                    <ColumnDefinition Width="520"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="Close" Click="ClosePopupClicked" HorizontalAlignment="Center" />
+                <RichTextBlock Grid.Column="0" OverflowContentTarget="{Binding ElementName=firstOverflowContainer}">
+                    <Paragraph Margin="0,0,0,10" FontSize="17">
+                        <Bold>Silver Age</Bold>
+                    </Paragraph>
+                    <Paragraph></Paragraph>
+                    <Paragraph TextAlignment="Center">
+                        <InlineUIContainer>
+                            <Image Source="http://static.comicvine.com/uploads/original/11/117930/2417734-avengers_1.jpg" Stretch="Uniform" />
+                        </InlineUIContainer>
+                    </Paragraph>
+                    <Paragraph TextAlignment="Center" Margin="0,0,0,10">Hulk during the Silver age with the Avengers</Paragraph>
+                    <Paragraph FontSize="15" FontFamily="Segoe UI Semilight" Margin="0,0,0,10">(1962-1970)</Paragraph>
+                    <Paragraph FontSize="15" FontFamily="Segoe UI Semilight" Margin="0,0,0,10">While the Hulk’s original series failed to last more than six issues, writer Stan Lee felt that the Hulk would work best as a reoccurring character in other titles, and finally settled on the Hulk being a co-founder of the Avengers. By the next issue, he wrote the character off the team, and delegated him as a reoccurring menace until he was given co-billing in the Tales to Astonish title alongside
+                        <Hyperlink NavigateUri="http://www.comicvine.com/hank-pym/4005-2247/">Giant-Man</Hyperlink> and the
+                        <Hyperlink NavigateUri="http://www.comicvine.com/wasp/4005-1502/">Wasp</Hyperlink> . Featuring the art talents of Steve Ditko, Jack Kirby, Bob Powell, John Romita Sr., Bill Everett, John Buscema, Gil Kane, Marie Severin, and finally Herb Trimpe, the Hulk’s popularity continued to soar until taking over the title completely with issue #102 in 1968. Roy Thomas soon took over writing chores for Lee and Herb Trimpe settled in as regular penciler for the next eight years.
+                    </Paragraph>
+                    <Paragraph Margin="0,0,0,10" FontSize="17">
+                        <Bold>Bronze Age</Bold>
+                    </Paragraph>
+                    <Paragraph FontSize="15" FontFamily="Segoe UI Semilight" Margin="0,0,0,10">(1970-1985)</Paragraph>
+                    <Paragraph FontSize="15" FontFamily="Segoe UI Semilight" Margin="0,0,0,10">Thomas and Trimpe continued as the regular creative team for the title until Thomas accepted the role of Editor-In-Chief in 1972. Top writers of the era such as Gerry Conway, Steve Gerber, Archie Goodwin, Steve Englehart rotated through various stints until Len Wein settled in as regular writer with
+                        <Hyperlink NavigateUri="http://www.comicvine.com/the-incredible-hulk-re-enter-the-missing-link/4000-14584/">The Incredible Hulk #179</Hyperlink> . Wein’s run is most notable for the introduction of Wolverine in
+                        <Hyperlink NavigateUri="http://www.comicvine.com/the-incredible-hulk-and-nowthe-wolverine/4000-14760/">The Incredible Hulk #181</Hyperlink> . Artist Herb Trimpe moved on to other assignments in 1975, allowing Sal Buscema to take over for the next decade (starting with issue #194 and ending with #309, taking very few breaks along the way.) Roger Stern took over for Wein, who began to delve into the psychological aspect of the Hulk (most prominent during the Peter David run.) Bill Mantlo took over for Stern and embarked on a six year stint that saw the Hulk and his supporting cast grow and change in numerous ways. In 1982, Mantlo had Bruce Banner take control of the Hulk’s body, gain world-wide acceptance and then descend into mindless madness before handing the book over to John Byrne, who separated Banner and the Hulk and married off Bruce and Betty.
+                    </Paragraph>
+                    <Paragraph Margin="0,0,0,10" FontSize="17">
+                        <Bold>Modern Age</Bold>
+                    </Paragraph>
+                    <Paragraph FontSize="15" FontFamily="Segoe UI Semilight" Margin="0,0,0,10">(1985-present)</Paragraph>
+                    <Paragraph FontSize="15" FontFamily="Segoe UI Semilight" Margin="0,0,0,10">Al Milgrom stepped in briefly after Byrne left, and changed the Hulk back to his original gray-skinned form, paving the way for Peter David to take over in 1987. Paired with such artists as Todd McFarlane and Jeff Purves, David continued chronicling the gray Hulk and later had him adopt the identity of “Joe Fixit”, a Las Vegas leg-breaker. David continued as writer for the next several years, as he paired with Dale Keown and merged the green and gray Hulk personalities with Banner’s, creating a new Hulk incarnation. From there, the character continued to progress, regress and change in various ways until David left the title in 1997. Joe Casey replaced David until the title was relaunched under a new name “Hulk” under writer John Byrne and artist Ron Garney. Byrne soon left and the title returned to its original heading of the “Incredible Hulk” with Paul Jenkins at the helm until Bruce Jones took over in 2002. The next several years saw the Hulk and Banner on the run from a mysterious agency that was later revealed to be led by long-time Hulk nemesis the Leader. Taking over from Jones was writer Greg Pak, who began with the “Planet Hulk” story-line that saw the Hulk banished to another world by other super heroes and returning for revenge in “World War Hulk”. The title was soon cancelled and given to Hercules, rebooted as “Hulk” under writer Jeph Loeb and featured a new story and focused on the mysterious Red Hulk for the next two years. The title was again returned under its original numbering and continued after the mystery of the Red Hulk was revealed and re-named “Incredible Hulks”, featuring all the gamma related characters from the last several years. The title was cancelled as Greg Pak left to other projects and relaunched again as "The Incredible Hulk" with incoming writer Jason Aaron and artist Marc Silvestri.</Paragraph>
+                    <Paragraph Margin="0,0,0,10" FontSize="17">
+                        <Bold>Marvel NOW!</Bold>
+                    </Paragraph>
+                    <Paragraph FontSize="15" FontFamily="Segoe UI Semilight" Margin="0,0,0,10">After Aaron,
+                        <Hyperlink NavigateUri="http://www.comicvine.com/mark-waid/4040-40724/">Mark Waid</Hyperlink> and
+                        <Hyperlink NavigateUri="http://www.comicvine.com/leinil-francis-yu/4040-6314/">Leinil Yu</Hyperlink> have taken on the Hulk with the new relaunched Hulk title called
+                        <Hyperlink NavigateUri="http://www.comicvine.com/indestructible-hulk/4050-54112/">Indestructible Hulk</Hyperlink> beginning in November 2012. The premise of this series is that Bruce Banner has finally accepted he will never be rid of The Hulk and decided it's time he used his genius for the good of mankind - and get the recognition he deserves. Thus Dr. Banner has decided to become an agent of
+                        <Hyperlink NavigateUri="http://www.comicvine.com/shield/4060-3775/">S.H.I.E.L.D.</Hyperlink> , allowing them to use Hulk as a weapon of mass destruction in exchange for providing Banner with the funds, lab, equipment and staff he needs to create his inventions.
+                    </Paragraph>
+                </RichTextBlock>
+                <RichTextBlockOverflow x:Name="firstOverflowContainer" Grid.Column="1" Margin="20,0" OverflowContentTarget="{Binding ElementName=secondOverflowContainer}"/>
+                <RichTextBlockOverflow x:Name="secondOverflowContainer" Grid.Column="2" OverflowContentTarget="{Binding ElementName=thirdOverflowContainer}"/>
+                <RichTextBlockOverflow x:Name="thirdOverflowContainer" Grid.Column="3" OverflowContentTarget="{Binding ElementName=fourthOverflowContainer}"/>
+                <ScrollViewer VerticalScrollBarVisibility="Hidden" Grid.Column="4">
+                    <RichTextBlockOverflow x:Name="fourthOverflowContainer"/>
+                </ScrollViewer>
+            </Grid>
+        </Popup>
+    </Grid>
+
+</Page>

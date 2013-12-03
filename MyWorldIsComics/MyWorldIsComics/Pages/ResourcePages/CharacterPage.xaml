@@ -111,48 +111,62 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="CurrentEventsHubSection" Width="520" Header="Current Events" Visibility="Collapsed"/>
+            <HubSection x:Name="CurrentEventsHubSection" Header="Current Events" Visibility="Collapsed"/>
 
-            <HubSection x:Name="OriginHubSection" Width="520" Header="Origin" Visibility="Collapsed"/>
+            <HubSection x:Name="OriginHubSection" Header="Origin" Visibility="Collapsed"/>
 
-            <HubSection x:Name="CharacterEvolutionHubSection" Width="520" Header="Character Evolution" Visibility="Collapsed"/>
+            <HubSection x:Name="CreationHubSection" Header="Creation" Visibility="Collapsed"/>
+            
+            <HubSection x:Name="CharacterEvolutionHubSection" Header="Character Evolution" Visibility="Collapsed"/>
 
-            <HubSection x:Name="CreationHubSection" Width="520" Header="Creation" Visibility="Collapsed"/>
+            <HubSection x:Name="DistinguishingCharacteristicsHubSection" Header="Distinguishing Characteristics" Visibility="Collapsed"/>
+            
+            <HubSection x:Name="MajorStoryArcsHubSection" Header="Major Story Arcs" Visibility="Collapsed"/>
 
-            <HubSection x:Name="PowersAndAbilitiesHubSection" Width="520" Header="Powers and Abilities" Visibility="Collapsed"/>
+            <HubSection x:Name="PowersAndAbilitiesHubSection" Header="Powers and Abilities" Visibility="Collapsed"/>
+            
+            <HubSection x:Name="WeaponsAndEquipmentHubSection" Header="Weapons and Equipment" Visibility="Collapsed"/>
 
+            <HubSection x:Name="MiscellaneousHubSection" Header="Miscellaneous" Visibility="Collapsed"/>
+
+            <HubSection x:Name="HulksIncarnationsHubSection" Header="Hulk's Incarnations" Visibility="Collapsed"/>
+            
+            <HubSection x:Name="AlternateRealitiesHubSection" Header="Alternate Realities" Visibility="Collapsed"/>
+
+            <HubSection x:Name="OtherMediaHubSection" Header="Other Media" Visibility="Collapsed"/>
+            
             <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>
-                    <Grid>
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <StackPanel Orientation="Vertical">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="270"/>
-                                    </Grid.ColumnDefinitions>
+                        <Grid>
+                            <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                <StackPanel Orientation="Vertical">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200"/>
+                                            <ColumnDefinition Width="270"/>
+                                        </Grid.ColumnDefinitions>
 
-                                    <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
-                                    <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
-                                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,0,20,0" TextWrapping="Wrap">
+                                        <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
+                                        <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
+                                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,0,20,0" TextWrapping="Wrap">
                                             <Run Text="{Binding FirstAppearanceIssue.VolumeName}"></Run>
                                             <Run Text="{Binding FirstAppearanceIssue.IssueNumberString}"></Run>
-                                        </TextBlock>
-                                        <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding FirstAppearanceIssue.IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                            </TextBlock>
+                                            <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
+                                            <TextBlock Text="{Binding FirstAppearanceIssue.IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
 
-                                        <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding FirstAppearanceIssue.CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                            <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
+                                            <TextBlock Text="{Binding FirstAppearanceIssue.CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
 
-                                        <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding FirstAppearanceIssue.StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
-                                    </StackPanel>
-                                </Grid>
+                                            <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
+                                            <TextBlock Text="{Binding FirstAppearanceIssue.StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        </StackPanel>
+                                    </Grid>
 
-                                <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionString}" Style="{StaticResource BodyTextBlockStyle}"/>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Grid>
+                                    <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
                 </DataTemplate>
             </HubSection>
 

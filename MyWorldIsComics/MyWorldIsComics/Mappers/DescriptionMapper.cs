@@ -1,24 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MyWorldIsComics.DataModel.DescriptionContent;
-using MyWorldIsComics.DataModel.Interfaces;
 
 namespace MyWorldIsComics.Mappers
 {
     #region usings
 
     using System;
-    using System.Xml;
+
     using HtmlAgilityPack;
-    using DataModel;
+
+    using MyWorldIsComics.DataModel.Resources;
 
     #endregion
 
     class DescriptionMapper
     {
-        private static Description descriptionToReturn = new Description();
+        private readonly Description descriptionToMap;
 
-        public static Description MapDescription(string htmlString)
+        public DescriptionMapper()
+        {
+            this.descriptionToMap = new Description();
+        }
+
+        public Description MapDescription(string htmlString)
         {
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(htmlString);
@@ -28,46 +33,71 @@ namespace MyWorldIsComics.Mappers
                 switch (link.InnerText)
                 {
                     case "Current Events":
-                        descriptionToReturn.CurrentEvents = ProcessSection(link);
+                        this.descriptionToMap.CurrentEvents = ProcessSection(link);
                         break;
                     case "Origin":
                     case "Origins":
-                        descriptionToReturn.Origin = ProcessSection(link);
+                        this.descriptionToMap.Origin = ProcessSection(link);
                         break;
                     case "Creation":
-                        descriptionToReturn.Creation = ProcessSection(link);
+                        this.descriptionToMap.Creation = ProcessSection(link);
                         break;
                     case "Distinguishing Characteristics":
-                        descriptionToReturn.DistinguishingCharacteristics = ProcessSection(link);
+                        this.descriptionToMap.DistinguishingCharacteristics = ProcessSection(link);
                         break;
                     case "Character Evolution":
-                        descriptionToReturn.CharacterEvolution = ProcessSection(link);
+                        this.descriptionToMap.CharacterEvolution = ProcessSection(link);
                         break;
                     case "Major Story Arcs":
-                        descriptionToReturn.MajorStoryArcs = ProcessSection(link);
+                        this.descriptionToMap.MajorStoryArcs = ProcessSection(link);
+                        break;
+                    case "Miscellaneous":
+                        this.descriptionToMap.Miscellaneous = ProcessSection(link);
+                        break;
+                    case "Hulk's Incarnations":
+                        this.descriptionToMap.HulksIncarnations = ProcessSection(link);
                         break;
                     case "Powers and Abilities":
                     case "Abilties":
                     case "Powers":
                     case "Powers and Abilties":
-                        descriptionToReturn.PowersAndAbilities = ProcessSection(link);
+                        this.descriptionToMap.PowersAndAbilities = ProcessSection(link);
                         break;
                     case "Weapons and Equipment":
-                        descriptionToReturn.WeaponsAndEquipment = ProcessSection(link);
+                        this.descriptionToMap.WeaponsAndEquipment = ProcessSection(link);
                         break;
                     case "Other Versions":
                     case "Alternate Realities":
-                        descriptionToReturn.AlternateRealities = ProcessSection(link);
+                        this.descriptionToMap.AlternateRealities = ProcessSection(link);
                         break;
                     case "Other Media":
-                        descriptionToReturn.OtherMedia = ProcessSection(link);
+                        this.descriptionToMap.OtherMedia = ProcessSection(link);
                         break;
                 }
             }
-            return descriptionToReturn;
+            return this.descriptionToMap;
         }
 
-        private static Section ProcessSection(HtmlNode link)
+        public Description MapDescription(Issue issue)
+        {
+            HtmlDocument document = new HtmlDocument();
+            document.LoadHtml(issue.DescriptionString);
+            HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
+
+            foreach (HtmlNode link in collection)
+            {
+                switch (link.Name)
+                {
+                    case "p":
+                        this.ProcessParagraph(link);
+                        break;
+                }
+            }
+
+            return this.descriptionToMap;
+        }
+
+        private Section ProcessSection(HtmlNode link)
         {
             Section section = new Section
             {
@@ -121,7 +151,7 @@ namespace MyWorldIsComics.Mappers
             return section;
         }
         
-        private static Paragraph ProcessParagraph(HtmlNode paragraphNode)
+        private Paragraph ProcessParagraph(HtmlNode paragraphNode)
         {
             Paragraph paragraph = new Paragraph
             {
@@ -132,8 +162,11 @@ namespace MyWorldIsComics.Mappers
             if (paragraphNode.HasChildNodes)
             {
                 var nodes = paragraphNode.ChildNodes;
-                foreach (HtmlNode htmlNode in nodes.Where(htmlNode => htmlNode.Name == "a").Where(htmlNode => htmlNode.GetAttributeValue("rel", String.Empty) != "nofollow"))
+                foreach (HtmlNode htmlNode in nodes.Where(htmlNode => htmlNode.Name == "a")
+                    .Where(htmlNode => htmlNode.GetAttributeValue("rel", String.Empty) != "nofollow"))
                 {
+                    if (paragraph.Links.Any(link => link.Text == htmlNode.InnerText)) { continue; }
+
                     if (paragraph.Links.All(link => link.Href != htmlNode.GetAttributeValue("href", String.Empty)))
                     {
                         paragraph.Links.Add(new Link
@@ -148,7 +181,7 @@ namespace MyWorldIsComics.Mappers
             return paragraph;
         }
 
-        private static Figure ProcessFigure(HtmlNode figureNode)
+        private Figure ProcessFigure(HtmlNode figureNode)
         {
             Figure figure = new Figure
             {
@@ -162,7 +195,7 @@ namespace MyWorldIsComics.Mappers
             return figure;
         }
 
-        private static List ProcessList(HtmlNode listNode)
+        private List ProcessList(HtmlNode listNode)
         {
             List list = new List();
             foreach (HtmlNode childNode in listNode.ChildNodes.Where(childNode => childNode.Name == "li"))
@@ -173,7 +206,7 @@ namespace MyWorldIsComics.Mappers
             return list;
         }
 
-        private static Quote ProcessQuote(HtmlNode quoteNode)
+        private Quote ProcessQuote(HtmlNode quoteNode)
         {
             Paragraph para = ProcessParagraph(quoteNode);
             Quote quote = new Quote
@@ -184,7 +217,7 @@ namespace MyWorldIsComics.Mappers
             return quote;
         }
         
-        private static Section ProcessSubSection(HtmlNode subSectionNode)
+        private Section ProcessSubSection(HtmlNode subSectionNode)
         {
             Section section = new Section
             {

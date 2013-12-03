@@ -129,7 +129,7 @@ namespace MyWorldIsComics.DataSource
 
         public static async Task<Description> FormatDescriptionAsync(string descriptionString)
         {
-            return await Task.Run(() => DescriptionMapper.MapDescription(descriptionString));
+            return await Task.Run(() => new DescriptionMapper().MapDescription(descriptionString));
         }
 
         private static async Task<string> QueryServiceAsync(Uri uri)

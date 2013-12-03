@@ -17,6 +17,7 @@ namespace MyWorldIsComics.Mappers
 
     class CharacterMapper
     {
+        // ReSharper disable once InconsistentNaming
         private Character _characterToMap;
 
         public CharacterMapper()
@@ -83,34 +84,7 @@ namespace MyWorldIsComics.Mappers
             }
             return _characterToMap;
         }
-
-        public Character MapFilteredXmlObject(Character basicCharacter, string filteredCharacterString, string filter)
-        {
-            using (XmlReader readerInit = XmlReader.Create(new StringReader(filteredCharacterString)))
-            {
-                if (!GenericResourceMapper.EnsureResultsExist(readerInit)) return _characterToMap;
-                _characterToMap = basicCharacter;
-                switch (filter)
-                {
-                    case "teams":
-                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredCharacterString)))
-                        {
-                            reader.ReadToFollowing("results");
-                            this.ParseTeamsMemberOf(reader);
-                        }
-                        break;
-                    case "first_appeared_in_issue":
-                        using (XmlReader reader = XmlReader.Create(new StringReader(filteredCharacterString)))
-                        {
-                            reader.ReadToFollowing("results");
-                            this.ParseFirstAppearance(reader);
-                        }
-                        break;
-                }
-            }
-            return _characterToMap;
-        }
-
+        
         private void ParseAliases(XmlReader reader)
         {
             _characterToMap.Aliases.Clear();

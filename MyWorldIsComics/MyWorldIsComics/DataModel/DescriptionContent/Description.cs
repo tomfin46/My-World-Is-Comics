@@ -8,6 +8,8 @@
         public Section Creation { get; set; }
         public Section CharacterEvolution { get; set; }
         public Section MajorStoryArcs { get; set; }
+        public Section Miscellaneous { get; set; }
+        public Section HulksIncarnations { get; set; }
         public Section AlternateRealities { get; set; }
         public Section DistinguishingCharacteristics { get; set; }
         public Section PowersAndAbilities { get; set; }

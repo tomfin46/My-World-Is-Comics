@@ -258,15 +258,16 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             String markup = String.Empty;
             markup += "<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">";
-            markup += "<Grid>";
-            markup += "<Grid.ColumnDefinitions> "
-                      + "<ColumnDefinition Width=\"520\"/> "
-                      + "<ColumnDefinition Width=\"520\"/> "
-                      + "<ColumnDefinition Width=\"520\"/> "
-                      + "<ColumnDefinition Width=\"520\"/> "
-                      + "<ColumnDefinition Width=\"520\"/> " +
-                      "</Grid.ColumnDefinitions>";
-            markup += "<RichTextBlock x:Name=\"CurrentEvents\" Grid.Column=\"0\" OverflowContentTarget=\"{Binding ElementName=firstOverflowContainer}\">";
+            //markup += "<Grid>";
+            //markup += "<Grid.ColumnDefinitions> "
+            //          + "<ColumnDefinition Width=\"520\"/> "
+            //          + "<ColumnDefinition Width=\"520\"/> "
+            //          + "<ColumnDefinition Width=\"520\"/> "
+            //          + "<ColumnDefinition Width=\"520\"/> "
+            //          + "<ColumnDefinition Width=\"520\"/> " +
+            //          "</Grid.ColumnDefinitions>";
+            markup += "<ScrollViewer VerticalScrollBarVisibility=\"Hidden\">";
+            markup += "<RichTextBlock>";
 
             if (descriptionSection == null) return;
 
@@ -323,13 +324,13 @@ namespace MyWorldIsComics.Pages.ResourcePages
             }
 
             markup += "</RichTextBlock>";
-            markup += "<RichTextBlockOverflow x:Name=\"firstOverflowContainer\" Grid.Column=\"1\" Margin=\"20,0\" OverflowContentTarget=\"{Binding ElementName=secondOverflowContainer}\"/>";
-            markup += "<RichTextBlockOverflow x:Name=\"secondOverflowContainer\" Grid.Column=\"2\" Margin=\"20,0\" OverflowContentTarget=\"{Binding ElementName=thirdOverflowContainer}\"/>";
-            markup += "<RichTextBlockOverflow x:Name=\"thirdOverflowContainer\" Grid.Column=\"3\" Margin=\"20,0\" OverflowContentTarget=\"{Binding ElementName=fourthOverflowContainer}\"/>";
-            markup += "<ScrollViewer VerticalScrollBarVisibility=\"Hidden\" Grid.Column=\"4\" Margin=\"20,0\">";
-            markup += "<RichTextBlockOverflow x:Name=\"fourthOverflowContainer\"/>";
+            //markup += "<RichTextBlockOverflow x:Name=\"firstOverflowContainer\" Grid.Column=\"1\" Margin=\"20,0\" OverflowContentTarget=\"{Binding ElementName=secondOverflowContainer}\"/>";
+            //markup += "<RichTextBlockOverflow x:Name=\"secondOverflowContainer\" Grid.Column=\"2\" Margin=\"20,0\" OverflowContentTarget=\"{Binding ElementName=thirdOverflowContainer}\"/>";
+            //markup += "<RichTextBlockOverflow x:Name=\"thirdOverflowContainer\" Grid.Column=\"3\" Margin=\"20,0\" OverflowContentTarget=\"{Binding ElementName=fourthOverflowContainer}\"/>";
+            //markup += "<ScrollViewer VerticalScrollBarVisibility=\"Hidden\" Grid.Column=\"4\" Margin=\"20,0\">";
+            //markup += "<RichTextBlockOverflow x:Name=\"fourthOverflowContainer\"/>";
             markup += "</ScrollViewer>";
-            markup += "</Grid>";
+            //markup += "</Grid>";
             markup += "</DataTemplate>";
 
             DataTemplate dataTemplate = (DataTemplate)XamlReader.Load(markup);

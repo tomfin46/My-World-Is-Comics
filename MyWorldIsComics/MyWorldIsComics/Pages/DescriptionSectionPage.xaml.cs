@@ -115,19 +115,24 @@ namespace MyWorldIsComics.Pages
                                 Hyperlink hyperlink = new Hyperlink();
                                 Run run = new Run { Text = link.Text };
                                 hyperlink.Inlines.Add(run);
-                                hyperlink.
+
+                                if (link.DataRefId == String.Empty) continue;
+
+                                var ids = link.DataRefId.Split('-');
+                                if (ids.Length < 2) continue;
+                                hyperlink.NavigateUri = new Uri("myworldiscomics:///" + ids[0] + "/" + ids[1]);
                                 //"<Hyperlink NavigateUri=\"http://www.comicvine.com" + link.Href + "\">" + link.Text + "</Hyperlink>";
 
                                 Link linkCopy = link;
                                 Boolean contains = false;
-                                foreach (Link link2 in this.Links
+                                foreach (Link link2 in para.Links
                                     .Where(link1 => link1.Text != linkCopy.Text)
                                     .Where(link2 => link2.Text.Contains(linkCopy.Text))) { contains = true; }
 
-                                if (!contains)
-                                {
-                                    text = text.Replace(link.Text, hyperlink);
-                                }
+                                if (contains) continue;
+
+                                paragraph.Inlines.Add(hyperlink);
+                                text = text.Replace(link.Text, hyperlink);
                             }
                             return text;
                         }

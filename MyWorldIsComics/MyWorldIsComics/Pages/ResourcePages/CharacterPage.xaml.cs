@@ -18,7 +18,6 @@ using MyWorldIsComics.DataModel.Resources;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Mappers;
 using MyWorldIsComics.Pages.CollectionPages;
-using Paragraph = MyWorldIsComics.DataModel.DescriptionContent.Paragraph;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
@@ -276,8 +275,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 var queuePeekType = descriptionSection.ContentQueue.Peek().GetType();
                 switch (queuePeekType.Name)
                 {
-                    case "Paragraph":
-                        Paragraph para = descriptionSection.ContentQueue.Dequeue() as Paragraph;
+                    case "DescriptionParagraph":
+                        DescriptionParagraph para = descriptionSection.ContentQueue.Dequeue() as DescriptionParagraph;
                         if (para != null)
                             markup +=
                                 "<Paragraph FontSize=\"15\" FontFamily=\"Segoe UI Semilight\" Margin=\"0,0,0,10\">" + para.FormatLinks();
@@ -307,7 +306,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                         {
                             while (list.ContentQueue.Count > 0)
                             {
-                                Paragraph listItem = list.ContentQueue.Dequeue() as Paragraph;
+                                DescriptionParagraph listItem = list.ContentQueue.Dequeue() as DescriptionParagraph;
                                 if (listItem != null) markup += "<Paragraph Margin=\"25,0,0,16\" TextIndent=\"-25\">> " + listItem.FormatLinks() + "</Paragraph>";
                             }
                         }
@@ -353,8 +352,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 var queuePeekType = sectionToMarkup.ContentQueue.Peek().GetType();
                 switch (queuePeekType.Name)
                 {
-                    case "Paragraph":
-                        Paragraph para = sectionToMarkup.ContentQueue.Dequeue() as Paragraph;
+                    case "DescriptionParagraph":
+                        DescriptionParagraph para = sectionToMarkup.ContentQueue.Dequeue() as DescriptionParagraph;
                         if (para != null)
                             markup += "<Paragraph FontSize=\"15\" FontFamily=\"Segoe UI Semilight\" Margin=\"0,0,0,10\">" + para.FormatLinks();
                         if (sectionToMarkup.ContentQueue.Count > 0 && sectionToMarkup.ContentQueue.Peek().GetType() == typeof(Figure))
@@ -383,7 +382,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                         {
                             while (list.ContentQueue.Count > 0)
                             {
-                                Paragraph listItem = list.ContentQueue.Dequeue() as Paragraph;
+                                DescriptionParagraph listItem = list.ContentQueue.Dequeue() as DescriptionParagraph;
                                 if (listItem != null) markup += "<Paragraph Margin=\"25,0,0,16\" TextIndent=\"-25\">> " + listItem.FormatLinks() + "</Paragraph>";
                             }
                         }
@@ -543,10 +542,11 @@ namespace MyWorldIsComics.Pages.ResourcePages
             Frame.Navigate(typeof(TeamPage), team);
         }
 
-        private void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
+        private async void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
             if (e == null) return;
             if (e.Section.Header == null) return;
+            if(e.Section.Header.ToString() != "Teams" || e.Section.Header.ToString() != "First Appearance") await this.FormatDescriptionForPage();
             switch (e.Section.Header.ToString())
             {
                 case "Teams":
@@ -555,6 +555,42 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 case "First Appearance":
                     IssuePage.BasicIssue = _character.FirstAppearanceIssue;
                     Frame.Navigate(typeof(IssuePage), _character.FirstAppearanceIssue);
+                    break;
+                case "Current Events":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.CurrentEvents);
+                    break;
+                case "Origin":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.Origin);
+                    break;
+                case "Creation":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.Creation);
+                    break;
+                case "Distinguishing Characteristics":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.DistinguishingCharacteristics);
+                    break;
+                case "Character Evolution":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.CharacterEvolution);
+                    break;
+                case "Major Story Arcs":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.MajorStoryArcs);
+                    break;
+                case "Powers and Abilities":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.PowersAndAbilities);
+                    break;
+                case "Weapons and Equipment":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.WeaponsAndEquipment);
+                    break;
+                case "Miscellaneous":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.Miscellaneous);
+                    break;
+                case "Hulk's Incarnations":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.HulksIncarnations);
+                    break;
+                case "Alternate Realities":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.AlternateRealities);
+                    break;
+                case "Other Media":
+                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.OtherMedia);
                     break;
             }
         }

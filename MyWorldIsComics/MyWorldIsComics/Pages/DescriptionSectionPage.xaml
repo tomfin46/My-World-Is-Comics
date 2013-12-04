@@ -46,9 +46,15 @@
             <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
-        
-        <RichTextBlock x:Name="DescriptioRichTextBlock" Grid.Row="1">
-            
-        </RichTextBlock>
+
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" Margin="20" VerticalScrollBarVisibility="Disabled">
+            <Grid x:Name="DescriptionGrid" LayoutUpdated="Grid_LayoutUpdated">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="520"/>
+                    <ColumnDefinition Width="520"/>
+                </Grid.ColumnDefinitions>
+
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

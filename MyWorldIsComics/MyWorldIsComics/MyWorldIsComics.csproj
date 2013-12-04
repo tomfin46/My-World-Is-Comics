@@ -111,7 +111,7 @@
     <Compile Include="DataModel\DescriptionContent\Figure.cs" />
     <Compile Include="DataModel\DescriptionContent\Link.cs" />
     <Compile Include="DataModel\DescriptionContent\List.cs" />
-    <Compile Include="DataModel\DescriptionContent\Paragraph.cs" />
+    <Compile Include="DataModel\DescriptionContent\DescriptionParagraph.cs" />
     <Compile Include="DataModel\DescriptionContent\Quote.cs" />
     <Compile Include="DataModel\DescriptionContent\Section.cs" />
     <Compile Include="DataModel\Interfaces\IDescriptionContent.cs" />

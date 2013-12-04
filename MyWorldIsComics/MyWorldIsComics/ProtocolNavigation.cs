@@ -9,6 +9,7 @@ namespace MyWorldIsComics
     using Windows.ApplicationModel.Activation;
     using Windows.UI.Xaml.Controls;
 
+    using MyWorldIsComics.Pages;
     using MyWorldIsComics.Pages.ResourcePages;
 
     class ProtocolNavigation
@@ -45,6 +46,10 @@ namespace MyWorldIsComics
                 case "TeamPage":
                     var teamPage = rootFrame.Content as TeamPage;
                     if (teamPage != null) NavigateToProtocolPage(teamPage.Frame);
+                    break;
+                case "DescriptionSectionPage":
+                    var descriptionSection = rootFrame.Content as DescriptionSectionPage;
+                    if (descriptionSection != null) NavigateToProtocolPage(descriptionSection.Frame);
                     break;
             }
         }

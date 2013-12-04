@@ -6,7 +6,7 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
 {
     using System.Linq;
 
-    class Paragraph : IDescriptionContent
+    class DescriptionParagraph : IDescriptionContent
     {
         public string Title { get; set; }
         public string Text { get; set; }
@@ -14,7 +14,7 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
         public Queue<IDescriptionContent> ContentQueue { get; set; }
         public List<Link> Links { get; set; }
 
-        public Paragraph()
+        public DescriptionParagraph()
         {
             ContentQueue = new Queue<IDescriptionContent>();
         }

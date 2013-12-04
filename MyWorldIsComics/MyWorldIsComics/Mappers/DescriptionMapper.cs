@@ -151,9 +151,9 @@ namespace MyWorldIsComics.Mappers
             return section;
         }
         
-        private Paragraph ProcessParagraph(HtmlNode paragraphNode)
+        private DescriptionParagraph ProcessParagraph(HtmlNode paragraphNode)
         {
-            Paragraph paragraph = new Paragraph
+            DescriptionParagraph paragraph = new DescriptionParagraph
             {
                 Text = paragraphNode.InnerText,
                 Links = new List<Link>()
@@ -201,7 +201,7 @@ namespace MyWorldIsComics.Mappers
             List list = new List();
             foreach (HtmlNode childNode in listNode.ChildNodes.Where(childNode => childNode.Name == "li"))
             {
-                Paragraph para = ProcessParagraph(childNode);
+                DescriptionParagraph para = ProcessParagraph(childNode);
                 list.ContentQueue.Enqueue(para);
             }
             return list;
@@ -209,7 +209,7 @@ namespace MyWorldIsComics.Mappers
 
         private Quote ProcessQuote(HtmlNode quoteNode)
         {
-            Paragraph para = ProcessParagraph(quoteNode);
+            DescriptionParagraph para = ProcessParagraph(quoteNode);
             Quote quote = new Quote
             {
                 Text = para.Text,

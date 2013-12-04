@@ -48,7 +48,7 @@
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Margin="30">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="520"/>
                 <ColumnDefinition Width="520"/>
@@ -95,7 +95,7 @@
                     <Hyperlink NavigateUri="http://www.comicvine.com/shield/4060-3775/">S.H.I.E.L.D.</Hyperlink> , allowing them to use Hulk as a weapon of mass destruction in exchange for providing Banner with the funds, lab, equipment and staff he needs to create his inventions.
                 </Paragraph>
             </RichTextBlock>
-            <RichTextBlockOverflow x:Name="firstOverflowContainer" Grid.Column="1" Margin="20,0" OverflowContentTarget="{Binding ElementName=secondOverflowContainer}"/>
+            <RichTextBlockOverflow x:Name="firstOverflowContainer" Grid.Column="1" Margin="30,0" OverflowContentTarget="{Binding ElementName=secondOverflowContainer}"/>
             <RichTextBlockOverflow x:Name="secondOverflowContainer" Grid.Column="2" OverflowContentTarget="{Binding ElementName=thirdOverflowContainer}"/>
             <RichTextBlockOverflow x:Name="thirdOverflowContainer" Grid.Column="3" OverflowContentTarget="{Binding ElementName=fourthOverflowContainer}"/>
             <ScrollViewer VerticalScrollBarVisibility="Hidden" Grid.Column="4">

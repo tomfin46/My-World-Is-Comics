@@ -2,13 +2,16 @@
 
 // The Hub Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=321224
 
+using Windows.ApplicationModel.Activation;
+using Windows.UI.Xaml.Input;
+using MyWorldIsComics.Pages;
 using MyWorldIsComics.Pages.CollectionPages;
 using MyWorldIsComics.Pages.ResourcePages;
 
 namespace MyWorldIsComics
 {
     #region usings
-   
+
     using System;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Navigation;
@@ -16,7 +19,7 @@ namespace MyWorldIsComics
     using Data;
 
     #endregion
-   
+
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
@@ -40,6 +43,13 @@ namespace MyWorldIsComics
         public ObservableDictionary DefaultViewModel
         {
             get { return defaultViewModel; }
+        }
+
+        private ProtocolActivatedEventArgs _protocolEventArgs = null;
+        public ProtocolActivatedEventArgs ProtocolEvent
+        {
+            get { return _protocolEventArgs; }
+            set { _protocolEventArgs = value; }
         }
 
         public HubPage()
@@ -114,5 +124,20 @@ namespace MyWorldIsComics
         }
 
         #endregion
+
+        private void HeroImage_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(FurtherDescription));
+        }
+
+        public void NavigateToProtocolPage()
+        {
+            switch (_protocolEventArgs.Uri.Segments[1].Substring(0,4))
+            {
+                case "4005":
+                    Frame.Navigate(typeof(CharacterPage), _protocolEventArgs.Uri.Segments[2]);
+                    break;
+            }
+        }
     }
 }

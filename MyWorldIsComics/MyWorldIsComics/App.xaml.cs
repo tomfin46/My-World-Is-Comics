@@ -117,5 +117,61 @@ namespace MyWorldIsComics
             await SuspensionManager.SaveAsync();
             deferral.Complete();
         }
+
+        /// <summary>
+        // Handle protocol activations.
+        /// </summary>
+        protected override async void OnActivated(IActivatedEventArgs args)
+        {
+            if (args.Kind == ActivationKind.Protocol)
+            {
+                ProtocolActivatedEventArgs protocolArgs = args as ProtocolActivatedEventArgs;
+                Frame rootFrame = Window.Current.Content as Frame;
+
+                // Do not repeat app initialization when the Window already has content,
+                // just ensure that the window is active
+
+                if (rootFrame == null)
+                {
+                    // Create a Frame to act as the navigation context and navigate to the first page
+                    rootFrame = new Frame();
+                    // Associate the frame with a SuspensionManager key
+                    SuspensionManager.RegisterFrame(rootFrame, "AppFrame");
+
+                    if (args.PreviousExecutionState == ApplicationExecutionState.Terminated)
+                    {
+                        // Restore the saved session state only when appropriate
+                        try
+                        {
+                            await SuspensionManager.RestoreAsync();
+                        }
+                        catch (SuspensionManagerException)
+                        {
+                            //Something went wrong restoring state.
+                            //Assume there is no state and continue
+                        }
+                    }
+
+                    // Place the frame in the current Window
+                    Window.Current.Content = rootFrame;
+                }
+
+                if (rootFrame.Content == null)
+                {
+                    if (!rootFrame.Navigate(typeof(HubPage)))
+                    {
+                        throw new Exception("Failed to create initial page");
+                    }
+                }
+
+                rootFrame.Navigate(typeof (HubPage));
+                var p = rootFrame.Content as HubPage;
+                p.ProtocolEvent = protocolArgs;
+                p.NavigateToProtocolPage();
+
+                // Ensure the current window is active
+                Window.Current.Activate();
+            }
+        }
     }
 }

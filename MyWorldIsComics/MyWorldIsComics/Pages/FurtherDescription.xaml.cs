@@ -102,15 +102,5 @@ namespace MyWorldIsComics.Pages
         }
 
         #endregion
-
-        private void ClosePopupClicked(object sender, RoutedEventArgs e)
-        {
-            if (StandardPopup.IsOpen) { StandardPopup.IsOpen = false; }
-        }
-
-        private void ShowPopupOffsetClicked(object sender, RoutedEventArgs e)
-        {
-            if (!StandardPopup.IsOpen) { StandardPopup.IsOpen = true; }
-        }
     }
 }

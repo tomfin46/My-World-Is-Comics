@@ -58,7 +58,7 @@
                         VerticalAlignment="Top" IsHitTestVisible="false" TextWrapping="NoWrap" />
                 </Grid>
             </Hub.Header>
-            <HubSection Width="780" Margin="0,0,80,0">
+            <HubSection Width="780" Margin="0,0,80,0" Tapped="HeroImage_Tapped">
                 <HubSection.Background>
                     <ImageBrush ImageSource="Assets/MediumGray.png" Stretch="UniformToFill" />
                 </HubSection.Background>

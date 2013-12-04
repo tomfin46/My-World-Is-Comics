@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Markup;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.Common;
 using MyWorldIsComics.DataModel.DescriptionContent;
@@ -260,9 +262,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
                       + "<ColumnDefinition Width=\"520\"/> "
                       + "<ColumnDefinition Width=\"520\"/> "
                       + "<ColumnDefinition Width=\"520\"/> "
-                      + "<ColumnDefinition Width=\"520\"/> " + 
+                      + "<ColumnDefinition Width=\"520\"/> " +
                       "</Grid.ColumnDefinitions>";
-            markup += "<RichTextBlock Grid.Column=\"0\" OverflowContentTarget=\"{Binding ElementName=firstOverflowContainer}\">";
+            markup += "<RichTextBlock x:Name=\"CurrentEvents\" Grid.Column=\"0\" OverflowContentTarget=\"{Binding ElementName=firstOverflowContainer}\">";
 
             if (descriptionSection == null) return;
 

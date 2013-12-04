@@ -172,6 +172,7 @@ namespace MyWorldIsComics.Mappers
                         paragraph.Links.Add(new Link
                         {
                             Href = htmlNode.GetAttributeValue("href", String.Empty),
+                            DataRefId = htmlNode.GetAttributeValue("data-ref-id", String.Empty),
                             Text = htmlNode.InnerText
                         });
                     }

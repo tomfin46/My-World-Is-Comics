@@ -78,6 +78,8 @@ namespace MyWorldIsComics.Pages
         {
             _descSection = e.NavigationParameter as Section;
             if (_descSection == null) return;
+            pageTitle.Text = _descSection.Title;
+
             PopulateRichTextBlock();
             RichTextBlockOverflow richTextBlockOverflow1 = new RichTextBlockOverflow {Margin = new Thickness(20)};
             richTextBlock.Margin = new Thickness(20);

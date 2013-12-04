@@ -112,7 +112,7 @@ namespace MyWorldIsComics.Pages.CollectionPages
             {
                 foreach (int characterId in collectionIds.GetRange(collection.Count, collectionIds.Count - collection.Count))
                 {
-                    Character character = GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
+                    Character character = GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId));
                     if (collection.Any(m => m.UniqueId == character.UniqueId)) continue;
                     collection.Add(character);
                 }

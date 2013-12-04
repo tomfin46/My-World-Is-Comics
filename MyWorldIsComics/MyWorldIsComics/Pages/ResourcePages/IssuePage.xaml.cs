@@ -87,7 +87,20 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
             Issue issue = e.NavigationParameter as Issue;
 
-            if (issue == null) return;
+            if (issue == null)
+            {
+                int id;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                }
+
+                issue = this.GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(id));
+            }
 
             if (BasicIssue != null)
             {
@@ -313,39 +326,39 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task<Creator> FetchPerson(KeyValuePair<int, string> person)
         {
-            Creator creator = GetMappedCreator(await ComicVineSource.GetQuickCreatorAsync(person.Key.ToString()));
+            Creator creator = GetMappedCreator(await ComicVineSource.GetQuickCreatorAsync(person.Key));
             creator.Role = person.Value;
             return creator;
         }
 
         private async Task<Character> FetchCharacter(int characterId)
         {
-            return GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
+            return GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId));
         }
 
         private async Task<Team> FetchTeam(int teamId)
         {
-            return GetMappedTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+            return GetMappedTeam(await ComicVineSource.GetQuickTeamAsync(teamId));
         }
 
         private async Task<Location> FetchLocation(int locationId)
         {
-            return GetMappedLocation(await ComicVineSource.GetQuickLocationAsync(locationId.ToString()));
+            return GetMappedLocation(await ComicVineSource.GetQuickLocationAsync(locationId));
         }
 
         private async Task<Concept> FetchConcept(int conceptId)
         {
-            return GetMappedConcept(await ComicVineSource.GetQuickConceptAsync(conceptId.ToString()));
+            return GetMappedConcept(await ComicVineSource.GetQuickConceptAsync(conceptId));
         }
 
         private async Task<Object> FetchObject(int objectId)
         {
-            return GetMappedObject(await ComicVineSource.GetQuickObjectAsync(objectId.ToString()));
+            return GetMappedObject(await ComicVineSource.GetQuickObjectAsync(objectId));
         }
 
         private async Task<StoryArc> FetchStoryArc(int storyArcId)
         {
-            return GetMappedStoryArc(await ComicVineSource.GetQuickStoryArcAsync(storyArcId.ToString()));
+            return GetMappedStoryArc(await ComicVineSource.GetQuickStoryArcAsync(storyArcId));
         }
 
         #endregion

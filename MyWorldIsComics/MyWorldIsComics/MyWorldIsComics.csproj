@@ -165,6 +165,7 @@
     <Compile Include="Pages\ResourcePages\TeamPage.xaml.cs">
       <DependentUpon>TeamPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ProtocolNavigation.cs" />
     <Compile Include="SavedData.cs" />
     <Compile Include="Pages\CollectionPages\TeamsPage.xaml.cs">
       <DependentUpon>TeamsPage.xaml</DependentUpon>

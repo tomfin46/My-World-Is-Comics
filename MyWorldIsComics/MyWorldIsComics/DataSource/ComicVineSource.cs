@@ -77,16 +77,16 @@ namespace MyWorldIsComics.DataSource
 
         #region GetQuick methods
 
-        public static async Task<string> GetQuickCharacterAsync(string characterId)
+        public static async Task<string> GetQuickCharacterAsync(int characterId)
         {
             List<string> filters = new List<string> { "deck", "id", "image", "name" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, characterId, filters));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, characterId.ToString(), filters));
         }
 
-        public static async Task<string> GetQuickTeamAsync(string teamId)
+        public static async Task<string> GetQuickTeamAsync(int teamId)
         {
             List<string> filters = new List<string> { "deck", "id", "image", "name" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId, filters));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId.ToString(), filters));
         }
 
         public static async Task<string> GetQuickIssueAsync(int issueId)
@@ -95,34 +95,34 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issue, issueId.ToString(), filters));
         }
 
-        public static async Task<string> GetQuickCreatorAsync(string personId)
+        public static async Task<string> GetQuickCreatorAsync(int personId)
         {
             List<string> filters = new List<string> { "id", "image", "name" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Person, personId, filters));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Person, personId.ToString(), filters));
         }
 
-        public static async Task<string> GetQuickLocationAsync(string locationId)
+        public static async Task<string> GetQuickLocationAsync(int locationId)
         {
             List<string> filters = new List<string> { "id", "image", "name" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Location, locationId, filters));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Location, locationId.ToString(), filters));
         }
 
-        public static async Task<string> GetQuickConceptAsync(string conceptId)
+        public static async Task<string> GetQuickConceptAsync(int conceptId)
         {
             List<string> filters = new List<string> { "id", "image", "name" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Concept, conceptId, filters));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Concept, conceptId.ToString(), filters));
         }
 
-        public static async Task<string> GetQuickObjectAsync(string objectId)
+        public static async Task<string> GetQuickObjectAsync(int objectId)
         {
             List<string> filters = new List<string> { "id", "image", "name" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Object, objectId, filters));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Object, objectId.ToString(), filters));
         }
 
-        public static async Task<string> GetQuickStoryArcAsync(string storyArcId)
+        public static async Task<string> GetQuickStoryArcAsync(int storyArcId)
         {
             List<string> filters = new List<string> { "id", "image", "name" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.StoryArc, storyArcId, filters));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.StoryArc, storyArcId.ToString(), filters));
         }
 
         #endregion

@@ -21,6 +21,8 @@ using Windows.UI.Xaml.Navigation;
 
 namespace MyWorldIsComics
 {
+    using MyWorldIsComics.Pages.ResourcePages;
+
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
@@ -164,10 +166,7 @@ namespace MyWorldIsComics
                     }
                 }
 
-                rootFrame.Navigate(typeof (HubPage));
-                var p = rootFrame.Content as HubPage;
-                p.ProtocolEvent = protocolArgs;
-                p.NavigateToProtocolPage();
+                new ProtocolNavigation(rootFrame, protocolArgs).NavigateToProtocolPage();
 
                 // Ensure the current window is active
                 Window.Current.Activate();

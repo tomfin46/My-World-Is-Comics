@@ -74,6 +74,21 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
             var team = e.NavigationParameter as Team;
+            if (team == null)
+            {
+                int id;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                }
+
+                team = this.GetMappedTeam(await ComicVineSource.GetQuickTeamAsync(id));
+            }
+
 
             if (SavedTeam != null && team != null && SavedTeam.Name == team.Name)
             {
@@ -231,16 +246,16 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task<Character> FetchCharacter(int characterId)
         {
-            return GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId.ToString()));
+            return GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId));
         }
 
         #endregion
 
         #region Mapping Methods
 
-        private Character GetMappedCharacter(string quickCharacter)
+        private Team GetMappedTeam(string quickTeam)
         {
-            return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);
+            return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
         }
 
         private Team GetMappedTeamFromFilter(string filteredTeamString, string filter)
@@ -256,6 +271,11 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 };
             }
             return new TeamMapper().MapFilteredXmlObject(_team, filteredTeamString, filter);
+        }
+
+        private Character GetMappedCharacter(string quickCharacter)
+        {
+            return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);
         }
 
         private Issue GetMappedIssue(string issue)

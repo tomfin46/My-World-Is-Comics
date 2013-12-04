@@ -81,7 +81,7 @@ namespace MyWorldIsComics.Pages.CollectionPages
             {
                 foreach (int teamId in character.TeamIds.GetRange(character.Teams.Count, character.TeamIds.Count - character.Teams.Count))
                 {
-                    Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                    Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId));
                     if (character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
                     character.Teams.Add(team);
                 }

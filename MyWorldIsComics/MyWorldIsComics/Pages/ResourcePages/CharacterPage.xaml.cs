@@ -22,6 +22,8 @@ using Paragraph = MyWorldIsComics.DataModel.DescriptionContent.Paragraph;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
+    using Windows.ApplicationModel.Activation;
+
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
@@ -156,7 +158,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             foreach (int teamId in _character.TeamIds.Take(1))
             {
-                Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId));
                 if (_character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
                 _character.Teams.Add(team);
             }
@@ -167,7 +169,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             var firstId = _character.TeamIds.First();
             foreach (int teamId in _character.TeamIds.Where(id => id != firstId).Take(_character.TeamIds.Count - 1))
             {
-                Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId.ToString()));
+                Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId));
                 if (_character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
                 _character.Teams.Add(team);
             }

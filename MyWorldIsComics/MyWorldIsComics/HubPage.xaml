@@ -39,23 +39,27 @@
                 <EntranceThemeTransition/>
             </TransitionCollection>
         </Grid.ChildrenTransitions>
-        <Hub SectionHeaderClick="Hub_SectionHeaderClick">
+        <Hub SectionHeaderClick="Hub_SectionHeaderClick" HorizontalContentAlignment="Stretch">
             <Hub.Header>
                 <!-- Back button and page title -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="80"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="200"/>
                     </Grid.ColumnDefinitions>
                     <Button  x:Name="backButton" Style="{StaticResource NavigationBackButtonNormalStyle}"
-                        Margin="-1,-1,39,0" 
+                        Margin="-1,-1,0,0" 
                         VerticalAlignment="Top"
                         Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
                         AutomationProperties.Name="Back"
                         AutomationProperties.AutomationId="BackButton"
-                        AutomationProperties.ItemType="Navigation Button"/>
+                        AutomationProperties.ItemType="Navigation Button" Height="41" Width="41"/>
                     <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
-                        VerticalAlignment="Top" IsHitTestVisible="false" TextWrapping="NoWrap" />
+                        VerticalAlignment="Top" IsHitTestVisible="false" TextWrapping="NoWrap" Height="40" Margin="0,0,29,0" />
+                    <SearchBox Grid.Column="2" x:Name="SearchBoxSuggestions" Height="35" VerticalAlignment="Top" SuggestionsRequested="SearchBoxEventsSuggestionsRequested" QuerySubmitted="SearchBoxEventsQuerySubmitted" FocusOnKeyboardInput="True" Margin="-120,0,0,0"/>
+
+                    <!-- SearchBox Control that provides suggestions to the user, focus given to control by keybaord by FocusOnKeyboardInput being set to true -->
                 </Grid>
             </Hub.Header>
             <HubSection Width="780" Margin="0,0,80,0" Tapped="HeroImage_Tapped">
@@ -63,7 +67,7 @@
                     <ImageBrush ImageSource="Assets/MediumGray.png" Stretch="UniformToFill" />
                 </HubSection.Background>
             </HubSection>
-            
+
             <HubSection Width="500" x:Uid="Section1Header" Header="Section 1" Visibility="Collapsed">
                 <DataTemplate>
                     <Grid>
@@ -83,7 +87,7 @@
                     </Grid>
                 </DataTemplate>
             </HubSection>
-            
+
             <HubSection Width="520" x:Uid="Section2Header" Header="Section 2" Visibility="Collapsed">
                 <DataTemplate>
                     <Grid>
@@ -104,7 +108,7 @@
                     </Grid>
                 </DataTemplate>
             </HubSection>
-            
+
             <HubSection IsHeaderInteractive="True" DataContext="{Binding Section3Items}" d:DataContext="{Binding Groups[3], Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:SampleDataSource}}"
                         x:Uid="Section3Header" Header="Section 3" Padding="40,40,40,32">
                 <DataTemplate>
@@ -122,7 +126,7 @@
                     </GridView>
                 </DataTemplate>
             </HubSection>
-            
+
             <HubSection x:Uid="Section4Header" Header="Section 4">
                 <DataTemplate>
                     <!-- width of 400 -->

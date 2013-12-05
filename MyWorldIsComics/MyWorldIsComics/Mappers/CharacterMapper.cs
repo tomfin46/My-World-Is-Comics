@@ -84,7 +84,33 @@ namespace MyWorldIsComics.Mappers
             }
             return _characterToMap;
         }
-        
+
+        public List<string> GetSuggestionsList(string suggestionsString)
+        {
+            List<string> names = new List<string>();
+
+            using (XmlReader reader = XmlReader.Create(new StringReader(suggestionsString)))
+            {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return new List<string>();
+                reader.ReadToFollowing("results");
+
+                if (reader.Name != "character") { reader.ReadToFollowing("character"); }
+                while (reader.Read())
+                {
+                    if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
+                    {
+                        reader.ReadToDescendant("name");
+                        names.Add(reader.ReadElementContentAsString());
+                    }
+                    else if (reader.Name == "results" && reader.NodeType == XmlNodeType.EndElement)
+                    {
+                        return names;
+                    }
+                }
+            }
+            return names;
+        }
+
         private void ParseAliases(XmlReader reader)
         {
             _characterToMap.Aliases.Clear();

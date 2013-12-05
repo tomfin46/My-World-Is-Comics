@@ -1,9 +1,4 @@
-﻿
-
-// The Hub Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=321224
-
-using Windows.ApplicationModel.Activation;
-using Windows.UI.Xaml.Input;
+﻿using Windows.UI.Xaml.Input;
 using MyWorldIsComics.Pages;
 using MyWorldIsComics.Pages.CollectionPages;
 using MyWorldIsComics.Pages.ResourcePages;
@@ -13,12 +8,19 @@ namespace MyWorldIsComics
     #region usings
 
     using System;
+    using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Xml;
 
+    using Windows.Storage;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Navigation;
     using Common;
     using Data;
+
+    using MyWorldIsComics.DataSource;
+    using MyWorldIsComics.Mappers;
 
     #endregion
 
@@ -70,6 +72,34 @@ namespace MyWorldIsComics
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
             var sampleDataGroup = await SampleDataSource.GetGroupAsync("Group-3");
             DefaultViewModel["Section3Items"] = sampleDataGroup;
+
+            FetchSuggestions();
+        }
+
+        private async void FetchSuggestions()
+        {
+            List<string> characters = new List<string>();
+            int totalResults;
+            var suggestionsString = await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, 0);
+            using (XmlReader reader = XmlReader.Create(new StringReader(suggestionsString)))
+            {
+                reader.ReadToFollowing("number_of_total_results");
+                totalResults = reader.ReadElementContentAsInt();
+            }
+
+            for (int i = 100; i < totalResults/100; i+=100)
+            {
+                characters.AddRange(MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, i)));
+            }
+
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            StorageFile sampleFile = await localFolder.CreateFileAsync("suggestionFile.txt", CreationCollisionOption.ReplaceExisting);
+            await FileIO.WriteTextAsync(sampleFile, String.Join(",", characters));
+        }
+
+        private IEnumerable<string> MapSuggestionCharacters(string suggestionListString)
+        {
+            return new CharacterMapper().GetSuggestionsList(suggestionListString);
         }
 
         /// <summary>

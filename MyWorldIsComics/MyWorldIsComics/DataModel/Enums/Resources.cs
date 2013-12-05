@@ -97,6 +97,8 @@ namespace MyWorldIsComics.DataModel.Enums
             {
                 case ResourcesEnum.Character:
                     return "character";
+                case ResourcesEnum.Characters:
+                    return "characters";
                 case ResourcesEnum.Search:
                     return "search";
                 case ResourcesEnum.Team:

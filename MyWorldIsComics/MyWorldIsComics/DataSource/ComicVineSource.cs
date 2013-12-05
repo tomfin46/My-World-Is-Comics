@@ -34,6 +34,15 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query));
         }
 
+        #region Get Suggestion Lists
+
+        public static async Task<string> GetSuggestionList(Resources.ResourcesEnum resourceEnum, int offset)
+        {
+            return await QueryServiceAsync(comicVineSource.ContructUrl(resourceEnum, offset.ToString(), "name"));
+        }
+
+        #endregion
+
         #region GetBasic methods
 
         public static async Task<string> GetCharacterAsync(int characterId)
@@ -161,6 +170,9 @@ namespace MyWorldIsComics.DataSource
                     break;
                 case Resources.ResourcesEnum.Issues:
                     uri += "?";
+                    break;
+                case Resources.ResourcesEnum.Characters:
+                    uri += "?offset=" + query + "&";
                     break;
                 default:
                     uri += Resources.GetResourceId(resourcesEnum) + query + "/?";

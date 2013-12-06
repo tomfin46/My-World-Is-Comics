@@ -62,6 +62,12 @@ namespace MyWorldIsComics.Mappers
                     case "object":
                         objectResults.Add(new ObjectMapper().QuickMapXmlObject(searchResults));
                         break;
+                    case "person":
+                        creatorResults.Add(new CreatorMapper().QuickMapXmlObject(searchResults));
+                        break;
+                    case "story_arc":
+                        storyArcResults.Add(new StoryArcMapper().QuickMapXmlObject(searchResults));
+                        break;
                     case "team":
                         teamResults.Add(new TeamMapper().QuickMapXmlObject(searchResults));
                         break;

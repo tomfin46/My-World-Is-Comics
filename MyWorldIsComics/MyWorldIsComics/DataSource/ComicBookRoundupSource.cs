@@ -8,17 +8,17 @@ namespace MyWorldIsComics.DataSource
 {
     class ComicBookRoundupSource
     {
-        public async void GetIssueReviews()
+        public void GetIssueReviews()
         {
             
         }
 
-        public async void GetSeriesReviews()
+        public void GetSeriesReviews()
         {
             
         }
 
-        public async void GetReviewsForTheWeek(string week)
+        public void GetReviewsForTheWeek(string week)
         {
             
         }

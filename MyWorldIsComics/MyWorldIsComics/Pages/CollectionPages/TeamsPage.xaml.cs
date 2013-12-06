@@ -93,7 +93,7 @@ namespace MyWorldIsComics.Pages.CollectionPages
             }
         }
 
-        private async void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             SavedData.Character = this.character;
         }

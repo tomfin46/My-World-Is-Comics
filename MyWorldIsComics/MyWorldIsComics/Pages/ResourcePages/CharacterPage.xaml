@@ -58,7 +58,7 @@
 
                         <TextBlock Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" IsHitTestVisible="false"
                                    TextWrapping="NoWrap" VerticalAlignment="Top"/>
-                        <SearchBox Grid.Column="2" x:Name="SearchBoxSuggestions" Height="35" VerticalAlignment="Top" SuggestionsRequested="SearchBoxEventsSuggestionsRequested" QuerySubmitted="SearchBoxEventsQuerySubmitted" FocusOnKeyboardInput="True" Margin="-120,0,0,0"/>
+                        <SearchBox Grid.Column="2" x:Name="SearchBoxSuggestions" Height="35" VerticalAlignment="Top"  FocusOnKeyboardInput="True" Margin="-120,0,0,0"/>
                     </Grid>
                 </Border>
             </Hub.Header>

@@ -41,9 +41,6 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     "story_arc_credits"
                 };
 
-        private ObservableCollection<Issue> _adjacentIssues;
-        private ObservableCollection<Issue> _tempIssues;
-
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>

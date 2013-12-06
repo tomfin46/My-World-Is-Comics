@@ -11,6 +11,7 @@ namespace MyWorldIsComics
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Xml;
 
     using Windows.Storage;
@@ -31,6 +32,8 @@ namespace MyWorldIsComics
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
+
+        private string[] suggestionsList;
 
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
@@ -73,12 +76,14 @@ namespace MyWorldIsComics
             var sampleDataGroup = await SampleDataSource.GetGroupAsync("Group-3");
             DefaultViewModel["Section3Items"] = sampleDataGroup;
 
-            FetchSuggestions();
+            this.FetchSuggestions();
+            this.FillSuggestions();
         }
 
         private async void FetchSuggestions()
         {
-            List<string> characters = new List<string>();
+            Dictionary<int, string> characters = new Dictionary<int, string>();
+            StringBuilder sb = new StringBuilder();
             int totalResults;
             var suggestionsString = await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, 0);
             using (XmlReader reader = XmlReader.Create(new StringReader(suggestionsString)))
@@ -87,17 +92,29 @@ namespace MyWorldIsComics
                 totalResults = reader.ReadElementContentAsInt();
             }
 
-            for (int i = 100; i < totalResults; i+=100)
+            for (int i = 0; i < totalResults+100; i+=100)
             {
-                characters.AddRange(MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, i)));
+                var dictReturn = MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, i));
+                foreach (KeyValuePair<int, string> keyValuePair in dictReturn)
+                {
+                    characters.Add(keyValuePair.Key, keyValuePair.Value);
+                    sb.Append(keyValuePair.Key + ":" + keyValuePair.Value + ",");
+                }
             }
 
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile sampleFile = await localFolder.CreateFileAsync("suggestionFile.txt", CreationCollisionOption.ReplaceExisting);
-            await FileIO.WriteTextAsync(sampleFile, String.Join(",", characters));
+            await FileIO.WriteTextAsync(sampleFile, sb.ToString());
         }
 
-        private IEnumerable<string> MapSuggestionCharacters(string suggestionListString)
+        private async void FillSuggestions()
+        {
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            StorageFile sampleFile = await localFolder.GetFileAsync("suggestionFile.txt");
+            suggestionsList = (await FileIO.ReadTextAsync(sampleFile)).Split(',');
+        }
+
+        private IDictionary<int, string> MapSuggestionCharacters(string suggestionListString)
         {
             return new CharacterMapper().GetSuggestionsList(suggestionListString);
         }
@@ -160,7 +177,8 @@ namespace MyWorldIsComics
             string queryText = args.QueryText;
             if (string.IsNullOrEmpty(queryText)) return;
             Windows.ApplicationModel.Search.SearchSuggestionCollection suggestionCollection = args.Request.SearchSuggestionCollection;
-            foreach (string suggestion in suggestionList.Where(suggestion => suggestion.StartsWith(queryText, StringComparison.CurrentCultureIgnoreCase)))
+
+            foreach (string suggestion in suggestionsList.Where(suggestion => suggestion.StartsWith(queryText, StringComparison.CurrentCultureIgnoreCase)))
             {
                 suggestionCollection.AppendQuerySuggestion(suggestion);
             }
@@ -171,34 +189,8 @@ namespace MyWorldIsComics
             var queryText = args.QueryText;
             if (!string.IsNullOrEmpty(queryText))
             {
-                // TODO Frame.Navigate(SearchResultsPage, queryText);
-                //MainPage.Current.NotifyUser(queryText, NotifyType.StatusMessage);
+                Frame.Navigate(typeof(SearchResultsPage), queryText);
             }
         }
-
-        /// <summary>
-        /// App provided suggestions list
-        /// </summary>
-        private static readonly string[] suggestionList =
-            {
-                "Shanghai", "Istanbul", "Karachi", "Delhi", "Mumbai", "Moscow", "São Paulo", "Seoul", "Beijing", "Jakarta",
-                "Tokyo", "Mexico City", "Kinshasa", "New York City", "Lagos", "London", "Lima", "Bogota", "Tehran", "Ho Chi Minh City",
-                "Hong Kong", "Bangkok", "Dhaka", "Cairo", "Hanoi", "Rio de Janeiro", "Lahore", "Chonquing", "Bengaluru", "Tianjin",
-                "Baghdad", "Riyadh", "Singapore", "Santiago", "Saint Petersburg", "Surat", "Chennai", "Kolkata", "Yangon", "Guangzhou",
-                "Alexandria", "Shenyang", "Hyderabad", "Ahmedabad", "Ankara", "Johannesburg", "Wuhan", "Los Angeles", "Yokohama",
-                "Abidjan", "Busan", "Cape Town", "Durban", "Pune", "Jeddah", "Berlin", "Pyongyang", "Kanpur", "Madrid", "Jaipur",
-                "Nairobi", "Chicago", "Houston", "Philadelphia", "Phoenix", "San Antonio", "San Diego", "Dallas", "San Jose",
-                "Jacksonville", "Indianapolis", "San Francisco", "Austin", "Columbus", "Fort Worth", "Charlotte", "Detroit",
-                "El Paso", "Memphis", "Baltimore", "Boston", "Seattle Washington", "Nashville", "Denver", "Louisville", "Milwaukee",
-                "Portland", "Las Vegas", "Oklahoma City", "Albuquerque", "Tucson", "Fresno", "Sacramento", "Long Beach", "Kansas City",
-                "Mesa", "Virginia Beach", "Atlanta", "Colorado Springs", "Omaha", "Raleigh", "Miami", "Cleveland", "Tulsa", "Oakland",
-                "Minneapolis", "Wichita", "Arlington", "Bakersfield", "New Orleans", "Honolulu", "Anaheim", "Tampa", "Aurora",
-                "Santa Ana", "St. Louis", "Pittsburgh", "Corpus Christi", "Riverside", "Cincinnati", "Lexington", "Anchorage",
-                "Stockton", "Toledo", "St. Paul", "Newark", "Greensboro", "Buffalo", "Plano", "Lincoln", "Henderson", "Fort Wayne",
-                "Jersey City", "St. Petersburg", "Chula Vista", "Norfolk", "Orlando", "Chandler", "Laredo", "Madison", "Winston-Salem",
-                "Lubbock", "Baton Rouge", "Durham", "Garland", "Glendale", "Reno", "Hialeah", "Chesapeake", "Scottsdale",
-                "North Las Vegas", "Irving", "Fremont", "Irvine", "Birmingham", "Rochester", "San Bernardino", "Spokane",
-                "Toronto", "Montreal", "Vancouver", "Ottawa-Gatineau", "Calgary", "Edmonton", "Quebec City", "Winnipeg", "Hamilton"
-            };
     }
 }

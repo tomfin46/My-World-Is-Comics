@@ -38,7 +38,7 @@
             </TransitionCollection>
         </Grid.ChildrenTransitions>
 
-        <Hub x:Name="Hub" SectionHeaderClick="HubSection_HeaderClick">
+        <Hub x:Name="Hub" SectionHeaderClick="HubSection_HeaderClick" HorizontalContentAlignment="Stretch">
             <Hub.Header>
                 <!-- Back button and page title -->
                 <Border x:Name="HeaderBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25" Grid.Column="1">
@@ -46,6 +46,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="200"/>
                         </Grid.ColumnDefinitions>
                         <Button x:Name="BackButton" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
                             Style="{StaticResource NavigationBackButtonNormalStyle}"
@@ -57,6 +58,7 @@
 
                         <TextBlock Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" IsHitTestVisible="false"
                                    TextWrapping="NoWrap" VerticalAlignment="Top"/>
+                        <SearchBox Grid.Column="2" x:Name="SearchBoxSuggestions" Height="35" VerticalAlignment="Top" SuggestionsRequested="SearchBoxEventsSuggestionsRequested" QuerySubmitted="SearchBoxEventsQuerySubmitted" FocusOnKeyboardInput="True" Margin="-120,0,0,0"/>
                     </Grid>
                 </Border>
             </Hub.Header>

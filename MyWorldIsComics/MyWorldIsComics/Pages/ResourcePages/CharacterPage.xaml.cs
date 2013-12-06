@@ -16,6 +16,7 @@ using MyWorldIsComics.Common;
 using MyWorldIsComics.DataModel.DescriptionContent;
 using MyWorldIsComics.DataModel.Resources;
 using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Helpers;
 using MyWorldIsComics.Mappers;
 using MyWorldIsComics.Pages.CollectionPages;
 

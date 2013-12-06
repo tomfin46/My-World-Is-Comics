@@ -16,8 +16,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-
 // The Hub App template is documented at http://go.microsoft.com/fwlink/?LinkId=321221
+using MyWorldIsComics.Helpers;
 
 namespace MyWorldIsComics
 {

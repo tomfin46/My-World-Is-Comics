@@ -89,7 +89,7 @@ namespace MyWorldIsComics.DataModel.Resources
         public List<int> LocationIds { get; set; }
         public ObservableCollection<Location> Locations { get; set; }
         public List<int> ObjectIds { get; set; }
-        public ObservableCollection<Object> Objects { get; set; }
+        public ObservableCollection<ObjectResource> Objects { get; set; }
         public Dictionary<int, string> PersonIds { get; set; }
         public ObservableCollection<Creator> Creators { get; set; }
         public List<int> StoryArcIds { get; set; }
@@ -108,7 +108,7 @@ namespace MyWorldIsComics.DataModel.Resources
             LocationIds = new List<int>();
             Locations = new ObservableCollection<Location>();
             ObjectIds = new List<int>();
-            Objects = new ObservableCollection<Object>();
+            Objects = new ObservableCollection<ObjectResource>();
             PersonIds = new Dictionary<int, string>();
             Creators = new ObservableCollection<Creator>();
             StoryArcIds = new List<int>();

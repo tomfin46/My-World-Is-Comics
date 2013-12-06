@@ -87,7 +87,7 @@ namespace MyWorldIsComics
                 totalResults = reader.ReadElementContentAsInt();
             }
 
-            for (int i = 100; i < totalResults/100; i+=100)
+            for (int i = 100; i < totalResults; i+=100)
             {
                 characters.AddRange(MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, i)));
             }

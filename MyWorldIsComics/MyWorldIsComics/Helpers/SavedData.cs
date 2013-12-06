@@ -1,12 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using MyWorldIsComics.DataModel.Resources;
 
-namespace MyWorldIsComics
+namespace MyWorldIsComics.Helpers
 {
-    using MyWorldIsComics.DataModel;
-    using MyWorldIsComics.DataModel.DescriptionContent;
-    using MyWorldIsComics.DataModel.Resources;
-
     class SavedData
     {
         public static Character BasicCharacter { get; set; }

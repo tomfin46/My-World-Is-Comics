@@ -30,7 +30,8 @@ namespace MyWorldIsComics.Mappers
             using (XmlReader reader = XmlReader.Create(new StringReader(quickCharacterString)))
             {
                 if (!GenericResourceMapper.EnsureResultsExist(reader)) return _characterToMap;
-                reader.ReadToFollowing("results");
+                if (reader.Name == "response") reader.ReadToFollowing("results");
+
                 _characterToMap = GenericResourceMapper.ParseDeck(reader, _characterToMap) as Character;
                 _characterToMap = GenericResourceMapper.ParseId(reader, _characterToMap) as Character;
                 _characterToMap = GenericResourceMapper.ParseImage(reader, _characterToMap) as Character;

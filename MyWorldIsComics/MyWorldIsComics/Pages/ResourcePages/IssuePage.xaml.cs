@@ -10,7 +10,6 @@ using MyWorldIsComics.Common;
 using MyWorldIsComics.DataModel.Resources;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Mappers;
-using Object = MyWorldIsComics.DataModel.Resources.Object;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
@@ -78,7 +77,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// The source of the event; typically <see cref="NavigationHelper"/>
         /// </param>
         /// <param name="e">Event data that provides both the navigation parameter passed to
-        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
+        /// <see cref="Frame.Navigate(Type, ObjectResource)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
@@ -304,7 +303,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             foreach (int objectId in issue.ObjectIds)
             {
-                Object mappedObject = await FetchObject(objectId);
+                ObjectResource mappedObject = await FetchObject(objectId);
                 if (issue.Objects.Any(o => o.UniqueId == mappedObject.UniqueId)) continue;
                 issue.Objects.Add(mappedObject);
             }
@@ -351,7 +350,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             return GetMappedConcept(await ComicVineSource.GetQuickConceptAsync(conceptId));
         }
 
-        private async Task<Object> FetchObject(int objectId)
+        private async Task<ObjectResource> FetchObject(int objectId)
         {
             return GetMappedObject(await ComicVineSource.GetQuickObjectAsync(objectId));
         }
@@ -400,9 +399,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
             return quickConcept == ServiceConstants.QueryNotFound ? new Concept() { Name = "Concept Not Found" } : new ConceptMapper().QuickMapXmlObject(quickConcept);
         }
 
-        private Object GetMappedObject(string quickObject)
+        private ObjectResource GetMappedObject(string quickObject)
         {
-            return quickObject == ServiceConstants.QueryNotFound ? new Object { Name = "Object Not Found" } : new ObjectMapper().QuickMapXmlObject(quickObject);
+            return quickObject == ServiceConstants.QueryNotFound ? new ObjectResource { Name = "Object Not Found" } : new ObjectMapper().QuickMapXmlObject(quickObject);
         }
 
         private StoryArc GetMappedStoryArc(string quickStoryArc)

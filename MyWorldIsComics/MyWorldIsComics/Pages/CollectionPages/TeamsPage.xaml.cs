@@ -7,6 +7,7 @@ using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.Common;
 using MyWorldIsComics.DataModel.Resources;
 using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Helpers;
 using MyWorldIsComics.Mappers;
 using MyWorldIsComics.Pages.ResourcePages;
 

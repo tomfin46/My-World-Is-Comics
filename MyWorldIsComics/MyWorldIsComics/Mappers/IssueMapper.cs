@@ -25,8 +25,8 @@ namespace MyWorldIsComics.Mappers
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
                 if (!GenericResourceMapper.EnsureResultsExist(reader)) return _issueToMap;
+                if (reader.Name == "response") reader.ReadToFollowing("results");
 
-                reader.ReadToFollowing("results");
                 ParseCoverDate(reader);
                 _issueToMap = GenericResourceMapper.ParseDescriptionString(reader, _issueToMap) as Issue;
                 _issueToMap = GenericResourceMapper.ParseId(reader, _issueToMap) as Issue;

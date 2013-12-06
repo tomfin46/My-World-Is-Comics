@@ -8,7 +8,7 @@ using MyWorldIsComics.DataModel.Interfaces;
 
 namespace MyWorldIsComics.DataModel.Resources
 {
-    public class Object : IResource
+    public class ObjectResource : IResource
     {
         public int UniqueId { get; set; }
         public string Name { get; set; }

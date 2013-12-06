@@ -1,27 +1,28 @@
 ﻿using System.IO;
 using System.Xml;
-using Object = MyWorldIsComics.DataModel.Resources.Object;
+using MyWorldIsComics.DataModel.Resources;
 
 namespace MyWorldIsComics.Mappers
 {
     class ObjectMapper
     {
-        private Object _objectToMap;
+        private ObjectResource _objectToMap;
 
         public ObjectMapper()
         {
-            _objectToMap = new Object();
+            _objectToMap = new ObjectResource();
         }
 
-        public Object QuickMapXmlObject(string xmlString)
+        public ObjectResource QuickMapXmlObject(string xmlString)
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
                 if (!GenericResourceMapper.EnsureResultsExist(reader)) return _objectToMap;
-                reader.ReadToFollowing("results");
-                _objectToMap = GenericResourceMapper.ParseId(reader, _objectToMap) as Object;
-                _objectToMap = GenericResourceMapper.ParseImage(reader, _objectToMap) as Object;
-                _objectToMap = GenericResourceMapper.ParseName(reader, _objectToMap) as Object;
+                if (reader.Name == "response") reader.ReadToFollowing("results");
+
+                _objectToMap = GenericResourceMapper.ParseId(reader, _objectToMap) as ObjectResource;
+                _objectToMap = GenericResourceMapper.ParseImage(reader, _objectToMap) as ObjectResource;
+                _objectToMap = GenericResourceMapper.ParseName(reader, _objectToMap) as ObjectResource;
             }
             return _objectToMap;
         }

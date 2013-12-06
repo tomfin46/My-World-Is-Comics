@@ -27,7 +27,8 @@
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
                 if (!GenericResourceMapper.EnsureResultsExist(reader)) return _teamToMap;
-                reader.ReadToFollowing("results");
+                if (reader.Name == "response") reader.ReadToFollowing("results");
+
                 _teamToMap = GenericResourceMapper.ParseDeck(reader, _teamToMap) as Team;
                 _teamToMap = GenericResourceMapper.ParseId(reader, _teamToMap) as Team;
                 _teamToMap = GenericResourceMapper.ParseImage(reader, _teamToMap) as Team;

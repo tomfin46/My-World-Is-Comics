@@ -23,7 +23,8 @@ namespace MyWorldIsComics.Mappers
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
                 if (!GenericResourceMapper.EnsureResultsExist(reader)) return _conceptToMap;
-                reader.ReadToFollowing("results");
+                if (reader.Name == "response") reader.ReadToFollowing("results");
+
                 _conceptToMap = GenericResourceMapper.ParseId(reader, _conceptToMap) as Concept;
                 _conceptToMap = GenericResourceMapper.ParseImage(reader, _conceptToMap) as Concept;
                 _conceptToMap = GenericResourceMapper.ParseName(reader, _conceptToMap) as Concept;

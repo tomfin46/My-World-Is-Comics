@@ -38,7 +38,7 @@ namespace MyWorldIsComics.DataSource
 
         public static async Task<string> GetSuggestionList(Resources.ResourcesEnum resourceEnum, int offset)
         {
-            return await QueryServiceAsync(comicVineSource.ContructUrl(resourceEnum, offset.ToString(), new List<string>{ "id", "name", "publisher" }));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(resourceEnum, offset.ToString(), new List<string>{ "name" }));
         }
 
         #endregion

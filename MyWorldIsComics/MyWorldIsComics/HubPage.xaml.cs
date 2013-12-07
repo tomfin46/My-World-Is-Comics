@@ -1,4 +1,5 @@
 ﻿using Windows.UI.Xaml.Input;
+using MyWorldIsComics.Helpers;
 using MyWorldIsComics.Pages;
 using MyWorldIsComics.Pages.CollectionPages;
 using MyWorldIsComics.Pages.ResourcePages;
@@ -77,54 +78,7 @@ namespace MyWorldIsComics
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
             var sampleDataGroup = await SampleDataSource.GetGroupAsync("Group-3");
             DefaultViewModel["Section3Items"] = sampleDataGroup;
-
-            //this.FetchSuggestions();
-            //this.FillSuggestions();
-        }
-
-        private async void FetchSuggestions()
-        {
-            StringBuilder sb = new StringBuilder();
-            int totalResults;
-            var suggestionsString = await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, 0);
-            using (XmlReader reader = XmlReader.Create(new StringReader(suggestionsString)))
-            {
-                reader.ReadToFollowing("number_of_total_results");
-                totalResults = reader.ReadElementContentAsInt();
-            }
-
-            for (int i = 0; i < totalResults+100; i+=100)
-            {
-                var dictReturn = MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, i));
-                foreach (KeyValuePair<string, int> keyValuePair in dictReturn)
-                {
-                    sb.Append(keyValuePair.Key + ',');
-                }
-            }
-
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile sampleFile = await localFolder.CreateFileAsync("suggestionFile.txt", CreationCollisionOption.ReplaceExisting);
-            await FileIO.WriteTextAsync(sampleFile, sb.ToString());
-        }
-
-        private async void FillSuggestions()
-        {
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile sampleFile = await localFolder.GetFileAsync("suggestionFile.txt");
-            string[] suggestions = (await FileIO.ReadTextAsync(sampleFile)).Split(',');
-            StringBuilder sb = new StringBuilder();
-            foreach (string suggestion in suggestions)
-            {
-                var name = suggestion.Substring(suggestion.IndexOf(':') + 1);
-                var id = suggestion.Substring(0, suggestion.IndexOf(':'));
-                suggestionsDictionary.Add(int.Parse(id), name);
-                suggestionsList.Add(name);
-            }
-        }
-
-        private Dictionary<string, int> MapSuggestionCharacters(string suggestionListString)
-        {
-            return new CharacterMapper().GetSuggestionsList(suggestionListString);
+            SearchTools.FetchSuggestions();
         }
 
         /// <summary>
@@ -136,7 +90,6 @@ namespace MyWorldIsComics
         {
             HubSection section = e.Section;
             var group = section.DataContext;
-            Frame.Navigate(typeof(TeamsPage), ((SampleDataGroup)group).UniqueId);
         }
 
         /// <summary>
@@ -182,30 +135,14 @@ namespace MyWorldIsComics
 
         private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)
         {
-            /*string queryText = args.QueryText;
-            if (string.IsNullOrEmpty(queryText)) return;
-            Windows.ApplicationModel.Search.SearchSuggestionCollection suggestionCollection = args.Request.SearchSuggestionCollection;
-
-            foreach (string suggestion in suggestionsList.Where(suggestion => suggestion.StartsWith(queryText, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                suggestionCollection.AppendQuerySuggestion(suggestion);
-            }*/
+            new SearchTools().SearchBoxEventsSuggestionsRequested(args);
         }
 
         private void SearchBoxEventsQuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
         {
             var queryText = args.QueryText;
-            if (!string.IsNullOrEmpty(queryText))
-            {
-                try
-                {
-                    Frame.Navigate(typeof (SearchResultsPage), queryText);
-                }
-                catch (ArgumentNullException)
-                {
-                    Frame.Navigate(typeof(SearchResultsPage), queryText);
-                }
-            }
+            if (string.IsNullOrEmpty(queryText)) return;
+            Frame.Navigate(typeof(SearchResultsPage), queryText);
         }
     }
 }

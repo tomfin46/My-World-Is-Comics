@@ -106,6 +106,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="DataModel\Results.cs" />
+    <Compile Include="Helpers\SearchTools.cs" />
     <Compile Include="Mappers\SearchResultsMapper.cs" />
     <Compile Include="Pages\CollectionPages\CharactersPage.xaml.cs">
       <DependentUpon>CharactersPage.xaml</DependentUpon>

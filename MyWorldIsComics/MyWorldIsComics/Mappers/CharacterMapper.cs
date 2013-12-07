@@ -88,13 +88,13 @@ namespace MyWorldIsComics.Mappers
             return _characterToMap;
         }
 
-        public Dictionary<string, int> GetSuggestionsList(string suggestionsString)
+        public List<string> GetSuggestionsList(string suggestionsString)
         {
-            Dictionary<string, int> namesDictionary = new Dictionary<string, int>();
+            List<string> names = new List<string>();
 
             using (XmlReader reader = XmlReader.Create(new StringReader(suggestionsString)))
             {
-                if (!GenericResourceMapper.EnsureResultsExist(reader)) return new Dictionary<string, int>();
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return new List<string>();
                 reader.ReadToFollowing("results");
 
                 if (reader.Name != "character") { reader.ReadToFollowing("character"); }
@@ -102,20 +102,19 @@ namespace MyWorldIsComics.Mappers
                 {
                     if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
                     {
-                        reader.ReadToFollowing("id");
-                        var id = reader.ReadElementContentAsInt();
+                        
                         reader.ReadToFollowing("name");
                         var name = reader.ReadElementContentAsString();
-                        namesDictionary.Add(name, id);
+                        names.Add(name);
                     }
                     else if (reader.Name == "results" && reader.NodeType == XmlNodeType.EndElement)
                     {
-                        return namesDictionary;
+                        return names;
                     }
                 }
                 while (reader.Read());
             }
-            return namesDictionary;
+            return names;
         }
 
         private void ParseAliases(XmlReader reader)

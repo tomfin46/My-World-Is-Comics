@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using MyWorldIsComics.Common;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -13,8 +15,13 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-
 // The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
+using MyWorldIsComics.DataModel;
+using MyWorldIsComics.DataModel.Interfaces;
+using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Mappers;
+using MyWorldIsComics.Pages.ResourcePages;
 
 namespace MyWorldIsComics.Pages
 {
@@ -66,7 +73,32 @@ namespace MyWorldIsComics.Pages
         /// session.  The state will be null the first time a page is visited.</param>
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            // TODO: Assign a collection of bindable groups to this.DefaultViewModel["Groups"]
+            if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
+
+            string query = e.NavigationParameter as string;
+            FetchResults(query);
+        }
+
+        private async void FetchResults(string query)
+        {
+            SearchResultsMapper searchResultsMapper = new SearchResultsMapper();
+            searchResultsMapper.MapSearchResults(await ComicVineSource.ExecuteSearchAsync(query));
+            Dictionary<string, bool> isEmptyDictionary = searchResultsMapper.Results.ToDictionary(results => results.Name, results => results.ResultsList.Count == 0);
+
+            bool isEmpty = true;
+            foreach (KeyValuePair<string, bool> keyValuePair in isEmptyDictionary.Where(keyValuePair => keyValuePair.Value == false))
+            {
+                isEmpty = false;
+            }
+
+            if (!isEmpty)
+            {
+                DefaultViewModel["SearchResults"] = searchResultsMapper.Results;
+            }
+            else
+            {
+                DefaultViewModel["SearchResults"] = new ObservableCollection<Results> { new Results {Name = "No results", ResultsList = new ObservableCollection<IResource> {new ObjectResource {Name = "Please search again."}}}};
+            }
         }
 
         #region NavigationHelper registration
@@ -91,5 +123,54 @@ namespace MyWorldIsComics.Pages
         }
 
         #endregion
+
+        private void Item_Clicked(object sender, ItemClickEventArgs e)
+        {
+            int id = ((IResource) e.ClickedItem).UniqueId;
+            if (e.ClickedItem as Character != null)
+            {
+                Frame.Navigate(typeof (CharacterPage), id);
+            }
+            else if (e.ClickedItem as Concept != null)
+            {
+                //Frame.Navigate(typeof(ConceptPage), id);
+            }
+            else if (e.ClickedItem as Creator != null)
+            {
+                //Frame.Navigate(typeof(CreatorPage), id);
+            }
+            else if (e.ClickedItem as Issue != null)
+            {
+                Frame.Navigate(typeof(IssuePage), id);
+            }
+            else if (e.ClickedItem as Location != null)
+            {
+                //Frame.Navigate(typeof(LocationPage), id);
+            }
+            else if (e.ClickedItem as Movie != null)
+            {
+                //Frame.Navigate(typeof(MoviePage), id);
+            }
+            else if (e.ClickedItem as ObjectResource != null)
+            {
+                //Frame.Navigate(typeof(ObjectPage), id);
+            }
+            else if (e.ClickedItem as Publisher != null)
+            {
+                //Frame.Navigate(typeof(PublisherPage), id);
+            }
+            else if (e.ClickedItem as StoryArc != null)
+            {
+                //Frame.Navigate(typeof(StoryArcPage), id);
+            }
+            else if (e.ClickedItem as Team != null)
+            {
+                Frame.Navigate(typeof(TeamPage), id);
+            }
+            else if (e.ClickedItem as Volume != null)
+            {
+                //Frame.Navigate(typeof(VolumePage), id);
+            }
+        }
     }
 }

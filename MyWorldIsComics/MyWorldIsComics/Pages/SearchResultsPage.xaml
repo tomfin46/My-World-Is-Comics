@@ -17,10 +17,10 @@
             of the complete item list because items in groups cannot be virtualized
         -->
         <CollectionViewSource
-            x:Name="groupedItemsViewSource"
-            Source="{Binding Groups}"
+            x:Name="GroupedItemsViewSource"
+            Source="{Binding SearchResults}"
             IsSourceGrouped="true"
-            ItemsPath="TopItems"/>
+            ItemsPath="ResultsList"/>
 
     </Page.Resources>
 
@@ -47,18 +47,20 @@
             AutomationProperties.Name="Grouped Items"
             Grid.RowSpan="2"
             Padding="116,137,40,46"
-            ItemsSource="{Binding Source={StaticResource groupedItemsViewSource}}"
+            ItemsSource="{Binding Source= {StaticResource GroupedItemsViewSource}}" 
             SelectionMode="None"
-            IsSwipeEnabled="false">
+            IsSwipeEnabled="false"
+            IsItemClickEnabled="True"
+            ItemClick="Item_Clicked">
             <GridView.ItemTemplate>
                 <DataTemplate>
                     <Grid HorizontalAlignment="Left" Width="250" Height="250">
                         <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
-                            <Image Source="{Binding ImagePath}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
+                            <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
-                            <TextBlock Text="{Binding Title}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="60" Margin="15,0,15,0"/>
-                            <TextBlock Text="{Binding Subtitle}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Margin="15,0,15,10"/>
+                            <TextBlock Text="{Binding Name}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="30" Margin="15,0,15,0"/>
+                            <TextBlock Text="{Binding Deck}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" Height="60" TextWrapping="WrapWholeWords" Margin="15,0,15,10"/>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
@@ -69,7 +71,7 @@
                 </ItemsPanelTemplate>
             </GridView.ItemsPanel>
             <GridView.GroupStyle>
-                <GroupStyle>
+                <GroupStyle HidesIfEmpty="True">
                     <GroupStyle.HeaderTemplate>
                         <DataTemplate>
                             <Grid Margin="0,0,0,2">
@@ -77,7 +79,7 @@
                                     AutomationProperties.Name="Group Title"
                                     Style="{StaticResource TextBlockButtonStyle}" >
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Title}" Margin="0,-11,10,10" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="NoWrap" />
+                                        <TextBlock Text="{Binding Name}" Margin="0,-11,10,10" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="NoWrap" />
                                         <TextBlock Text="{StaticResource ChevronGlyph}" FontFamily="Segoe UI Symbol" Margin="0,-11,0,10" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="NoWrap" />
                                     </StackPanel>
                                 </Button>

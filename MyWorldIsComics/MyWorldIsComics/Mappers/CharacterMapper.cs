@@ -1,4 +1,6 @@
-﻿using System.Xml.Serialization;
+﻿using System.Diagnostics.Contracts;
+using System.Xml.Serialization;
+using MyWorldIsComics.DataModel.Interfaces;
 
 namespace MyWorldIsComics.Mappers
 {

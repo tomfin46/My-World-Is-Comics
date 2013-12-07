@@ -12,7 +12,14 @@ namespace MyWorldIsComics.Mappers
             {
                 reader.ReadToFollowing("deck");
             }
-            resourceToMap.Deck = reader.ReadElementContentAsString();
+            try
+            {
+                resourceToMap.Deck = reader.ReadElementContentAsString();
+            }
+            catch (InvalidOperationException)
+            {
+                resourceToMap.Deck = string.Empty;
+            }
 
             return resourceToMap;
         }
@@ -88,9 +95,16 @@ namespace MyWorldIsComics.Mappers
 
         public static bool EnsureResultsExist(XmlReader reader)
         {
-            reader.ReadToFollowing("number_of_total_results");
-            int noOfResults = reader.ReadElementContentAsInt();
-            return noOfResults > 0;
+            try
+            {
+                reader.ReadToFollowing("number_of_total_results");
+                int noOfResults = reader.ReadElementContentAsInt();
+                return noOfResults > 0;
+            }
+            catch (XmlException)
+            {
+                return false;
+            }
         }
     }
 }

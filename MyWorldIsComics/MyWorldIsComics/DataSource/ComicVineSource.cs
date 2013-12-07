@@ -31,14 +31,14 @@ namespace MyWorldIsComics.DataSource
 
         public static async Task<string> ExecuteSearchAsync(string query)
         {
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query, new List<string> { "deck", "id", "image", "name" }));
         }
 
         #region Get Suggestion Lists
 
         public static async Task<string> GetSuggestionList(Resources.ResourcesEnum resourceEnum, int offset)
         {
-            return await QueryServiceAsync(comicVineSource.ContructUrl(resourceEnum, offset.ToString(), new List<string>{ "id", "name" }));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(resourceEnum, offset.ToString(), new List<string>{ "id", "name", "publisher" }));
         }
 
         #endregion
@@ -166,7 +166,7 @@ namespace MyWorldIsComics.DataSource
             switch (resourcesEnum)
             {
                 case Resources.ResourcesEnum.Search:
-                    uri += Resources.GetResourceId(resourcesEnum) + query + "&limit=1" + "&";
+                    uri += Resources.GetResourceId(resourcesEnum) + query + "&limit=30&";
                     break;
                 case Resources.ResourcesEnum.Issues:
                     uri += "?";

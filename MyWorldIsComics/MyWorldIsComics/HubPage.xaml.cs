@@ -33,8 +33,8 @@ namespace MyWorldIsComics
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
-        private string[] suggestionsList;
-        Dictionary<string, int> suggestionsDictionary = new Dictionary<string, int>();
+        private List<string> suggestionsList = new List<string>();
+        private Dictionary<int, string> suggestionsDictionary = new Dictionary<int, string>();
 
 
         /// <summary>
@@ -78,8 +78,8 @@ namespace MyWorldIsComics
             var sampleDataGroup = await SampleDataSource.GetGroupAsync("Group-3");
             DefaultViewModel["Section3Items"] = sampleDataGroup;
 
-            this.FetchSuggestions();
-            this.FillSuggestions();
+            //this.FetchSuggestions();
+            //this.FillSuggestions();
         }
 
         private async void FetchSuggestions()
@@ -98,7 +98,6 @@ namespace MyWorldIsComics
                 var dictReturn = MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, i));
                 foreach (KeyValuePair<string, int> keyValuePair in dictReturn)
                 {
-                    suggestionsDictionary.Add(keyValuePair.Key, keyValuePair.Value);
                     sb.Append(keyValuePair.Key + ',');
                 }
             }
@@ -112,7 +111,15 @@ namespace MyWorldIsComics
         {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile sampleFile = await localFolder.GetFileAsync("suggestionFile.txt");
-            suggestionsList = (await FileIO.ReadTextAsync(sampleFile)).Split(',');
+            string[] suggestions = (await FileIO.ReadTextAsync(sampleFile)).Split(',');
+            StringBuilder sb = new StringBuilder();
+            foreach (string suggestion in suggestions)
+            {
+                var name = suggestion.Substring(suggestion.IndexOf(':') + 1);
+                var id = suggestion.Substring(0, suggestion.IndexOf(':'));
+                suggestionsDictionary.Add(int.Parse(id), name);
+                suggestionsList.Add(name);
+            }
         }
 
         private Dictionary<string, int> MapSuggestionCharacters(string suggestionListString)
@@ -175,14 +182,14 @@ namespace MyWorldIsComics
 
         private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)
         {
-            string queryText = args.QueryText;
+            /*string queryText = args.QueryText;
             if (string.IsNullOrEmpty(queryText)) return;
             Windows.ApplicationModel.Search.SearchSuggestionCollection suggestionCollection = args.Request.SearchSuggestionCollection;
 
             foreach (string suggestion in suggestionsList.Where(suggestion => suggestion.StartsWith(queryText, StringComparison.CurrentCultureIgnoreCase)))
             {
                 suggestionCollection.AppendQuerySuggestion(suggestion);
-            }
+            }*/
         }
 
         private void SearchBoxEventsQuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
@@ -190,10 +197,9 @@ namespace MyWorldIsComics
             var queryText = args.QueryText;
             if (!string.IsNullOrEmpty(queryText))
             {
-                int id;
                 try
                 {
-                    suggestionsDictionary.TryGetValue(queryText, out id);
+                    Frame.Navigate(typeof (SearchResultsPage), queryText);
                 }
                 catch (ArgumentNullException)
                 {

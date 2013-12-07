@@ -34,6 +34,8 @@ namespace MyWorldIsComics
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
         private string[] suggestionsList;
+        Dictionary<string, int> suggestionsDictionary = new Dictionary<string, int>();
+
 
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
@@ -82,7 +84,6 @@ namespace MyWorldIsComics
 
         private async void FetchSuggestions()
         {
-            Dictionary<int, string> characters = new Dictionary<int, string>();
             StringBuilder sb = new StringBuilder();
             int totalResults;
             var suggestionsString = await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, 0);
@@ -95,10 +96,10 @@ namespace MyWorldIsComics
             for (int i = 0; i < totalResults+100; i+=100)
             {
                 var dictReturn = MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, i));
-                foreach (KeyValuePair<int, string> keyValuePair in dictReturn)
+                foreach (KeyValuePair<string, int> keyValuePair in dictReturn)
                 {
-                    characters.Add(keyValuePair.Key, keyValuePair.Value);
-                    sb.Append(keyValuePair.Key + ":" + keyValuePair.Value + ",");
+                    suggestionsDictionary.Add(keyValuePair.Key, keyValuePair.Value);
+                    sb.Append(keyValuePair.Key + ',');
                 }
             }
 
@@ -114,7 +115,7 @@ namespace MyWorldIsComics
             suggestionsList = (await FileIO.ReadTextAsync(sampleFile)).Split(',');
         }
 
-        private IDictionary<int, string> MapSuggestionCharacters(string suggestionListString)
+        private Dictionary<string, int> MapSuggestionCharacters(string suggestionListString)
         {
             return new CharacterMapper().GetSuggestionsList(suggestionListString);
         }
@@ -189,7 +190,15 @@ namespace MyWorldIsComics
             var queryText = args.QueryText;
             if (!string.IsNullOrEmpty(queryText))
             {
-                Frame.Navigate(typeof(SearchResultsPage), queryText);
+                int id;
+                try
+                {
+                    suggestionsDictionary.TryGetValue(queryText, out id);
+                }
+                catch (ArgumentNullException)
+                {
+                    Frame.Navigate(typeof(SearchResultsPage), queryText);
+                }
             }
         }
     }

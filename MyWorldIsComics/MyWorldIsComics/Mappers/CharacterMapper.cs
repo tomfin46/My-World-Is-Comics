@@ -86,13 +86,13 @@ namespace MyWorldIsComics.Mappers
             return _characterToMap;
         }
 
-        public Dictionary<int, string> GetSuggestionsList(string suggestionsString)
+        public Dictionary<string, int> GetSuggestionsList(string suggestionsString)
         {
-            Dictionary<int, string> namesDictionary = new Dictionary<int, string>();
+            Dictionary<string, int> namesDictionary = new Dictionary<string, int>();
 
             using (XmlReader reader = XmlReader.Create(new StringReader(suggestionsString)))
             {
-                if (!GenericResourceMapper.EnsureResultsExist(reader)) return new Dictionary<int, string>();
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return new Dictionary<string, int>();
                 reader.ReadToFollowing("results");
 
                 if (reader.Name != "character") { reader.ReadToFollowing("character"); }
@@ -104,7 +104,7 @@ namespace MyWorldIsComics.Mappers
                         var id = reader.ReadElementContentAsInt();
                         reader.ReadToFollowing("name");
                         var name = reader.ReadElementContentAsString();
-                        namesDictionary.Add(id, name);
+                        namesDictionary.Add(name, id);
                     }
                     else if (reader.Name == "results" && reader.NodeType == XmlNodeType.EndElement)
                     {

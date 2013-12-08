@@ -36,20 +36,24 @@ namespace MyWorldIsComics.Helpers
         public static async void FetchSuggestions()
         {
             List<string> names = new List<string>();
-            int totalPages;
-            var suggestionsString = await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, 0);
+            int totalResults;
+            var suggestionsString = await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Teams, 0);
             using (XmlReader reader = XmlReader.Create(new StringReader(suggestionsString)))
             {
-                reader.ReadToFollowing("number_of_page_results");
-                totalPages = reader.ReadElementContentAsInt();
+                reader.ReadToFollowing("number_of_total_results");
+                totalResults = reader.ReadElementContentAsInt();
             }
 
-            names.AddRange(MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, 0)));
+            var pages = totalResults/100;
 
-            //for (int i = 0; i < totalPages; i++)
-            //{
-            //    names.AddRange(MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Characters, i * 100)));
-            //}
+            for (int i = 0; i < pages+1; i++)
+            {
+                IEnumerable<string> results = MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Teams, i * 100));
+                foreach (string result in results.Where(result => !names.Contains(result)))
+                {
+                    names.Add(result);
+                }
+            }
 
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile suggestionFile = await localFolder.CreateFileAsync("suggestionFile.txt", CreationCollisionOption.ReplaceExisting);
@@ -58,15 +62,46 @@ namespace MyWorldIsComics.Helpers
 
         private async void FillSuggestions()
         {
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-            StorageFile suggestionFile = await localFolder.GetFileAsync("suggestionFile.txt");
-            _suggestionsList = new List<string>((await FileIO.ReadTextAsync(suggestionFile)).Split(','));
+            var uri = new Uri("ms-appx:///Assets/suggestionFile.txt");
+            StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(uri);
+
+            List<string> results = new List<string>((await FileIO.ReadTextAsync(file)).Split(','));
+            _suggestionsList = new List<string>((await FileIO.ReadTextAsync(file)).Split(','));
 
         }
 
         private static IEnumerable<string> MapSuggestionCharacters(string suggestionListString)
         {
-            return new CharacterMapper().GetSuggestionsList(suggestionListString);
+            return GetSuggestionsList(suggestionListString);
+        }
+
+        private static List<string> GetSuggestionsList(string suggestionsString)
+        {
+            List<string> names = new List<string>();
+
+            using (XmlReader reader = XmlReader.Create(new StringReader(suggestionsString)))
+            {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return new List<string>();
+                reader.ReadToFollowing("results");
+
+                if (reader.Name != "team") { reader.ReadToFollowing("team"); }
+                do
+                {
+                    if (reader.Name == "team" && reader.NodeType != XmlNodeType.EndElement)
+                    {
+
+                        reader.ReadToFollowing("name");
+                        var name = reader.ReadElementContentAsString();
+                        names.Add(name);
+                    }
+                    else if (reader.Name == "results" && reader.NodeType == XmlNodeType.EndElement)
+                    {
+                        return names;
+                    }
+                }
+                while (reader.Read());
+            }
+            return names;
         }
     }
 }

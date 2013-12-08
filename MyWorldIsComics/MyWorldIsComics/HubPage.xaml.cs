@@ -78,7 +78,7 @@ namespace MyWorldIsComics
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
             var sampleDataGroup = await SampleDataSource.GetGroupAsync("Group-3");
             DefaultViewModel["Section3Items"] = sampleDataGroup;
-            SearchTools.FetchSuggestions();
+            //SearchTools.FetchSuggestions();
         }
 
         /// <summary>

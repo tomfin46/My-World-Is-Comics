@@ -172,6 +172,7 @@ namespace MyWorldIsComics.DataSource
                     uri += "?";
                     break;
                 case Resources.ResourcesEnum.Characters:
+                case Resources.ResourcesEnum.Teams:
                     uri += "?offset=" + query + "&";
                     break;
                 default:

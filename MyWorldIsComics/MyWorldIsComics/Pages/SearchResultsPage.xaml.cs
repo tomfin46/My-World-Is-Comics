@@ -81,23 +81,27 @@ namespace MyWorldIsComics.Pages
 
         private async void FetchResults(string query)
         {
-            SearchResultsMapper searchResultsMapper = new SearchResultsMapper();
-            searchResultsMapper.MapSearchResults(await ComicVineSource.ExecuteSearchAsync(query));
-            Dictionary<string, bool> isEmptyDictionary = searchResultsMapper.Results.ToDictionary(results => results.Name, results => results.ResultsList.Count == 0);
+            try
+            {
+                SearchResultsMapper searchResultsMapper = new SearchResultsMapper();
+                searchResultsMapper.MapSearchResults(await ComicVineSource.ExecuteSearchAsync(query));
+                Dictionary<string, bool> isEmptyDictionary = searchResultsMapper.Results.ToDictionary(results => results.Name, results => results.ResultsList.Count == 0);
 
-            bool isEmpty = true;
-            foreach (KeyValuePair<string, bool> keyValuePair in isEmptyDictionary.Where(keyValuePair => keyValuePair.Value == false))
-            {
-                isEmpty = false;
-            }
+                bool isEmpty = true;
+                foreach (KeyValuePair<string, bool> keyValuePair in isEmptyDictionary.Where(keyValuePair => keyValuePair.Value == false)) { isEmpty = false; }
 
-            if (!isEmpty)
-            {
-                DefaultViewModel["SearchResults"] = searchResultsMapper.Results;
+                if (!isEmpty)
+                {
+                    DefaultViewModel["SearchResults"] = searchResultsMapper.Results;
+                }
+                else
+                {
+                    DefaultViewModel["SearchResults"] = new ObservableCollection<Results> { new Results { Name = "No results", ResultsList = new ObservableCollection<IResource> { new ObjectResource { Name = "Please search again." } } } };
+                }
             }
-            else
+            catch (TaskCanceledException)
             {
-                DefaultViewModel["SearchResults"] = new ObservableCollection<Results> { new Results {Name = "No results", ResultsList = new ObservableCollection<IResource> {new ObjectResource {Name = "Please search again."}}}};
+                ComicVineSource.ReinstateCts();
             }
         }
 

@@ -95,7 +95,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     id = (int)e.NavigationParameter;
                 }
 
-                issue = this.GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(id));
+                BasicIssue = this.GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(id));
             }
 
             if (BasicIssue != null)
@@ -148,9 +148,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
             FlipView issuesFlipView = new FlipView();
             if (issuesFlipView.Items != null)
             {
-                issuesFlipView.Items.Add(_previousIssue);
+                if(_previousIssue.Name != ServiceConstants.QueryNotFound) issuesFlipView.Items.Add(_previousIssue);
                 issuesFlipView.Items.Add(_basicIssueForPage);
-                issuesFlipView.Items.Add(_nextIssue);
+                if (_nextIssue.Name != ServiceConstants.QueryNotFound) issuesFlipView.Items.Add(_nextIssue);
             }
 
             issuesFlipView.ItemTemplate = Resources["IssueTemplate"] as DataTemplate;
@@ -472,7 +472,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async void IssueImagesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ; FlipView flipView = sender as FlipView;
+            FlipView flipView = sender as FlipView;
             if (flipView != null)
             {
                 Issue selectedIssue = flipView.SelectedItem as Issue;

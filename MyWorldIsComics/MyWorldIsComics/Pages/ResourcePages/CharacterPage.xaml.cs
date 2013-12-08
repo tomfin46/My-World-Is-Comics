@@ -123,7 +123,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
                 if (_character.Teams.Count == 0) { await FetchFirstTeam(); }
                 HideOrShowSections();
-                await FetchRemainingTeams();
+                if (_character.TeamIds.Count > 1) await FetchRemainingTeams();
             }
             catch (TaskCanceledException)
             {

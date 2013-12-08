@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MyWorldIsComics.DataModel.Enums;
+using MyWorldIsComics.DataSource;
 
 namespace MyWorldIsComics.Mappers
 {
@@ -24,8 +25,9 @@ namespace MyWorldIsComics.Mappers
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
-                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _issueToMap;
-                if (reader.Name == "response") reader.ReadToFollowing("results");
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return new Issue { Name = ServiceConstants.QueryNotFound };
+                
+                if (reader.Name != "results") reader.ReadToFollowing("results");
 
                 ParseCoverDate(reader);
                 _issueToMap = GenericResourceMapper.ParseDescriptionString(reader, _issueToMap) as Issue;

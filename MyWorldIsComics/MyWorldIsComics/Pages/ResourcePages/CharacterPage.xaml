@@ -41,20 +41,19 @@
         <Hub x:Name="Hub" SectionHeaderClick="HubSection_HeaderClick" HorizontalContentAlignment="Stretch">
             <Hub.Header>
                 <!-- Back button and page title -->
-                <Border x:Name="HeaderBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25" Grid.Column="1">
+                <Border x:Name="HeaderBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="200"/>
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="BackButton" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
+                        <Button x:Name="BackButton" Margin="-1,-1,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
                             Style="{StaticResource NavigationBackButtonNormalStyle}"
-                            VerticalAlignment="Stretch"
+                            VerticalAlignment="Top"
                             AutomationProperties.Name="Back"
                             AutomationProperties.AutomationId="BackButton"
-                            AutomationProperties.ItemType="Navigation Button"
-                            HorizontalAlignment="Stretch"/>
+                            AutomationProperties.ItemType="Navigation Button"/>
 
                         <TextBlock Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" IsHitTestVisible="false"
                                    TextWrapping="NoWrap" VerticalAlignment="Top"/>

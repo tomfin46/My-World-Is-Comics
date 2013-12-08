@@ -145,6 +145,7 @@ namespace MyWorldIsComics.Pages
             }
             else if (e.ClickedItem as Issue != null)
             {
+                IssuePage.BasicIssue = new Issue {UniqueId = id};
                 Frame.Navigate(typeof(IssuePage), id);
             }
             else if (e.ClickedItem as Location != null)

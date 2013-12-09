@@ -287,6 +287,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void HideOrShowFilteredSections()
         {
+            BioHubSection.Visibility = _team.Deck != String.Empty ? Visibility.Visible : Visibility.Collapsed;
             FirstAppearanceSection.Visibility = _team.FirstAppearanceIssue.UniqueId != 0 ? Visibility.Visible : Visibility.Collapsed;
             IssuesDispandedInSection.Visibility = _team.IssuesDispandedIn.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 

@@ -92,7 +92,7 @@
                 </HubSection.Background>
             </HubSection>
 
-            <HubSection Width="500" Header="Bio">
+            <HubSection x:Name="BioHubSection" Width="500" Header="Bio" Visibility="Collapsed">
                 <DataTemplate>
                     <StackPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
@@ -110,13 +110,13 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="270"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
                                     <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
                                     <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
                                         <GridViewItem Margin="-10,-20,-10,-10" Tapped="VolumeName_Tapped" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                            <TextBlock Text="{Binding FirstAppearanceIssue.VolumeName}" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="WrapWholeWords"/>
+                                            <TextBlock Text="{Binding FirstAppearanceIssue.VolumeName}" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="Wrap"/>
                                         </GridViewItem>
                                         <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,0,0,20" TextWrapping="Wrap" FontWeight="Bold">
                                             <Run Text="Issue"/>

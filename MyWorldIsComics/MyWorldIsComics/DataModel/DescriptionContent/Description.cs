@@ -15,5 +15,8 @@
         public Section PowersAndAbilities { get; set; }
         public Section OtherMedia { get; set; }
         public Section WeaponsAndEquipment { get; set; }
+        public Section Overview { get; set; }
+        public Section BriefHistory { get; set; }
+        public Section EmptyHeader { get; set; }
     }
 }

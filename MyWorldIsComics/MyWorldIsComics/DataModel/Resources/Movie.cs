@@ -34,6 +34,8 @@
             }
         }
 
+        public string PublisherName { get; set; }
+
         #endregion
 
         public override string ToString()

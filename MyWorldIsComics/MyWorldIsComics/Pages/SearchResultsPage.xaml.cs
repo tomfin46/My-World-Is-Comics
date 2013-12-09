@@ -87,6 +87,7 @@ namespace MyWorldIsComics.Pages
             {
                 SearchResultsMapper searchResultsMapper = new SearchResultsMapper();
                 searchResultsMapper.MapSearchResults(await ComicVineSource.ExecuteSearchAsync(query));
+                pageTitle.Text = "Results";
                 Dictionary<string, bool> isEmptyDictionary = searchResultsMapper.Results.ToDictionary(results => results.Name, results => results.ResultsList.Count == 0);
 
                 bool isEmpty = true;
@@ -152,7 +153,7 @@ namespace MyWorldIsComics.Pages
             }
             else if (e.ClickedItem as Location != null)
             {
-                //Frame.Navigate(typeof(LocationPage), id);
+                Frame.Navigate(typeof(LocationPage), id);
             }
             else if (e.ClickedItem as Movie != null)
             {

@@ -15,6 +15,8 @@ namespace MyWorldIsComics.Mappers
     using DataModel;
     using DataModel.Enums;
 
+    using MyWorldIsComics.DataSource;
+
     #endregion
 
     class CharacterMapper
@@ -70,7 +72,7 @@ namespace MyWorldIsComics.Mappers
         {
             using (XmlReader reader = XmlReader.Create(new StringReader(characterSearchString)))
             {
-                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _characterToMap;
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return new Character { Name = ServiceConstants.QueryNotFound };
 
                 reader.ReadToFollowing("results");
                 ParseAliases(reader);
@@ -123,12 +125,6 @@ namespace MyWorldIsComics.Mappers
             if (reader.Name != "aliases") { reader.ReadToFollowing("aliases"); }
             var aliases = reader.ReadElementContentAsString().Split('\n');
             _characterToMap.Aliases.AddRange(aliases);
-        }
-
-        private void ParseComicVineApiUrl(XmlReader reader)
-        {
-            if (reader.Name != "api_detail_url") { reader.ReadToFollowing("api_detail_url"); }
-            _characterToMap.ComicVineApiUrl = new Uri(reader.ReadElementContentAsString());
         }
 
         private void ParseBirth(XmlReader reader)
@@ -186,7 +182,6 @@ namespace MyWorldIsComics.Mappers
         private void ParseAppearanceCount(XmlReader reader)
         {
             if (reader.Name != "count_of_issue_appearances") { reader.ReadToFollowing("count_of_issue_appearances"); }
-
             _characterToMap.IssueAppearancesCount = reader.ReadElementContentAsInt();
         }
 
@@ -207,18 +202,6 @@ namespace MyWorldIsComics.Mappers
             }
         }
 
-        private void ParseDeck(XmlReader reader)
-        {
-            if (reader.Name != "deck") { reader.ReadToFollowing("deck"); }
-            _characterToMap.Deck = reader.ReadElementContentAsString();
-        }
-
-        private void ParseDescriptionString(XmlReader reader)
-        {
-            if (reader.Name != "description") { reader.ReadToFollowing("description"); }
-            _characterToMap.DescriptionString = reader.ReadElementContentAsString();
-        }
-
         private void ParseFirstAppearance(XmlReader reader)
         {
             if (reader.Name != "first_appeared_in_issue") { reader.ReadToFollowing("first_appeared_in_issue"); }
@@ -230,21 +213,6 @@ namespace MyWorldIsComics.Mappers
         {
             if (reader.Name != "gender") { reader.ReadToFollowing("gender"); }
             _characterToMap.Gender = Gender.GetGender(reader.ReadElementContentAsInt());
-        }
-
-        private void ParseId(XmlReader reader)
-        {
-            if (reader.Name != "id") { reader.ReadToFollowing("id"); }
-            _characterToMap.UniqueId = reader.ReadElementContentAsInt();
-        }
-
-        private void ParseImage(XmlReader reader)
-        {
-            if (reader.Name != "image") { reader.ReadToFollowing("image"); }
-            if (reader.IsEmptyElement) return;
-
-            reader.ReadToFollowing("super_url");
-            _characterToMap.MainImage = new Uri(reader.ReadElementContentAsString());
         }
 
         private void ParseIssuesDiedIn(XmlReader reader)
@@ -283,13 +251,7 @@ namespace MyWorldIsComics.Mappers
             }
         }
 
-        private void ParseName(XmlReader reader)
-        {
-            if (reader.Name != "name") { reader.ReadToFollowing("name"); }
-            _characterToMap.Name = reader.ReadElementContentAsString();
-        }
-
-        private void ParseOrigin(XmlReader reader)
+       private void ParseOrigin(XmlReader reader)
         {
             if (reader.Name != "origin") { reader.ReadToFollowing("origin"); }
             reader.ReadToFollowing("name");
@@ -320,12 +282,6 @@ namespace MyWorldIsComics.Mappers
         {
             if (reader.Name != "real_name") { reader.ReadToFollowing("real_name"); }
             _characterToMap.RealName = reader.ReadElementContentAsString();
-        }
-
-        private void ParseComicVineSiteUrl(XmlReader reader)
-        {
-            if (reader.Name != "site_detail_url") { reader.ReadToFollowing("site_detail_url"); }
-            _characterToMap.ComicVineSiteUrl = new Uri(reader.ReadElementContentAsString());
         }
 
         private void ParseTeamsMemberOf(XmlReader reader)

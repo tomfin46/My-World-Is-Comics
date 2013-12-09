@@ -8,6 +8,8 @@ using MyWorldIsComics.DataModel.Interfaces;
 
 namespace MyWorldIsComics.DataModel.Resources
 {
+    using System.Collections.ObjectModel;
+
     public class Location : IResource
     {
         public int UniqueId { get; set; }
@@ -33,6 +35,35 @@ namespace MyWorldIsComics.DataModel.Resources
 
                 return uri;
             }
+        }
+
+        public string PublisherName { get; set; }
+
+        public int IssueAppearancesCount { get; set; }
+        public List<String> Aliases { get; set; }
+        public string AliasesString
+        {
+            get
+            {
+                return Aliases.Count == 1 && Aliases.First() == String.Empty ? "None" : string.Join(", ", Aliases);
+            }
+        }
+        public int FirstAppearanceId { get; set; }
+        public Issue FirstAppearanceIssue { get; set; }
+
+        #region Collections
+
+        public List<int> VolumeIds { get; set; }
+        public ObservableCollection<Volume> Volumes { get; set; }
+        
+        #endregion
+
+
+        public Location()
+        {
+            Aliases = new List<string>();
+            VolumeIds = new List<int>();
+            Volumes = new ObservableCollection<Volume>();
         }
 
         public override string ToString()

@@ -66,6 +66,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
+            this.navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -104,6 +105,14 @@ namespace MyWorldIsComics.Pages.ResourcePages
             }
         }
 
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
+
+            // Save response content so don't have to fetch from api service again
+            SavedData.Volume = _volume;
+        }
+
         #region Load Volume
         private async Task LoadVolume(int id)
         {
@@ -134,8 +143,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             await FormatDescriptionForPage();
             this.CreateRichTextBlock();
-            if(this.volumeDescription.Blocks.Count > 0) this.VolumeStackPanel.Children.Add(this.volumeDescription);
+            if (this.volumeDescription.Blocks.Count > 0) this.VolumeStackPanel.Children.Add(this.volumeDescription);
         } 
+
         #endregion
 
         private async Task<Volume> GetVolume(int id)
@@ -198,29 +208,32 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void CreateSection(Section sectionToCreate)
         {
-            if (sectionToCreate == null) return;
+            if (sectionToCreate.ContentQueue.Count == 0 && sectionToCreate.Title == null) return;
 
-            Paragraph header = DefaultParagraph();
-            Run headerRun = new Run { Text = sectionToCreate.Title };
-
-            switch (sectionToCreate.Type)
+            if (sectionToCreate.Title != null)
             {
-                case "h3":
-                    Bold h3Bold = new Bold();
-                    h3Bold.Inlines.Add(headerRun);
-                    header.Inlines.Add(h3Bold);
-                    break;
-                case "h4":
-                    Underline h4Underline = new Underline();
-                    h4Underline.Inlines.Add(headerRun);
-                    header.Inlines.Add(h4Underline);
-                    break;
-                default:
-                    header.Inlines.Add(headerRun);
-                    break;
-            }
+                Paragraph header = DefaultParagraph();
+                Run headerRun = new Run { Text = sectionToCreate.Title };
 
-            this.volumeDescription.Blocks.Add(header);
+                switch (sectionToCreate.Type)
+                {
+                    case "h3":
+                        Bold h3Bold = new Bold();
+                        h3Bold.Inlines.Add(headerRun);
+                        header.Inlines.Add(h3Bold);
+                        break;
+                    case "h4":
+                        Underline h4Underline = new Underline();
+                        h4Underline.Inlines.Add(headerRun);
+                        header.Inlines.Add(h4Underline);
+                        break;
+                    default:
+                        header.Inlines.Add(headerRun);
+                        break;
+                }
+
+                this.volumeDescription.Blocks.Add(header); 
+            }
 
             while (sectionToCreate.ContentQueue.Count > 0)
             {

@@ -7,7 +7,7 @@ using MyWorldIsComics.DataModel.Interfaces;
 
 namespace MyWorldIsComics.DataModel.Resources
 {
-    class Volume : IResource
+    public class Volume : IResource
     {
 
         #region IResource Fields

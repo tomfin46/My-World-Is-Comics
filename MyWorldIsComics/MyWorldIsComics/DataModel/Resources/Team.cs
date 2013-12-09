@@ -37,6 +37,8 @@
             }
         }
 
+        public string PublisherName { get; set; }
+
         #endregion
 
         #region Team Specific Fields

@@ -25,6 +25,7 @@ namespace MyWorldIsComics.Mappers
 
         public Description MapDescription(string htmlString)
         {
+            if(htmlString == null) return new Description();
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(htmlString);
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
@@ -38,6 +39,12 @@ namespace MyWorldIsComics.Mappers
                     case "Origin":
                     case "Origins":
                         this.descriptionToMap.Origin = ProcessSection(link);
+                        break;
+                    case "Overview":
+                        this.descriptionToMap.Overview = ProcessSection(link);
+                        break;
+                    case "Brief History":
+                        this.descriptionToMap.BriefHistory = ProcessSection(link);
                         break;
                     case "Creation":
                         this.descriptionToMap.Creation = ProcessSection(link);
@@ -75,6 +82,11 @@ namespace MyWorldIsComics.Mappers
                         break;
                 }
             }
+
+            if (collection.Count > 0 && collection.First().Name == "p")
+            {
+                this.descriptionToMap.EmptyHeader = this.ProcessSection(collection.First());
+            }
             return this.descriptionToMap;
         }
 
@@ -83,29 +95,43 @@ namespace MyWorldIsComics.Mappers
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(issue.DescriptionString);
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
-            Section section = new Section();
 
-            foreach (HtmlNode link in collection)
-            {
-                switch (link.Name)
-                {
-                    case "p":
-                        section = this.ProcessSection(link);
-                        break;
-                }
-            }
-
-            return section;
+            HtmlNode link = collection.First();
+            return ProcessSection(link);
         }
 
         public Section MapDescription(Volume volume)
         {
             HtmlDocument document = new HtmlDocument();
+            Section sectionToMap = new Section();
             document.LoadHtml(volume.DescriptionString);
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
+            if (collection.Count == 1)
+            {
+                sectionToMap = this.ProcessSection(collection.First());
+            }
+            else
+            {
+                foreach (HtmlNode link in collection)
+                {
+                    switch (link.Name)
+                    {
+                        case "p":
+                            if (link.FirstChild.Name == "b")
+                            {
+                                sectionToMap.Title = link.InnerText;
+                                sectionToMap.Type = "h4";
+                            }
+                            else
+                            {
+                                sectionToMap.ContentQueue.Enqueue(ProcessSection(link));
+                            }
+                            break;
+                    }
+                }
+            }
 
-            HtmlNode link = collection.First();
-            return ProcessSection(link);
+            return sectionToMap;
         }
 
         private Section ProcessSection(HtmlNode link)

@@ -46,6 +46,8 @@ namespace MyWorldIsComics.DataModel.Resources
             }
         }
 
+        public string PublisherName { get; set; }
+
         #endregion
 
         #region Issue Specific Fields

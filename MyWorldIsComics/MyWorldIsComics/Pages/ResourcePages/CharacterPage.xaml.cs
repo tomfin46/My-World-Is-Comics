@@ -113,17 +113,27 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 else { _character = await GetCharacter(id); }
 
                 CharacterPageViewModel["Character"] = _character;
-                ImageHubSection.Visibility = Visibility.Collapsed;
-                BioHubSection.Visibility = Visibility.Visible;
 
-                await LoadDescription();
+                if (_character.Name != ServiceConstants.QueryNotFound)
+                {
+                    ImageHubSection.Visibility = Visibility.Collapsed;
+                    BioHubSection.Visibility = Visibility.Visible;
 
-                if (_character.FirstAppearanceIssue == null) { await FetchFirstAppearance(); }
-                HideOrShowSections();
+                    await LoadDescription();
 
-                if (_character.Teams.Count == 0) { await FetchFirstTeam(); }
-                HideOrShowSections();
-                if (_character.TeamIds.Count > 1) await FetchRemainingTeams();
+                    if (_character.FirstAppearanceIssue == null)
+                    {
+                        await FetchFirstAppearance();
+                    }
+                    HideOrShowSections();
+
+                    if (_character.Teams.Count == 0)
+                    {
+                        await FetchFirstTeam();
+                    }
+                    HideOrShowSections();
+                    if (_character.TeamIds.Count > 1) await FetchRemainingTeams();
+                }
             }
             catch (TaskCanceledException)
             {
@@ -190,11 +200,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private Character MapCharacter(string characterString)
         {
-            if (characterString == ServiceConstants.QueryNotFound)
-            {
-                return new Character { Name = ServiceConstants.QueryNotFound };
-            }
-            return new CharacterMapper().MapCharacterXmlObject(characterString);
+            return characterString == ServiceConstants.QueryNotFound ? new Character { Name = ServiceConstants.QueryNotFound } : new CharacterMapper().MapCharacterXmlObject(characterString);
         }
 
         private Team MapQuickTeam(string quickTeam)
@@ -223,6 +229,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
             if (_characterDescription.Origin == null || _characterDescription.Origin.ContentQueue.Count == 0) HideHubSection("Origin");
             else CreateDataTemplate(_characterDescription.Origin);
+
+            if (_characterDescription.BriefHistory == null || _characterDescription.BriefHistory.ContentQueue.Count == 0) HideHubSection("Brief History");
+            else CreateDataTemplate(_characterDescription.BriefHistory);
 
             if (_characterDescription.Creation == null || _characterDescription.Creation.ContentQueue.Count == 0) HideHubSection("Creation");
             else CreateDataTemplate(_characterDescription.Creation);
@@ -400,6 +409,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 case "Origins":
                     OriginHubSection.Visibility = Visibility.Collapsed;
                     break;
+                case "Brief History":
+                    BriefHistoryHubSection.Visibility = Visibility.Collapsed;
+                    break;
                 case "Creation":
                     CreationHubSection.Visibility = Visibility.Collapsed;
                     break;
@@ -449,6 +461,10 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 case "Origins":
                     OriginHubSection.ContentTemplate = sectionTemplate;
                     OriginHubSection.Visibility = Visibility.Visible;
+                    break;
+                case "Brief History":
+                    BriefHistoryHubSection.ContentTemplate = sectionTemplate;
+                    BriefHistoryHubSection.Visibility = Visibility.Visible;
                     break;
                 case "Creation":
                     CreationHubSection.ContentTemplate = sectionTemplate;

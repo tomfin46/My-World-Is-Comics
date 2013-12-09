@@ -18,6 +18,7 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
         public Figure()
         {
             ContentQueue = new Queue<IDescriptionContent>();
+            Links = new List<Link>();
         }
     }
 }

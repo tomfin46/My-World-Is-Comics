@@ -6,5 +6,6 @@
         public const string ComicVineBaseUrl = "http://www.comicvine.com/api/";
         public const string ComicVineFormat = "format=xml";
         public const string QueryNotFound = "Query Not Found";
+        public const string ObjectNotFound = "Object Not Found";
     }
 }

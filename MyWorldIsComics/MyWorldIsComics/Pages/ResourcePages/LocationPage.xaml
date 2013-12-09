@@ -1,7 +1,7 @@
 ﻿<Page
     x:Name="pageRoot"
-    x:Class="MyWorldIsComics.Pages.ResourcePages.CharacterPage"
-    DataContext="{Binding CharacterPageViewModel, RelativeSource={RelativeSource Self}}"
+    x:Class="MyWorldIsComics.Pages.ResourcePages.LocationPage"
+    DataContext="{Binding LocationPageViewModel, RelativeSource={RelativeSource Self}}"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MyWorldIsComics.Pages.ResourcePages"
@@ -11,34 +11,33 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <DataTemplate x:Key="Standard310x260ItemTemplate">
-            <Grid Height="250" Width="310" Margin="5">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="150">
-                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+        <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
+
+        <DataTemplate x:Key="IssueCoverDataTemplate">
+            <Grid Width="200" Height="300" Margin="10">
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                    <Image Source="{Binding MainImage}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
                 </Border>
-                <StackPanel Grid.Row="1" Margin="0,10,0,0">
-                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
-                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                        <TextBlock Text="{Binding Deck}" Style="{StaticResource BodyTextBlockStyle}"/>
-                    </ScrollViewer>
+                <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,0"/>
+                    <TextBlock Text="{Binding StartYear}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,10"/>
                 </StackPanel>
             </Grid>
         </DataTemplate>
+
     </Page.Resources>
 
-    <!--This grid acts as a root panel for the page.-->
-    <Grid DataContext="{Binding Character}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <!--
+        This grid acts as a root panel for the page.
+    -->
+    <Grid DataContext="{Binding Location}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition/>
             </TransitionCollection>
         </Grid.ChildrenTransitions>
 
-        <Hub x:Name="Hub" SectionHeaderClick="HubSection_HeaderClick" HorizontalContentAlignment="Stretch">
+        <Hub SectionHeaderClick="HubSection_HeaderClick" HorizontalContentAlignment="Stretch">
             <Hub.Header>
                 <!-- Back button and page title -->
                 <Border x:Name="HeaderBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25">
@@ -62,15 +61,15 @@
                 </Border>
             </Hub.Header>
 
-            <HubSection x:Name="ImageHubSection" Width="620" Margin="0,0,20,0" Visibility="Visible" Tapped="BioHubSection_Tapped">
+            <HubSection x:Name="ImageHubSection" Width="780" Margin="0,0,20,0" Visibility="Visible" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" />
                 </HubSection.Background>
             </HubSection>
 
-            <HubSection x:Name="BioHubSection" Width="620" Margin="0,0,20,0" Visibility="Collapsed" Tapped="BioHubSection_Tapped">
+            <HubSection x:Name="BioHubSection" Width="780" Margin="0,0,20,0" Visibility="Collapsed" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" />
                 </HubSection.Background>
 
                 <DataTemplate x:Name="BioHubTemplate">
@@ -78,18 +77,8 @@
                         <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
                         <StackPanel x:Name="BioStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
-                                <Run Text="Real Name: " />
-                                <Run Text="{Binding RealNameString}" FontWeight="Normal"/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Aliases: " />
                                 <Run Text="{Binding AliasesString}" FontWeight="Normal"/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
-                                <Run Text="Date of Birth: " />
-                                <Run Text="{Binding BirthString}" FontWeight="Normal"/>
                             </TextBlock>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,10" TextWrapping="Wrap" FlowDirection="RightToLeft">
@@ -102,40 +91,10 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection Width="520">
-                <DataTemplate>
-                    <Grid>
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Deck}" TextWrapping="Wrap" />
-                        </ScrollViewer>
-                    </Grid>
-                </DataTemplate>
-            </HubSection>
+            <HubSection x:Name="OverviewHubSection" Width="520" Header="Overview" IsHeaderInteractive="True" Visibility="Collapsed"/>
 
-            <HubSection x:Name="CurrentEventsHubSection" Width="520" Header="Current Events" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="OriginHubSection" Width="520" Header="Origin" IsHeaderInteractive="True" Visibility="Collapsed"/>
+            <HubSection x:Name="DescriptionHubSection" Width="650" Header="" IsHeaderInteractive="True" Visibility="Collapsed"/>
             
-            <HubSection x:Name="BriefHistoryHubSection" Width="520" Header="Origin" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="CreationHubSection" Width="520" Header="Creation" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="CharacterEvolutionHubSection" Width="520" Header="Character Evolution" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="DistinguishingCharacteristicsHubSection" Width="520" Header="Distinguishing Characteristics" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="MajorStoryArcsHubSection" Width="520" Header="Major Story Arcs" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="PowersAndAbilitiesHubSection" Width="520" Header="Powers and Abilities" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="WeaponsAndEquipmentHubSection" Width="520" Header="Weapons and Equipment" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="MiscellaneousHubSection" Width="520" Header="Miscellaneous" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="HulksIncarnationsHubSection" Width="520" Header="Hulk's Incarnations" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="AlternateRealitiesHubSection" Width="520" Header="Alternate Realities" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
             <HubSection x:Name="OtherMediaHubSection" Width="520" Header="Other Media" IsHeaderInteractive="True" Visibility="Collapsed"/>
 
             <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed">
@@ -152,7 +111,7 @@
                                     <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
                                     <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
                                         <GridViewItem Margin="-10,-20,-10,-10" Tapped="VolumeName_Tapped" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                            <TextBlock Text="{Binding FirstAppearanceIssue.VolumeName}" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="WrapWholeWords"/>
+                                            <TextBlock Text="{Binding FirstAppearanceIssue.VolumeName}" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="Wrap"/>
                                         </GridViewItem>
                                         <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,0,0,20" TextWrapping="Wrap" FontWeight="Bold">
                                             <Run Text="Issue"/>
@@ -177,23 +136,23 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="TeamSection" Header="Teams" Padding="40,40,40,32" IsHeaderInteractive="True" Visibility="Collapsed">
+            <HubSection x:Name="VolumeSection" Header="Volumes" Padding="40,40,40,32" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView
-                        x:Name="teamGridView"
-                        ItemsSource="{Binding Teams}"
+                        x:Name="volumeGridView"
+                        ItemsSource="{Binding Volumes}"
                         Margin="-9,-14,0,0"
                         AutomationProperties.AutomationId="ItemGridView"
                         AutomationProperties.Name="Items In Group"
-                        ItemTemplate="{StaticResource Standard310x260ItemTemplate}"
+                        ItemTemplate="{StaticResource IssueCoverDataTemplate}"
                         SelectionMode="None"
                         IsSwipeEnabled="false"
                         IsItemClickEnabled="True"
-                        ItemClick="TeamView_TeamClick">
+                        ItemClick="VolumeView_VolumeClick">
                             <GridView.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>
+                                    <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="5"></WrapGrid>
                                 </ItemsPanelTemplate>
                             </GridView.ItemsPanel>
                         </GridView>

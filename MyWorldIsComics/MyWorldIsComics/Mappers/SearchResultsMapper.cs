@@ -115,6 +115,7 @@ namespace MyWorldIsComics.Mappers
             volumeToMap = GenericResourceMapper.ParseId(reader, volumeToMap) as Volume;
             volumeToMap = GenericResourceMapper.ParseImage(reader, volumeToMap) as Volume;
             volumeToMap = GenericResourceMapper.ParseName(reader, volumeToMap) as Volume;
+            volumeToMap = GenericResourceMapper.ParsePublisher(reader, volumeToMap) as Volume;
             VolumeResults.ResultsList.Add(volumeToMap);
         }
 
@@ -125,6 +126,7 @@ namespace MyWorldIsComics.Mappers
             teamToMap = GenericResourceMapper.ParseId(reader, teamToMap) as Team;
             teamToMap = GenericResourceMapper.ParseImage(reader, teamToMap) as Team;
             teamToMap = GenericResourceMapper.ParseName(reader, teamToMap) as Team;
+            teamToMap = GenericResourceMapper.ParsePublisher(reader, teamToMap) as Team;
             TeamResults.ResultsList.Add(teamToMap);
         }
 
@@ -135,6 +137,7 @@ namespace MyWorldIsComics.Mappers
             storyArcToMap = GenericResourceMapper.ParseId(reader, storyArcToMap) as StoryArc;
             storyArcToMap = GenericResourceMapper.ParseImage(reader, storyArcToMap) as StoryArc;
             storyArcToMap = GenericResourceMapper.ParseName(reader, storyArcToMap) as StoryArc;
+            storyArcToMap = GenericResourceMapper.ParsePublisher(reader, storyArcToMap) as StoryArc;
             StoryArcResults.ResultsList.Add(storyArcToMap);
         }
         
@@ -145,6 +148,7 @@ namespace MyWorldIsComics.Mappers
             publisherToMap = GenericResourceMapper.ParseId(reader, publisherToMap) as Publisher;
             publisherToMap = GenericResourceMapper.ParseImage(reader, publisherToMap) as Publisher;
             publisherToMap = GenericResourceMapper.ParseName(reader, publisherToMap) as Publisher;
+            publisherToMap = GenericResourceMapper.ParsePublisher(reader, publisherToMap) as Publisher;
             PublisherResults.ResultsList.Add(publisherToMap);
         }
 
@@ -155,6 +159,7 @@ namespace MyWorldIsComics.Mappers
             creatorToMap = GenericResourceMapper.ParseId(reader, creatorToMap) as Creator;
             creatorToMap = GenericResourceMapper.ParseImage(reader, creatorToMap) as Creator;
             creatorToMap = GenericResourceMapper.ParseName(reader, creatorToMap) as Creator;
+            creatorToMap = GenericResourceMapper.ParsePublisher(reader, creatorToMap) as Creator;
             CreatorResults.ResultsList.Add(creatorToMap);
         }
 
@@ -165,6 +170,7 @@ namespace MyWorldIsComics.Mappers
             objectToMap = GenericResourceMapper.ParseId(reader, objectToMap) as ObjectResource;
             objectToMap = GenericResourceMapper.ParseImage(reader, objectToMap) as ObjectResource;
             objectToMap = GenericResourceMapper.ParseName(reader, objectToMap) as ObjectResource;
+            objectToMap = GenericResourceMapper.ParsePublisher(reader, objectToMap) as ObjectResource;
             ObjectResults.ResultsList.Add(objectToMap);
         }
 
@@ -175,6 +181,7 @@ namespace MyWorldIsComics.Mappers
             movieToMap = GenericResourceMapper.ParseId(reader, movieToMap) as Movie;
             movieToMap = GenericResourceMapper.ParseImage(reader, movieToMap) as Movie;
             movieToMap = GenericResourceMapper.ParseName(reader, movieToMap) as Movie;
+            movieToMap = GenericResourceMapper.ParsePublisher(reader, movieToMap) as Movie;
             MovieResults.ResultsList.Add(movieToMap);
         }
 
@@ -185,6 +192,7 @@ namespace MyWorldIsComics.Mappers
             locationToMap = GenericResourceMapper.ParseId(reader, locationToMap) as Location;
             locationToMap = GenericResourceMapper.ParseImage(reader, locationToMap) as Location;
             locationToMap = GenericResourceMapper.ParseName(reader, locationToMap) as Location;
+            locationToMap = GenericResourceMapper.ParsePublisher(reader, locationToMap) as Location;
             LocationResults.ResultsList.Add(locationToMap);
         }
 
@@ -195,6 +203,7 @@ namespace MyWorldIsComics.Mappers
             issueToMap = GenericResourceMapper.ParseId(reader, issueToMap) as Issue;
             issueToMap = GenericResourceMapper.ParseImage(reader, issueToMap) as Issue;
             issueToMap = GenericResourceMapper.ParseName(reader, issueToMap) as Issue;
+            issueToMap = GenericResourceMapper.ParsePublisher(reader, issueToMap) as Issue;
             IssueResults.ResultsList.Add(issueToMap);
         }
 
@@ -205,6 +214,7 @@ namespace MyWorldIsComics.Mappers
             conceptToMap = GenericResourceMapper.ParseId(reader, conceptToMap) as Concept;
             conceptToMap = GenericResourceMapper.ParseImage(reader, conceptToMap) as Concept;
             conceptToMap = GenericResourceMapper.ParseName(reader, conceptToMap) as Concept;
+            conceptToMap = GenericResourceMapper.ParsePublisher(reader, conceptToMap) as Concept;
             ConceptResults.ResultsList.Add(conceptToMap);
         }
 
@@ -215,6 +225,7 @@ namespace MyWorldIsComics.Mappers
             characterToMap = GenericResourceMapper.ParseId(reader, characterToMap) as Character;
             characterToMap = GenericResourceMapper.ParseImage(reader, characterToMap) as Character;
             characterToMap = GenericResourceMapper.ParseName(reader, characterToMap) as Character;
+            characterToMap = GenericResourceMapper.ParsePublisher(reader, characterToMap) as Character;
             CharacterResults.ResultsList.Add(characterToMap);
         }
     }

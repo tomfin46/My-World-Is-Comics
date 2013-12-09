@@ -40,6 +40,7 @@ namespace MyWorldIsComics.Mappers
                 _volumeToMap = GenericResourceMapper.ParseId(reader, _volumeToMap) as Volume;
                 _volumeToMap = GenericResourceMapper.ParseImage(reader, _volumeToMap) as Volume;
                 _volumeToMap = GenericResourceMapper.ParseName(reader, _volumeToMap) as Volume;
+                this.ParseStartYear(reader);
             }
             return _volumeToMap;
         }

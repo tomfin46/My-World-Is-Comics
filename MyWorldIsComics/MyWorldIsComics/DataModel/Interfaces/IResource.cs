@@ -14,6 +14,8 @@ namespace MyWorldIsComics.DataModel.Interfaces
         string DescriptionString { get; set; }
         Uri MainImage { get; set; }
         Uri AvatarImage { get; }
+        string PublisherName { get; set; }
+
         string ToString();
     }
 }

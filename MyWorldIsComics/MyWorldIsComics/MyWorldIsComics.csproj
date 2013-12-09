@@ -133,6 +133,9 @@
     <Compile Include="Mappers\StoryArcMapper.cs" />
     <Compile Include="Mappers\TeamMapper.cs" />
     <Compile Include="Mappers\VolumeMapper.cs" />
+    <Compile Include="Pages\CollectionPages\VolumesPage.xaml.cs">
+      <DependentUpon>VolumesPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\DescriptionSectionPage.xaml.cs">
       <DependentUpon>DescriptionSectionPage.xaml</DependentUpon>
     </Compile>
@@ -164,6 +167,9 @@
     <Compile Include="Mappers\DescriptionMapper.cs" />
     <Compile Include="Pages\ResourcePages\IssuePage.xaml.cs">
       <DependentUpon>IssuePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ResourcePages\LocationPage.xaml.cs">
+      <DependentUpon>LocationPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\ResourcePages\TeamPage.xaml.cs">
       <DependentUpon>TeamPage.xaml</DependentUpon>
@@ -217,6 +223,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\CollectionPages\VolumesPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\DescriptionSectionPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -234,6 +244,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\ResourcePages\IssuePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ResourcePages\LocationPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

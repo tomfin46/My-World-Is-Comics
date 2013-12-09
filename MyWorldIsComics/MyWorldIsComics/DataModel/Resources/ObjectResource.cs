@@ -34,5 +34,7 @@ namespace MyWorldIsComics.DataModel.Resources
                 return uri;
             }
         }
+
+        public string PublisherName { get; set; }
     }
 }

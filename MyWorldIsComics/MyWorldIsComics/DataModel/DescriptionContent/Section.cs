@@ -7,7 +7,7 @@ using MyWorldIsComics.DataModel.Interfaces;
 
 namespace MyWorldIsComics.DataModel.DescriptionContent
 {
-    class Section : IDescriptionContent
+    public class Section : IDescriptionContent
     {
         public string Title { get; set; }
         public string Text { get; set; }
@@ -19,6 +19,7 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
         public Section()
         {
             ContentQueue = new Queue<IDescriptionContent>();
+            Links = new List<Link>();
         }
 
         public override string ToString()

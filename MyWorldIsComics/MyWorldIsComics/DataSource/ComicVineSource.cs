@@ -31,7 +31,7 @@ namespace MyWorldIsComics.DataSource
 
         public static async Task<string> ExecuteSearchAsync(string query)
         {
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query, new List<string> { "deck", "id", "image", "name" }));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query, new List<string> { "deck", "id", "image", "name", "publisher" }));
         }
 
         #region Get Suggestion Lists
@@ -50,6 +50,13 @@ namespace MyWorldIsComics.DataSource
             List<string> filters = new List<string> { "aliases", "birth", "count_of_issue_appearances", "deck", "description", "first_appeared_in_issue", 
                 "id", "image", "name", "real_name", "teams" };
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, characterId.ToString(), filters));
+        }
+
+        public static async Task<string> GetLocationAsync(int locationId)
+        {
+            List<string> filters = new List<string> { "aliases", "count_of_issue_appearances", "deck", "description", "first_appeared_in_issue", 
+                "id", "image", "name", "volume_credits" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Location, locationId.ToString(), filters));
         }
 
         #endregion
@@ -96,6 +103,12 @@ namespace MyWorldIsComics.DataSource
         {
             List<string> filters = new List<string> { "deck", "id", "image", "name" };
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId.ToString(), filters));
+        }
+
+        public static async Task<string> GetQuickVolumeAsync(int volumeId)
+        {
+            List<string> filters = new List<string> { "description", "id", "image", "name", "start_year" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Volume, volumeId.ToString(), filters));
         }
 
         public static async Task<string> GetQuickIssueAsync(int issueId)
@@ -159,6 +172,11 @@ namespace MyWorldIsComics.DataSource
                 content = await response.Content.ReadAsStringAsync();
             }
             catch (Exception)
+            {
+                content = ServiceConstants.QueryNotFound;
+            }
+
+            if (content.Contains(ServiceConstants.ObjectNotFound))
             {
                 content = ServiceConstants.QueryNotFound;
             }

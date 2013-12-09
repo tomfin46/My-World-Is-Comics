@@ -1,10 +1,10 @@
 ﻿<Page
     x:Name="pageRoot"
-    x:Class="MyWorldIsComics.Pages.ResourcePages.VolumePage"
-    DataContext="{Binding VolumePageViewModel, RelativeSource={RelativeSource Self}}"
+    x:Class="MyWorldIsComics.Pages.CollectionPages.VolumesPage"
+    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:MyWorldIsComics.Pages.ResourcePages"
+    xmlns:local="using:MyWorldIsComics.Pages.CollectionPages"
     xmlns:common="using:MyWorldIsComics.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -14,7 +14,7 @@
         <!-- Collection of items displayed by this page -->
         <CollectionViewSource
             x:Name="itemsViewSource"
-            Source="{Binding Issues}"/>
+            Source="{Binding Items}"/>
     </Page.Resources>
 
     <!--
@@ -22,7 +22,7 @@
         * Row 0 contains the back button and page title
         * Row 1 contains the rest of the page layout
     -->
-    <Grid DataContext="{Binding Volume}">
+    <Grid DataContext="{Binding Location}">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition/>
@@ -45,38 +45,25 @@
             SelectionMode="None"
             IsSwipeEnabled="false"
             IsItemClickEnabled="True"
-            ItemClick="IssueView_IssueClick">
+            ItemClick="ItemView_ItemClick">
             <GridView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Height="300" Width="200" Margin="10">
+                    <Grid Width="200" Height="300" Margin="10">
                         <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
                             <Image Source="{Binding MainImage}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Margin="15,0,15,0">
-                                <Run Text="Issue"/>
-                                <Run Text="{Binding IssueNumberString}" FontWeight="Bold"/>
-                            </TextBlock>
-                            <TextBlock Text="{Binding Name}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,0"/>
-                            <TextBlock Text="{Binding CoverDateString}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,10"/>
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,0"/>
+                            <TextBlock Text="{Binding StartYear}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,10"/>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
             </GridView.ItemTemplate>
             <GridView.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                    <StackPanel x:Name="VolumeStackPanel" Width="480" Margin="0,4,14,0">
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" MaxHeight="60">
-                        <Run Text="Published by"/>
-                        <Run Text="{Binding PublisherName}"/>
-                        </TextBlock>
-                        <TextBlock Margin="0,0,0,20" Style="{StaticResource TitleTextBlockStyle}" MaxHeight="60">
-                        <Run Text="Started in"/>
-                        <Run Text="{Binding StartYear}"/>
-                        </TextBlock>
-                        <Image Source="{Binding MainImage}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
-                    </StackPanel>
-                </ScrollViewer>
+                <StackPanel Width="480" Margin="0,4,14,0">
+                    <Image Source="{Binding MainImage}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                    <TextBlock Text="{Binding Deck}" Margin="0,0,0,0" Style="{StaticResource BodyTextBlockStyle}"/>
+                </StackPanel>
             </GridView.Header>
             <GridView.ItemContainerStyle>
                 <Style TargetType="FrameworkElement">
@@ -90,7 +77,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="200"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
                         Style="{StaticResource NavigationBackButtonNormalStyle}"
@@ -100,7 +87,7 @@
                         AutomationProperties.ItemType="Navigation Button"/>
             <TextBlock x:Name="pageTitle" Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
-            <SearchBox Grid.Column="2" x:Name="SearchBoxSuggestions" Height="35"  FocusOnKeyboardInput="True" Margin="-120,0,80,0" QuerySubmitted="SearchBoxEventsQuerySubmitted" SuggestionsRequested="SearchBoxEventsSuggestionsRequested" HorizontalContentAlignment="Stretch"/>
+            <SearchBox Grid.Column="2" Height="35"  FocusOnKeyboardInput="True" Margin="-120,0,80,0" QuerySubmitted="SearchBoxEventsQuerySubmitted" SuggestionsRequested="SearchBoxEventsSuggestionsRequested" HorizontalContentAlignment="Stretch"/>
         </Grid>
     </Grid>
 </Page>

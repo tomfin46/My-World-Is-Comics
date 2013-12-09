@@ -7,7 +7,7 @@ using MyWorldIsComics.DataModel.DescriptionContent;
 
 namespace MyWorldIsComics.DataModel.Interfaces
 {
-    internal interface IDescriptionContent
+    public interface IDescriptionContent
     {
         string Title { get; set; }
         string Text { get; set; }

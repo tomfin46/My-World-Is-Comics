@@ -8,10 +8,7 @@ namespace MyWorldIsComics.Mappers
     {
         public static IResource ParseDeck(XmlReader reader, IResource resourceToMap)
         {
-            if (reader.Name != "deck")
-            {
-                reader.ReadToFollowing("deck");
-            }
+            if (reader.Name != "deck") { reader.ReadToFollowing("deck"); }
             try
             {
                 resourceToMap.Deck = reader.ReadElementContentAsString();
@@ -37,10 +34,7 @@ namespace MyWorldIsComics.Mappers
 
         public static IResource ParseImage(XmlReader reader, IResource resourceToMap)
         {
-            if (reader.Name != "image")
-            {
-                reader.ReadToFollowing("image");
-            }
+            if (reader.Name != "image") { reader.ReadToFollowing("image"); }
             if (reader.IsEmptyElement) return resourceToMap;
 
             reader.ReadToFollowing("super_url");
@@ -51,45 +45,39 @@ namespace MyWorldIsComics.Mappers
 
         public static IResource ParseName(XmlReader reader, IResource resourceToMap)
         {
-            if (reader.Name != "name")
-            {
-                reader.ReadToFollowing("name");
-            }
+            if (reader.Name != "name") { reader.ReadToFollowing("name"); }
             resourceToMap.Name = reader.ReadElementContentAsString();
-
             return resourceToMap;
         }
 
         public static IResource ParseComicVineSiteUrl(XmlReader reader, IResource resourceToMap)
         {
-            if (reader.Name != "site_detail_url")
-            {
-                reader.ReadToFollowing("site_detail_url");
-            }
+            if (reader.Name != "site_detail_url") { reader.ReadToFollowing("site_detail_url"); }
             resourceToMap.ComicVineSiteUrl = new Uri(reader.ReadElementContentAsString());
-
             return resourceToMap;
         }
 
         public static IResource ParseComicVineApiUrl(XmlReader reader, IResource resourceToMap)
         {
-            if (reader.Name != "api_detail_url")
-            {
-                reader.ReadToFollowing("api_detail_url");
-            }
+            if (reader.Name != "api_detail_url") { reader.ReadToFollowing("api_detail_url"); }
             resourceToMap.ComicVineApiUrl = new Uri(reader.ReadElementContentAsString());
-
             return resourceToMap;
         }
 
         public static IResource ParseDescriptionString(XmlReader reader, IResource resourceToMap)
         {
-            if (reader.Name != "description")
-            {
-                reader.ReadToFollowing("description");
-            }
+            if (reader.Name != "description") { reader.ReadToFollowing("description"); }
             resourceToMap.DescriptionString = reader.ReadElementContentAsString();
+            return resourceToMap;
+        }
 
+        public static IResource ParsePublisher(XmlReader reader, IResource resourceToMap)
+        {
+            if (reader.Name == "resource_type") { return resourceToMap; }
+
+            if (reader.Name != "publisher") { reader.ReadToFollowing("publisher"); }
+            reader.ReadToDescendant("name");
+            resourceToMap.PublisherName = reader.ReadElementContentAsString();
             return resourceToMap;
         }
 

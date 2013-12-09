@@ -456,7 +456,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void LocationsView_LocationClick(object sender, ItemClickEventArgs e)
         {
-            //throw new NotImplementedException();
+            var location = ((Location)e.ClickedItem);
+            Frame.Navigate(typeof(LocationPage), location.UniqueId);
         }
 
         private void ConceptsView_ConceptClick(object sender, ItemClickEventArgs e)
@@ -480,77 +481,72 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (flipView != null)
             {
                 Issue selectedIssue = flipView.SelectedItem as Issue;
-                GridTitles.DataContext = selectedIssue;
-
                 if (selectedIssue == null) return;
-
+                GridTitles.DataContext = selectedIssue;
+                
                 ComicVineSource.CancelTask();
                 ComicVineSource.ReinstateCts();
 
                 try
                 {
-                    if (selectedIssue.IssueNumber - _basicIssueForPage.IssueNumber == 1)
+                    switch (selectedIssue.IssueNumber - this._basicIssueForPage.IssueNumber)
                     {
-                        _previousIssue = _basicIssueForPage;
-                        _basicIssueForPage = _nextIssue;
-                        await FetchBasicNextIssueResource();
-
-                        if (flipView.Items != null)
-                        {
-                            var contains = false;
-                            foreach (
-                                int issuePos in
-                                    flipView.Items.Cast<Issue>()
-                                        .Where(issue => issue.UniqueId == _nextIssue.UniqueId)
-                                        .Select(issue => flipView.Items.IndexOf(issue)))
+                        case 1:
+                            this._previousIssue = this._basicIssueForPage;
+                            this._basicIssueForPage = this._nextIssue;
+                            await this.FetchBasicNextIssueResource();
+                            if (flipView.Items != null)
                             {
-                                flipView.Items.RemoveAt(issuePos);
-                                flipView.Items.Insert(issuePos, _nextIssue);
-                                contains = true;
-                            }
+                                var contains = false;
+                                foreach (int issuePos in flipView.Items.Cast<Issue>().Where(issue => issue.UniqueId == this._nextIssue.UniqueId)
+                                    .Select(issue => flipView.Items.IndexOf(issue)))
+                                {
+                                    flipView.Items.RemoveAt(issuePos);
+                                    flipView.Items.Insert(issuePos, this._nextIssue);
+                                    contains = true;
+                                }
 
-                            if (!contains)
+                                if (!contains && this._nextIssue.Name != ServiceConstants.QueryNotFound)
+                                {
+                                    flipView.Items.Add(this._nextIssue);
+                                }
+
+                                flipView.SelectedItem = this._basicIssueForPage;
+                            }
+                            await this.LoadIssue();
+                            await this.LoadNextIssue();
+                            await this.LoadPreviousIssue();
+                            break;
+
+                        case -1:
+                            this._nextIssue = this._basicIssueForPage;
+                            this._basicIssueForPage = this._previousIssue;
+                            await this.FetchBasicPreviousIssueResource();
+                            if (flipView.Items != null)
                             {
-                                flipView.Items.Add(_nextIssue);
+                                var contains = false;
+                                foreach (
+                                    int issuePos in
+                                        flipView.Items.Cast<Issue>()
+                                            .Where(issue => issue.UniqueId == this._previousIssue.UniqueId)
+                                            .Select(issue => flipView.Items.IndexOf(issue)))
+                                {
+                                    flipView.Items.RemoveAt(issuePos);
+                                    flipView.Items.Insert(issuePos, this._previousIssue);
+                                    contains = true;
+                                }
+
+                                if (!contains && this._previousIssue.Name != ServiceConstants.QueryNotFound)
+                                {
+                                    flipView.Items.Insert(flipView.SelectedIndex, this._previousIssue);
+                                }
+
+                                flipView.SelectedItem = this._basicIssueForPage;
                             }
-
-                            flipView.SelectedItem = _basicIssueForPage;
-                        }
-
-                        await LoadIssue();
-                        await LoadNextIssue();
-                        await LoadPreviousIssue();
-                    }
-                    else if (selectedIssue.IssueNumber - _basicIssueForPage.IssueNumber == -1)
-                    {
-                        _nextIssue = _basicIssueForPage;
-                        _basicIssueForPage = _previousIssue;
-                        await FetchBasicPreviousIssueResource();
-
-                        if (flipView.Items != null)
-                        {
-                            var contains = false;
-                            foreach (
-                                int issuePos in
-                                    flipView.Items.Cast<Issue>()
-                                        .Where(issue => issue.UniqueId == _previousIssue.UniqueId)
-                                        .Select(issue => flipView.Items.IndexOf(issue)))
-                            {
-                                flipView.Items.RemoveAt(issuePos);
-                                flipView.Items.Insert(issuePos, _previousIssue);
-                                contains = true;
-                            }
-
-                            if (!contains)
-                            {
-                                flipView.Items.Insert(flipView.SelectedIndex, _previousIssue);
-                            }
-
-                            flipView.SelectedItem = _basicIssueForPage;
-                        }
-                        await LoadIssue();
-                        await LoadNextIssue();
-                        await LoadPreviousIssue();
+                            await this.LoadIssue();
+                            await this.LoadNextIssue();
+                            await this.LoadPreviousIssue();
+                            break;
                     }
                 }
                 catch (TaskCanceledException)

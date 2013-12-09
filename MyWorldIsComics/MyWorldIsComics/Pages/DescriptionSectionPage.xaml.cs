@@ -25,6 +25,7 @@ namespace MyWorldIsComics.Pages
     using Windows.UI.Xaml.Media.Imaging;
 
     using MyWorldIsComics.DataModel.Interfaces;
+    using MyWorldIsComics.Helpers;
 
     /// <summary>
     /// A basic page that provides characteristics common to most applications.
@@ -366,6 +367,19 @@ namespace MyWorldIsComics.Pages
                 DescriptionGrid.Children.Add(richTextBlockOverflow);
                 Grid.SetColumn(richTextBlockOverflow, columnCount);
             }
+        }
+
+        private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)
+        {
+            new SearchTools().SearchBoxEventsSuggestionsRequested(args);
+        }
+
+        private void SearchBoxEventsQuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
+        {
+            var queryText = args.QueryText;
+            if (string.IsNullOrEmpty(queryText)) return;
+
+            Frame.Navigate(typeof(SearchResultsPage), queryText);
         }
     }
 }

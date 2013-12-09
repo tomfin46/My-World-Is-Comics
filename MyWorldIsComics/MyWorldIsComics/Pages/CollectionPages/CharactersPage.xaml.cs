@@ -14,6 +14,8 @@ using MyWorldIsComics.Pages.ResourcePages;
 
 namespace MyWorldIsComics.Pages.CollectionPages
 {
+    using MyWorldIsComics.Helpers;
+
     /// <summary>
     /// A page that displays an overview of a single group, including a preview of the items
     /// within the group.
@@ -166,6 +168,19 @@ namespace MyWorldIsComics.Pages.CollectionPages
 
             var character = ((Character)e.ClickedItem);
             Frame.Navigate(typeof(CharacterPage), character.UniqueId);
+        }
+
+        private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)
+        {
+            new SearchTools().SearchBoxEventsSuggestionsRequested(args);
+        }
+
+        private void SearchBoxEventsQuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
+        {
+            var queryText = args.QueryText;
+            if (string.IsNullOrEmpty(queryText)) return;
+
+            Frame.Navigate(typeof(SearchResultsPage), queryText);
         }
     }
 }

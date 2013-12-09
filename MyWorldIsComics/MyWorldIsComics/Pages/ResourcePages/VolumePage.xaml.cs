@@ -362,5 +362,23 @@ namespace MyWorldIsComics.Pages.ResourcePages
         }
 
         #endregion
+
+        private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)
+        {
+            new SearchTools().SearchBoxEventsSuggestionsRequested(args);
+        }
+
+        private void SearchBoxEventsQuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
+        {
+            var queryText = args.QueryText;
+            if (string.IsNullOrEmpty(queryText)) return;
+
+            Frame.Navigate(typeof(SearchResultsPage), queryText);
+        }
+
+        private void IssueView_IssueClick(object sender, ItemClickEventArgs e)
+        {
+            Frame.Navigate(typeof(IssuePage), ((Issue)e.ClickedItem).UniqueId);
+        }
     }
 }

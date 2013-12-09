@@ -15,6 +15,8 @@ using MyWorldIsComics.Mappers;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
+    using MyWorldIsComics.Helpers;
+
     /// <summary>
     /// A page that displays details for a single item within a group while allowing gestures to
     /// flip through other items belonging to the same group.
@@ -562,11 +564,24 @@ namespace MyWorldIsComics.Pages.ResourcePages
             }
         }
 
-        #endregion
-
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
             Frame.Navigate(typeof (VolumePage), _basicIssueForPage.VolumeId);
         }
+
+        private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)
+        {
+            new SearchTools().SearchBoxEventsSuggestionsRequested(args);
+        }
+
+        private void SearchBoxEventsQuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
+        {
+            var queryText = args.QueryText;
+            if (string.IsNullOrEmpty(queryText)) return;
+
+            Frame.Navigate(typeof(SearchResultsPage), queryText);
+        }
+
+        #endregion
     }
 }

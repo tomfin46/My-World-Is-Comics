@@ -247,10 +247,11 @@
         </Grid.RowDefinitions>
 
         <!-- Back button and page title -->
-        <Grid>
+        <Grid HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="280"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="BackButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
                         Style="{StaticResource NavigationBackButtonNormalStyle}"
@@ -267,6 +268,7 @@
                 <Run Text="{Binding IssueNumberString}" Foreground="{ThemeResource AppBarSeparatorForegroundThemeBrush}" FontWeight="Bold"/>
                 <Run Text="{Binding Name}"/>
             </TextBlock>
+            <SearchBox Grid.Column="2" x:Name="SearchBoxSuggestions" Height="35"  FocusOnKeyboardInput="True" Margin="-120,0,80,0" QuerySubmitted="SearchBoxEventsQuerySubmitted" SuggestionsRequested="SearchBoxEventsSuggestionsRequested" HorizontalContentAlignment="Stretch"/>
         </Grid>
 
         <!--

@@ -43,7 +43,8 @@
             Padding="120,126,120,50"
             ItemsSource="{Binding Source={StaticResource itemsViewSource}}"
             SelectionMode="None"
-            IsSwipeEnabled="false">
+            IsSwipeEnabled="false"
+            ItemClick="IssueView_IssueClick">
             <GridView.ItemTemplate>
                 <DataTemplate>
                     <Grid Height="260" Margin="10">
@@ -83,10 +84,11 @@
         </GridView>
 
         <!-- Back button and page title -->
-        <Grid>
+        <Grid HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="280"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
                         Style="{StaticResource NavigationBackButtonNormalStyle}"
@@ -96,6 +98,7 @@
                         AutomationProperties.ItemType="Navigation Button"/>
             <TextBlock x:Name="pageTitle" Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
+            <SearchBox Grid.Column="2" x:Name="SearchBoxSuggestions" Height="35"  FocusOnKeyboardInput="True" Margin="-120,0,80,0" QuerySubmitted="SearchBoxEventsQuerySubmitted" SuggestionsRequested="SearchBoxEventsSuggestionsRequested" HorizontalContentAlignment="Stretch"/>
         </Grid>
     </Grid>
 </Page>

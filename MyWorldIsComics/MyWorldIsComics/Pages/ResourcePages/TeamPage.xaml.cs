@@ -14,9 +14,12 @@ using MyWorldIsComics.Pages.CollectionPages;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
+    
+
+
     #region usings
 
-
+    using MyWorldIsComics.Helpers;
 
     #endregion
 
@@ -373,7 +376,20 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
             Frame.Navigate(typeof(VolumePage), _team.FirstAppearanceIssue.VolumeId);
-        } 
+        }
+
+        private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)
+        {
+            new SearchTools().SearchBoxEventsSuggestionsRequested(args);
+        }
+
+        private void SearchBoxEventsQuerySubmitted(SearchBox sender, SearchBoxQuerySubmittedEventArgs args)
+        {
+            var queryText = args.QueryText;
+            if (string.IsNullOrEmpty(queryText)) return;
+
+            Frame.Navigate(typeof(SearchResultsPage), queryText);
+        }
 
         #endregion
     }

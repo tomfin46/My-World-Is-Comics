@@ -78,29 +78,10 @@ namespace MyWorldIsComics.Mappers
             return this.descriptionToMap;
         }
 
-        public Description MapDescription(Issue issue)
+        public Section MapDescription(Issue issue)
         {
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(issue.DescriptionString);
-            HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
-
-            foreach (HtmlNode link in collection)
-            {
-                switch (link.Name)
-                {
-                    case "p":
-                        this.ProcessParagraph(link);
-                        break;
-                }
-            }
-
-            return this.descriptionToMap;
-        }
-
-        public Section MapDescription(Volume volume)
-        {
-            HtmlDocument document = new HtmlDocument();
-            document.LoadHtml(volume.DescriptionString);
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
             Section section = new Section();
 
@@ -109,12 +90,22 @@ namespace MyWorldIsComics.Mappers
                 switch (link.Name)
                 {
                     case "p":
-                        section = ProcessSection(link);
+                        section = this.ProcessSection(link);
                         break;
                 }
             }
 
             return section;
+        }
+
+        public Section MapDescription(Volume volume)
+        {
+            HtmlDocument document = new HtmlDocument();
+            document.LoadHtml(volume.DescriptionString);
+            HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
+
+            HtmlNode link = collection.First();
+            return ProcessSection(link);
         }
 
         private Section ProcessSection(HtmlNode link)
@@ -170,7 +161,7 @@ namespace MyWorldIsComics.Mappers
 
             return section;
         }
-        
+
         private DescriptionParagraph ProcessParagraph(HtmlNode paragraphNode)
         {
             DescriptionParagraph paragraph = new DescriptionParagraph
@@ -237,7 +228,7 @@ namespace MyWorldIsComics.Mappers
             };
             return quote;
         }
-        
+
         private Section ProcessSubSection(HtmlNode subSectionNode)
         {
             Section section = new Section

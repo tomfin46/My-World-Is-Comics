@@ -62,7 +62,7 @@
                 </DataTemplate>
             </GridView.ItemTemplate>
             <GridView.Header>
-                <StackPanel Width="480" Margin="0,4,14,0">
+                <StackPanel x:Name="VolumeStackPanel" Width="480" Margin="0,4,14,0">
                     <TextBlock Style="{StaticResource TitleTextBlockStyle}" MaxHeight="60">
                         <Run Text="Published by"/>
                         <Run Text="{Binding PublisherName}"/>
@@ -72,7 +72,7 @@
                         <Run Text="{Binding StartYear}"/>
                     </TextBlock>
                     <Image Source="{Binding MainImage}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
-                    <TextBlock Text="{Binding DescriptionString}" Margin="0,0,0,0" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <!--<TextBlock Text="{Binding DescriptionString}" Margin="0,0,0,0" Style="{StaticResource BodyTextBlockStyle}"/>-->
                 </StackPanel>
             </GridView.Header>
             <GridView.ItemContainerStyle>

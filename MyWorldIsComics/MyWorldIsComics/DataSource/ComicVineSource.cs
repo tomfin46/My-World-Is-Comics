@@ -140,6 +140,14 @@ namespace MyWorldIsComics.DataSource
         {
             return await Task.Run(() => new DescriptionMapper().MapDescription(descriptionString));
         }
+        public static async Task<Section> FormatDescriptionAsync(Issue issue)
+        {
+            return await Task.Run(() => new DescriptionMapper().MapDescription(issue));
+        }
+        public static async Task<Section> FormatDescriptionAsync(Volume volume)
+        {
+            return await Task.Run(() => new DescriptionMapper().MapDescription(volume));
+        }
 
         private static async Task<string> QueryServiceAsync(Uri uri)
         {
@@ -166,7 +174,7 @@ namespace MyWorldIsComics.DataSource
             switch (resourcesEnum)
             {
                 case Resources.ResourcesEnum.Search:
-                    uri += Resources.GetResourceId(resourcesEnum) + query + "&limit=30&";
+                    uri += Resources.GetResourceId(resourcesEnum) + query + "&limit=25&";
                     break;
                 case Resources.ResourcesEnum.Issues:
                     uri += "?";

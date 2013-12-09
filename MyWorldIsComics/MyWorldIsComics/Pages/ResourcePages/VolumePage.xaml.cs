@@ -24,6 +24,12 @@ using MyWorldIsComics.Mappers;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
+    using Windows.UI.Text;
+    using Windows.UI.Xaml.Documents;
+
+    using MyWorldIsComics.DataModel.DescriptionContent;
+    using MyWorldIsComics.DataModel.Interfaces;
+
     /// <summary>
     /// A page that displays an overview of a single group, including a preview of the items
     /// within the group.
@@ -34,6 +40,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private ObservableDictionary volumePageViewModel = new ObservableDictionary();
 
         private Volume _volume;
+
+        private RichTextBlock volumeDescription = new RichTextBlock();
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -96,6 +104,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             }
         }
 
+        #region Load Volume
         private async Task LoadVolume(int id)
         {
             try
@@ -124,8 +133,10 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            CreateDataTemplate();
-        }
+            this.CreateRichTextBlock();
+            if(this.volumeDescription.Blocks.Count > 0) this.VolumeStackPanel.Children.Add(this.volumeDescription);
+        } 
+        #endregion
 
         private async Task<Volume> GetVolume(int id)
         {
@@ -134,6 +145,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             return MapVolume(volumeSearchString);
         }
 
+        #region Fetch Methods
         private async Task FetchFirstIssue()
         {
             Issue issue = MapQuickIssue(await ComicVineSource.GetQuickIssueAsync(_volume.IssueIds.First()));
@@ -151,14 +163,16 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 if (_volume.Issues.Any(i => i.UniqueId == issue.UniqueId)) continue;
                 _volume.Issues.Add(issue);
 
-                if (_volume.Issues.Count%30 != 0) continue;
+                if (_volume.Issues.Count % 30 != 0) continue;
                 _volume.Issues = new ObservableCollection<Issue>(_volume.Issues.OrderByDescending(i => i.CoverDate));
                 VolumePageViewModel["Issues"] = _volume.Issues;
             }
             _volume.Issues = new ObservableCollection<Issue>(_volume.Issues.OrderByDescending(i => i.CoverDate));
             VolumePageViewModel["Issues"] = _volume.Issues;
-        }
+        } 
+        #endregion
 
+        #region Map Methods
         private Volume MapVolume(string volumeString)
         {
             return volumeString == ServiceConstants.QueryNotFound ? new Volume { Name = ServiceConstants.QueryNotFound } : new VolumeMapper().MapXmlObject(volumeString);
@@ -167,17 +181,164 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private Issue MapQuickIssue(string issueString)
         {
             return issueString == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issueString);
-        }
+        } 
+        #endregion
 
         private async Task FormatDescriptionForPage()
         {
             _volume.Description = await Task.Run(() => new DescriptionMapper().MapDescription(_volume));
         }
+        
+        #region Create RichTextBlock
 
-        private void CreateDataTemplate()
+        private void CreateRichTextBlock()
         {
-
+            this.CreateSection(_volume.Description);
         }
+
+        private void CreateSection(Section sectionToCreate)
+        {
+            if (sectionToCreate == null) return;
+
+            Paragraph header = DefaultParagraph();
+            Run headerRun = new Run { Text = sectionToCreate.Title };
+
+            switch (sectionToCreate.Type)
+            {
+                case "h3":
+                    Bold h3Bold = new Bold();
+                    h3Bold.Inlines.Add(headerRun);
+                    header.Inlines.Add(h3Bold);
+                    break;
+                case "h4":
+                    Underline h4Underline = new Underline();
+                    h4Underline.Inlines.Add(headerRun);
+                    header.Inlines.Add(h4Underline);
+                    break;
+                default:
+                    header.Inlines.Add(headerRun);
+                    break;
+            }
+
+            this.volumeDescription.Blocks.Add(header);
+
+            while (sectionToCreate.ContentQueue.Count > 0)
+            {
+                var queuePeekType = sectionToCreate.ContentQueue.Peek().GetType();
+                switch (queuePeekType.Name)
+                {
+                    case "DescriptionParagraph":
+                        DescriptionParagraph para = sectionToCreate.ContentQueue.Dequeue() as DescriptionParagraph;
+                        this.CreateParagraph(para);
+                        break;
+                    case "List":
+                        List list = sectionToCreate.ContentQueue.Dequeue() as List;
+                        this.CreateList(list);
+                        break;
+                    case "Quote":
+                        Quote quote = sectionToCreate.ContentQueue.Dequeue() as Quote;
+                        this.CreateQuote(quote);
+                        break;
+                    case "Section":
+                        Section section = sectionToCreate.ContentQueue.Dequeue() as Section;
+                        this.CreateSection(section);
+                        break;
+                }
+            }
+        }
+
+        private void CreateParagraph(DescriptionParagraph para)
+        {
+            if (para == null) return;
+            Paragraph paragraph = DefaultParagraph();
+
+            paragraph = FormatLinks(para, paragraph);
+            this.volumeDescription.Blocks.Add(paragraph);
+        }
+
+        private void CreateList(List list)
+        {
+            if (list == null) return;
+
+            while (list.ContentQueue.Count > 0)
+            {
+                DescriptionParagraph listItem = list.ContentQueue.Dequeue() as DescriptionParagraph;
+                if (listItem == null) continue;
+
+                Paragraph paragraph = new Paragraph
+                {
+                    Margin = new Thickness(25, 0, 0, 16),
+                    TextIndent = -25
+                };
+                paragraph = FormatLinks(listItem, paragraph);
+                this.volumeDescription.Blocks.Add(paragraph);
+            }
+        }
+
+        private void CreateQuote(Quote quote)
+        {
+            if (quote == null) return;
+
+            Paragraph paragraph = new Paragraph { Margin = new Thickness(10), FontWeight = FontWeights.Bold };
+            paragraph = FormatLinks(quote, paragraph);
+            this.volumeDescription.Blocks.Add(paragraph);
+        }
+
+        private static Paragraph DefaultParagraph()
+        {
+            return new Paragraph
+            {
+                FontSize = 15,
+                FontFamily = new FontFamily("Segoe UI Semilight"),
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+        }
+
+        private static Paragraph FormatLinks(IDescriptionContent descriptionContent, Paragraph paragraph)
+        {
+            var text = descriptionContent.Text;
+            foreach (Link link in descriptionContent.Links)
+            {
+                if (link.Text == String.Empty) continue;
+                Link linkCopy = link;
+                Boolean contains = false;
+                foreach (
+                    Link link2 in
+                        descriptionContent.Links.Where(link1 => link1.Text != linkCopy.Text)
+                            .Where(link2 => link2.Text.Contains(linkCopy.Text)))
+                {
+                    contains = true;
+                }
+
+                if (contains) continue;
+
+                text = text.Replace(link.Text, "<" + link.Text + ">");
+            }
+
+            var splitString = text.Split('<');
+            paragraph.Inlines.Add(new Run { Text = splitString[0] });
+
+            foreach (string s in splitString.Where(s => s != splitString.First()))
+            {
+                Hyperlink hyperlink = new Hyperlink();
+                Run hyperlinkRun = new Run { Text = s.Substring(0, s.IndexOf('>')) };
+                Link link = descriptionContent.Links.FirstOrDefault(l => l.Text == hyperlinkRun.Text);
+                if (link != null)
+                {
+                    var ids = link.DataRefId.Split('-');
+                    if (ids.Length < 2) continue;
+                    hyperlink.NavigateUri = new Uri("myworldiscomics:///" + ids[0] + "/" + ids[1]);
+                }
+                hyperlink.Inlines.Add(hyperlinkRun);
+
+                paragraph.Inlines.Add(hyperlink);
+
+                paragraph.Inlines.Add(new Run { Text = s.Substring(s.IndexOf('>') + 1) });
+            }
+
+            return paragraph;
+        } 
+        #endregion
 
         #region NavigationHelper registration
 

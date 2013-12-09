@@ -174,7 +174,7 @@ namespace MyWorldIsComics.Pages
             }
             else if (e.ClickedItem as Volume != null)
             {
-                //Frame.Navigate(typeof(VolumePage), id);
+                Frame.Navigate(typeof(VolumePage), id);
             }
         }
     }

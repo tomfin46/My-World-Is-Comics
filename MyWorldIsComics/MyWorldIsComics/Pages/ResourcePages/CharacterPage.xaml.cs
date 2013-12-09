@@ -616,6 +616,11 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
             Frame.Navigate(typeof(SearchResultsPage), queryText);
         }
+        
+        private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(VolumePage), _character.FirstAppearanceIssue.VolumeId);
+        }
 
         #endregion
     }

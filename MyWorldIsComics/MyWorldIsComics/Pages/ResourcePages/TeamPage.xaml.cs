@@ -323,6 +323,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #endregion
 
+        #region Event Handlers
+
         private void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
             if (e == null) return;
@@ -366,5 +368,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
             HeaderBorder.Opacity = HeaderBorder.Opacity <= 0 ? 100 : 0;
             BackButton.Visibility = BackButton.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
+
+        private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(VolumePage), _team.FirstAppearanceIssue.VolumeId);
+        } 
+
+        #endregion
     }
 }

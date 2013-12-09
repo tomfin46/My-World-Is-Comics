@@ -54,7 +54,7 @@ namespace MyWorldIsComics.DataModel.Resources
         {
             get
             {
-                return " #" + IssueNumber;
+                return "#" + IssueNumber;
             }
         }
         public string ResourceString { get; set; }

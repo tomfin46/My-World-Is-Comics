@@ -115,9 +115,12 @@
 
                                     <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
                                     <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
-                                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,0,20,0" TextWrapping="Wrap">
-                                            <Run Text="{Binding FirstAppearanceIssue.VolumeName}"></Run>
-                                            <Run Text="{Binding FirstAppearanceIssue.IssueNumberString}"></Run>
+                                        <GridViewItem Margin="-10,-20,-10,-10" Tapped="VolumeName_Tapped" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                            <TextBlock Text="{Binding FirstAppearanceIssue.VolumeName}" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="WrapWholeWords"/>
+                                        </GridViewItem>
+                                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,0,0,20" TextWrapping="Wrap" FontWeight="Bold">
+                                            <Run Text="Issue"/>
+                                            <Run Text="{Binding FirstAppearanceIssue.IssueNumberString}"/>
                                         </TextBlock>
                                         <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
                                         <TextBlock Text="{Binding FirstAppearanceIssue.IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>

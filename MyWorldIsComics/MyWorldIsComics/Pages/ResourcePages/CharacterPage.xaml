@@ -135,39 +135,43 @@
             <HubSection x:Name="AlternateRealitiesHubSection" Width="520" Header="Alternate Realities" IsHeaderInteractive="True" Visibility="Collapsed"/>
 
             <HubSection x:Name="OtherMediaHubSection" Width="520" Header="Other Media" IsHeaderInteractive="True" Visibility="Collapsed"/>
-            
+
             <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>
-                        <Grid>
-                            <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                                <StackPanel Orientation="Vertical">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="200"/>
-                                            <ColumnDefinition Width="270"/>
-                                        </Grid.ColumnDefinitions>
+                    <Grid>
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                            <StackPanel Orientation="Vertical">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="270"/>
+                                    </Grid.ColumnDefinitions>
 
-                                        <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
-                                        <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
-                                            <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,0,20,0" TextWrapping="Wrap">
-                                            <Run Text="{Binding FirstAppearanceIssue.VolumeName}"></Run>
-                                            <Run Text="{Binding FirstAppearanceIssue.IssueNumberString}"></Run>
-                                            </TextBlock>
-                                            <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                            <TextBlock Text="{Binding FirstAppearanceIssue.IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
+                                    <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
+                                        <GridViewItem Margin="-10,-20,-10,-10" Tapped="VolumeName_Tapped" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                            <TextBlock Text="{Binding FirstAppearanceIssue.VolumeName}" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="WrapWholeWords"/>
+                                        </GridViewItem>
+                                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,0,0,20" TextWrapping="Wrap" FontWeight="Bold">
+                                            <Run Text="Issue"/>
+                                            <Run Text="{Binding FirstAppearanceIssue.IssueNumberString}"/>
+                                        </TextBlock>
 
-                                            <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                            <TextBlock Text="{Binding FirstAppearanceIssue.CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding FirstAppearanceIssue.IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
 
-                                            <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                            <TextBlock Text="{Binding FirstAppearanceIssue.StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
-                                        </StackPanel>
-                                    </Grid>
+                                        <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding FirstAppearanceIssue.CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
 
-                                    <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionString}" Style="{StaticResource BodyTextBlockStyle}"/>
-                                </StackPanel>
-                            </ScrollViewer>
-                        </Grid>
+                                        <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding FirstAppearanceIssue.StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
                 </DataTemplate>
             </HubSection>
 

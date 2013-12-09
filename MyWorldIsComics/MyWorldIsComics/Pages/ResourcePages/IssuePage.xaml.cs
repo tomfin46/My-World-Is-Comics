@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Documents;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.Common;
 using MyWorldIsComics.DataModel.Resources;
@@ -148,7 +150,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             FlipView issuesFlipView = new FlipView();
             if (issuesFlipView.Items != null)
             {
-                if(_previousIssue.Name != ServiceConstants.QueryNotFound) issuesFlipView.Items.Add(_previousIssue);
+                if (_previousIssue.Name != ServiceConstants.QueryNotFound) issuesFlipView.Items.Add(_previousIssue);
                 issuesFlipView.Items.Add(_basicIssueForPage);
                 if (_nextIssue.Name != ServiceConstants.QueryNotFound) issuesFlipView.Items.Add(_nextIssue);
             }
@@ -560,11 +562,11 @@ namespace MyWorldIsComics.Pages.ResourcePages
             }
         }
 
-        private void VolumeHeader_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
-
-        }
-
         #endregion
+
+        private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            Frame.Navigate(typeof (VolumePage), _basicIssueForPage.VolumeId);
+        }
     }
 }

@@ -173,6 +173,9 @@
     <Compile Include="Pages\CollectionPages\TeamsPage.xaml.cs">
       <DependentUpon>TeamsPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\ResourcePages\VolumePage.xaml.cs">
+      <DependentUpon>VolumePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\SearchResultsPage.xaml.cs">
       <DependentUpon>SearchResultsPage.xaml</DependentUpon>
     </Compile>
@@ -241,6 +244,10 @@
     <Page Include="Pages\CollectionPages\TeamsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\ResourcePages\VolumePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\SearchResultsPage.xaml">
       <SubType>Designer</SubType>

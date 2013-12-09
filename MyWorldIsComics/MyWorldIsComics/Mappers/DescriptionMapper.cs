@@ -97,6 +97,26 @@ namespace MyWorldIsComics.Mappers
             return this.descriptionToMap;
         }
 
+        public Section MapDescription(Volume volume)
+        {
+            HtmlDocument document = new HtmlDocument();
+            document.LoadHtml(volume.DescriptionString);
+            HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
+            Section section = new Section();
+
+            foreach (HtmlNode link in collection)
+            {
+                switch (link.Name)
+                {
+                    case "p":
+                        section = ProcessSection(link);
+                        break;
+                }
+            }
+
+            return section;
+        }
+
         private Section ProcessSection(HtmlNode link)
         {
             Section section = new Section

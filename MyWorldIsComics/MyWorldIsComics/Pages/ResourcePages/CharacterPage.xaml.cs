@@ -224,47 +224,15 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void CreateDataTemplates()
         {
-            if (_characterDescription.CurrentEvents == null || _characterDescription.CurrentEvents.ContentQueue.Count == 0) HideHubSection("Current Events");
-            else CreateDataTemplate(_characterDescription.CurrentEvents);
-
-            if (_characterDescription.Origin == null || _characterDescription.Origin.ContentQueue.Count == 0) HideHubSection("Origin");
-            else CreateDataTemplate(_characterDescription.Origin);
-
-            if (_characterDescription.BriefHistory == null || _characterDescription.BriefHistory.ContentQueue.Count == 0) HideHubSection("Brief History");
-            else CreateDataTemplate(_characterDescription.BriefHistory);
-
-            if (_characterDescription.Creation == null || _characterDescription.Creation.ContentQueue.Count == 0) HideHubSection("Creation");
-            else CreateDataTemplate(_characterDescription.Creation);
-
-            if (_characterDescription.DistinguishingCharacteristics == null || _characterDescription.DistinguishingCharacteristics.ContentQueue.Count == 0) HideHubSection("Distinguishing Characteristics");
-            else CreateDataTemplate(_characterDescription.DistinguishingCharacteristics);
-
-            if (_characterDescription.CharacterEvolution == null || _characterDescription.CharacterEvolution.ContentQueue.Count == 0) HideHubSection("Character Evolution");
-            else CreateDataTemplate(_characterDescription.CharacterEvolution);
-
-            if (_characterDescription.MajorStoryArcs == null || _characterDescription.MajorStoryArcs.ContentQueue.Count == 0) HideHubSection("Major Story Arcs");
-            else CreateDataTemplate(_characterDescription.MajorStoryArcs);
-
-            if (_characterDescription.PowersAndAbilities == null || _characterDescription.PowersAndAbilities.ContentQueue.Count == 0) HideHubSection("Powers and Abilities");
-            else CreateDataTemplate(_characterDescription.PowersAndAbilities);
-
-            if (_characterDescription.WeaponsAndEquipment == null || _characterDescription.WeaponsAndEquipment.ContentQueue.Count == 0) HideHubSection("Weapons and Equipment");
-            else CreateDataTemplate(_characterDescription.WeaponsAndEquipment);
-
-            if (_characterDescription.HulksIncarnations == null || _characterDescription.HulksIncarnations.ContentQueue.Count == 0) HideHubSection("Hulk's Incarnations");
-            else CreateDataTemplate(_characterDescription.HulksIncarnations);
-
-            if (_characterDescription.AlternateRealities == null || _characterDescription.AlternateRealities.ContentQueue.Count == 0) HideHubSection("Alternate Realities");
-            else CreateDataTemplate(_characterDescription.AlternateRealities);
-
-            if (_characterDescription.OtherMedia == null || _characterDescription.OtherMedia.ContentQueue.Count == 0) HideHubSection("Other Media");
-            else CreateDataTemplate(_characterDescription.OtherMedia);
-
-            if (_characterDescription.Miscellaneous == null || _characterDescription.Miscellaneous.ContentQueue.Count == 0) HideHubSection("Miscellaneous");
-            else CreateDataTemplate(_characterDescription.Miscellaneous);
+            int i = 3;
+            foreach (Section section in _characterDescription.Sections)
+            {
+                this.CreateDataTemplate(section, i);
+                i++;
+            }
         }
 
-        private void CreateDataTemplate(Section descriptionSection)
+        private void CreateDataTemplate(Section descriptionSection, int i)
         {
             String markup = String.Empty;
             markup += "<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">";
@@ -330,7 +298,14 @@ namespace MyWorldIsComics.Pages.ResourcePages
             markup += "</DataTemplate>";
 
             DataTemplate dataTemplate = (DataTemplate)XamlReader.Load(markup);
-            SetHubSectionContentTemplate(dataTemplate, descriptionSection.Title);
+            HubSection hubSection = new HubSection
+                                    {
+                                        ContentTemplate = dataTemplate,
+                                        Width = 520,
+                                        IsHeaderInteractive = true,
+                                        Header = descriptionSection.Title
+                                    };
+            Hub.Sections.Insert(i, hubSection);
         }
 
         private static string MarkupSection(Section sectionToMarkup)
@@ -398,121 +373,6 @@ namespace MyWorldIsComics.Pages.ResourcePages
             return markup;
         }
 
-        private void HideHubSection(string sectionTitle)
-        {
-            switch (sectionTitle)
-            {
-                case "Current Events":
-                    CurrentEventsHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Origin":
-                case "Origins":
-                    OriginHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Brief History":
-                    BriefHistoryHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Creation":
-                    CreationHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Distinguishing Characteristics":
-                    DistinguishingCharacteristicsHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Character Evolution":
-                    CharacterEvolutionHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Major Story Arcs":
-                    MajorStoryArcsHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Powers and Abilities":
-                case "Abilties":
-                case "Powers":
-                case "Powers and Abilties":
-                    PowersAndAbilitiesHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Weapons and Equipment":
-                    WeaponsAndEquipmentHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Miscellaneous":
-                    MiscellaneousHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Hulk's Incarnations":
-                    HulksIncarnationsHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Other Versions":
-                case "Alternate Realities":
-                    AlternateRealitiesHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Other Media":
-                    OtherMediaHubSection.Visibility = Visibility.Collapsed;
-                    break;
-            }
-        }
-
-        private void SetHubSectionContentTemplate(DataTemplate sectionTemplate, string sectionTitle)
-        {
-            switch (sectionTitle)
-            {
-                case "Current Events":
-                    CurrentEventsHubSection.ContentTemplate = sectionTemplate;
-                    CurrentEventsHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Origin":
-                case "Origins":
-                    OriginHubSection.ContentTemplate = sectionTemplate;
-                    OriginHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Brief History":
-                    BriefHistoryHubSection.ContentTemplate = sectionTemplate;
-                    BriefHistoryHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Creation":
-                    CreationHubSection.ContentTemplate = sectionTemplate;
-                    CreationHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Distinguishing Characteristics":
-                    DistinguishingCharacteristicsHubSection.ContentTemplate = sectionTemplate;
-                    DistinguishingCharacteristicsHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Character Evolution":
-                    CharacterEvolutionHubSection.ContentTemplate = sectionTemplate;
-                    CharacterEvolutionHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Major Story Arcs":
-                    MajorStoryArcsHubSection.ContentTemplate = sectionTemplate;
-                    MajorStoryArcsHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Powers and Abilities":
-                case "Abilties":
-                case "Powers":
-                case "Powers and Abilties":
-                    PowersAndAbilitiesHubSection.ContentTemplate = sectionTemplate;
-                    PowersAndAbilitiesHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Weapons and Equipment":
-                    WeaponsAndEquipmentHubSection.ContentTemplate = sectionTemplate;
-                    WeaponsAndEquipmentHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Miscellaneous":
-                    MiscellaneousHubSection.ContentTemplate = sectionTemplate;
-                    MiscellaneousHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Hulk's Incarnations":
-                    HulksIncarnationsHubSection.ContentTemplate = sectionTemplate;
-                    HulksIncarnationsHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Other Versions":
-                case "Alternate Realities":
-                    AlternateRealitiesHubSection.ContentTemplate = sectionTemplate;
-                    AlternateRealitiesHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Other Media":
-                    OtherMediaHubSection.ContentTemplate = sectionTemplate;
-                    OtherMediaHubSection.Visibility = Visibility.Visible;
-                    break;
-            }
-        }
-
         #endregion
 
         #region NavigationHelper registration
@@ -543,7 +403,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private void TeamView_TeamClick(object sender, ItemClickEventArgs e)
         {
             var team = ((Team)e.ClickedItem);
-            Frame.Navigate(typeof(TeamPage), team);
+            Frame.Navigate(typeof(TeamPage), team.UniqueId);
         }
 
         private async void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)

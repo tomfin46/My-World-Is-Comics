@@ -14,11 +14,16 @@ using MyWorldIsComics.Pages.CollectionPages;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
-    
+
 
 
     #region usings
 
+    using System.Net.Http;
+
+    using Windows.UI.Xaml.Markup;
+
+    using MyWorldIsComics.DataModel.DescriptionContent;
     using MyWorldIsComics.Helpers;
 
     #endregion
@@ -32,6 +37,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private ObservableDictionary teamPageViewModel = new ObservableDictionary();
 
         private Team _team;
+        private Description _teamDescription;
 
         private static Team SavedTeam;
 
@@ -76,34 +82,25 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
-            var team = e.NavigationParameter as Team;
-            if (team == null)
+            int id;
+            try
             {
-                int id;
-                try
-                {
-                    id = int.Parse(e.NavigationParameter as string);
-                }
-                catch (ArgumentNullException)
-                {
-                    id = (int)e.NavigationParameter;
-                }
-
-                team = this.GetMappedTeam(await ComicVineSource.GetQuickTeamAsync(id));
+                id = int.Parse(e.NavigationParameter as string);
+            }
+            catch (ArgumentNullException)
+            {
+                id = (int)e.NavigationParameter;
             }
 
-
-            if (SavedTeam != null && team != null && SavedTeam.Name == team.Name)
+            try
             {
-                _team = SavedTeam;
-                this.HideOrShowFilteredSections();
+                await this.LoadTeam(id);
             }
-            else
+            catch (HttpRequestException)
             {
-                _team = team;
-                await this.LoadTeam();
+                _team = new Team { Name = "An internet connection is required here" };
+                TeamPageViewModel["Team"] = _team;
             }
-            TeamPageViewModel["Team"] = _team;
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
@@ -113,42 +110,42 @@ namespace MyWorldIsComics.Pages.ResourcePages
             SavedTeam = _team;
         }
 
-        private async Task LoadTeam()
+        #region Load Team
+        
+        private async Task LoadTeam(int id)
         {
             try
             {
-                List<string> filters = new List<string> { "first_appeared_in_issue", "disbanded_in_issues", "characters", "character_enemies", "character_friends" };
+                if (SavedData.Team != null && SavedData.Team.UniqueId == id) { _team = SavedData.Team; }
+                else { _team = await GetTeam(id); }
 
-                foreach (string filter in filters)
+
+                TeamPageViewModel["Team"] = _team;
+
+                if (_team.Name != ServiceConstants.QueryNotFound)
                 {
-                    await FetchFilteredTeamResource(filter);
-                    switch (filter)
-                    {
-                        case "first_appeared_in_issue":
-                            await FetchFirstAppearance();
-                            break;
-                        case "disbanded_in_issues":
-                            await FetchDisbandIssues();
-                            break;
-                        case "characters":
-                            await FetchFirstMember();
-                            break;
-                        case "character_enemies":
-                            await FetchFirstEnemy();
-                            break;
-                        case "character_friends":
-                            await FetchFirstFriend();
-                            break;
-                    }
-                    TeamPageViewModel["Team"] = _team;
-                    HideOrShowFilteredSections();
+                    ImageHubSection.Visibility = Visibility.Visible;
+                    BioHubSection.Visibility = Visibility.Visible;
 
-                    if (_team.MemberIds.Count > 1) await FetchRemainingMembers();
-                    HideOrShowFilteredSections();
-                    if (_team.EnemyIds.Count > 1) await FetchRemainingEnemies();
-                    HideOrShowFilteredSections();
-                    if (_team.FriendIds.Count > 1) await FetchRemainingFriends();
-                    HideOrShowFilteredSections();
+                    await LoadDescription();
+
+                    if (_team.FirstAppearanceIssue == null) await FetchFirstAppearance();
+                    HideOrShowSections();
+
+                    if (_team.IssuesDispandedIn.Count == 0) await this.FetchDisbandIssues();
+                    HideOrShowSections();
+
+                    if (_team.Members.Count == 0) await this.FetchFirstMember();
+                    if (_team.Enemies.Count == 0) await this.FetchFirstEnemy();
+                    if (_team.Friends.Count == 0) await this.FetchFirstFriend();
+                    HideOrShowSections();
+
+                    if (_team.MemberIds.Count > 1) await this.FetchRemainingMembers();
+                    HideOrShowSections();
+                    if (_team.EnemyIds.Count > 1) await this.FetchRemainingEnemies();
+                    HideOrShowSections();
+                    if (_team.FriendIds.Count > 1) await this.FetchRemainingFriends();
+                    HideOrShowSections();
                 }
             }
             catch (TaskCanceledException)
@@ -157,14 +154,37 @@ namespace MyWorldIsComics.Pages.ResourcePages
             }
         }
 
-        #region Fetch Methods
-
-        private async Task FetchFilteredTeamResource(string filter)
+        private async Task<Team> GetTeam(int id)
         {
-            string filteredTeamString = await ComicVineSource.GetFilteredTeamAsync(_team.UniqueId, filter);
-            _team = GetMappedTeamFromFilter(filteredTeamString, filter);
+            var teamSearchString = await ComicVineSource.GetTeamAsync(id);
+            return MapTeam(teamSearchString);
         }
 
+        private Team MapTeam(string teamString)
+        {
+            return teamString == ServiceConstants.QueryNotFound ? new Team { Name = ServiceConstants.QueryNotFound } : new TeamMapper().MapXmlObject(teamString);
+        } 
+
+        #endregion
+
+        #region Load Description
+        
+        private async Task LoadDescription()
+        {
+            await FormatDescriptionForPage();
+            _teamDescription.UniqueId = _team.UniqueId;
+            CreateDataTemplates();
+        }
+
+        private async Task FormatDescriptionForPage()
+        {
+            _teamDescription = await ComicVineSource.FormatDescriptionAsync(_team.DescriptionString);
+        } 
+
+        #endregion
+
+        #region Fetch Methods
+        
         private async Task FetchFirstAppearance()
         {
             if (_team.FirstAppearanceId != 0)
@@ -208,7 +228,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             foreach (var issueId in _team.IssuesDispandedInIds.Where(issueId => _team.IssuesDispandedIn.All(i => i.UniqueId != issueId)))
             {
                 _team.IssuesDispandedIn.Add(GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(issueId)));
-                HideOrShowFilteredSections();
+                this.HideOrShowSections();
             }
         }
 
@@ -256,26 +276,11 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #region Mapping Methods
 
-        private Team GetMappedTeam(string quickTeam)
+        private Team GetMappedTeam(string teamString)
         {
-            return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
+            return teamString == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().MapXmlObject(teamString);
         }
-
-        private Team GetMappedTeamFromFilter(string filteredTeamString, string filter)
-        {
-            if (filteredTeamString == ServiceConstants.QueryNotFound)
-            {
-                return new Team
-                {
-                    FirstAppearanceIssue = new Issue
-                    {
-                        Name = filteredTeamString
-                    }
-                };
-            }
-            return new TeamMapper().MapFilteredXmlObject(_team, filteredTeamString, filter);
-        }
-
+        
         private Character GetMappedCharacter(string quickCharacter)
         {
             return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);
@@ -288,7 +293,162 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #endregion
 
-        private void HideOrShowFilteredSections()
+        #region DataTemplate Creation
+
+        private void CreateDataTemplates()
+        {
+            int i = 2;
+            foreach (Section section in _teamDescription.Sections)
+            {
+                this.CreateDataTemplate(section, i);
+                i++;
+            }
+        }
+
+        private void CreateDataTemplate(Section descriptionSection, int i)
+        {
+            String markup = String.Empty;
+            markup += "<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">";
+            markup += "<ScrollViewer VerticalScrollBarVisibility=\"Hidden\">";
+            markup += "<RichTextBlock>";
+
+            if (descriptionSection == null) return;
+
+            while (descriptionSection.ContentQueue.Count > 0)
+            {
+                var queuePeekType = descriptionSection.ContentQueue.Peek().GetType();
+                switch (queuePeekType.Name)
+                {
+                    case "DescriptionParagraph":
+                        DescriptionParagraph para = descriptionSection.ContentQueue.Dequeue() as DescriptionParagraph;
+                        if (para != null)
+                            markup +=
+                                "<Paragraph FontSize=\"15\" FontFamily=\"Segoe UI Semilight\" Margin=\"0,0,0,10\">" + para.FormatLinks();
+                        if (descriptionSection.ContentQueue.Count > 0 && descriptionSection.ContentQueue.Peek().GetType() == typeof(Figure))
+                        {
+                            Figure paraFig = descriptionSection.ContentQueue.Dequeue() as Figure;
+                            if (paraFig != null) markup += "</Paragraph><Paragraph></Paragraph><Paragraph TextAlignment=\"Center\">"
+                                                           + "<InlineUIContainer><Image Source=\"" + paraFig.ImageSource + "\" Stretch=\"Uniform\"/></InlineUIContainer>" +
+                                                           "</Paragraph>" +
+                                                           "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + paraFig.Text + "</Paragraph>";
+                        }
+                        else
+                        {
+                            markup += "</Paragraph>";
+                        }
+                        break;
+                    case "Figure":
+                        Figure fig = descriptionSection.ContentQueue.Dequeue() as Figure;
+                        if (fig != null) markup += "<Paragraph></Paragraph><Paragraph TextAlignment=\"Center\">" +
+                                                   "<InlineUIContainer><Image Source=\"" + fig.ImageSource + "\" Stretch=\"Uniform\"/>" + "</InlineUIContainer>" +
+                                                   "</Paragraph>" +
+                                                   "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + fig.Text + "</Paragraph>";
+                        break;
+                    case "List":
+                        List list = descriptionSection.ContentQueue.Dequeue() as List;
+                        if (list != null)
+                        {
+                            while (list.ContentQueue.Count > 0)
+                            {
+                                DescriptionParagraph listItem = list.ContentQueue.Dequeue() as DescriptionParagraph;
+                                if (listItem != null) markup += "<Paragraph Margin=\"25,0,0,16\" TextIndent=\"-25\">> " + listItem.FormatLinks() + "</Paragraph>";
+                            }
+                        }
+                        break;
+                    case "Quote":
+                        Quote quote = descriptionSection.ContentQueue.Dequeue() as Quote;
+                        if (quote != null) markup += "<Paragraph Margin=\"10\"><Bold>" + quote.FormatLinks() + "</Bold></Paragraph>";
+                        break;
+                    case "Section":
+                        Section section = descriptionSection.ContentQueue.Dequeue() as Section;
+                        if (section != null) markup += MarkupSection(section);
+                        break;
+                }
+            }
+
+            markup += "</RichTextBlock>";
+            markup += "</ScrollViewer>";
+            markup += "</DataTemplate>";
+
+            DataTemplate dataTemplate = (DataTemplate)XamlReader.Load(markup);
+            HubSection hubSection = new HubSection
+            {
+                ContentTemplate = dataTemplate,
+                Width = 520,
+                IsHeaderInteractive = true,
+                Header = descriptionSection.Title
+            };
+            Hub.Sections.Insert(i, hubSection);
+        }
+
+        private static string MarkupSection(Section sectionToMarkup)
+        {
+            string markup = String.Empty;
+
+            if (sectionToMarkup == null) return markup;
+
+            markup += "<Paragraph Margin=\"0,0,0,10\" FontSize=\"17\">";
+            if (sectionToMarkup.Type == "h3") markup += "<Bold>" + sectionToMarkup.Title + "</Bold>";
+            else if (sectionToMarkup.Type == "h4") markup += "<Underline>" + sectionToMarkup.Title + "</Underline>";
+            markup += "</Paragraph>";
+
+            while (sectionToMarkup.ContentQueue.Count > 0)
+            {
+                var queuePeekType = sectionToMarkup.ContentQueue.Peek().GetType();
+                switch (queuePeekType.Name)
+                {
+                    case "DescriptionParagraph":
+                        DescriptionParagraph para = sectionToMarkup.ContentQueue.Dequeue() as DescriptionParagraph;
+                        if (para != null)
+                            markup += "<Paragraph FontSize=\"15\" FontFamily=\"Segoe UI Semilight\" Margin=\"0,0,0,10\">" + para.FormatLinks();
+                        if (sectionToMarkup.ContentQueue.Count > 0 && sectionToMarkup.ContentQueue.Peek().GetType() == typeof(Figure))
+                        {
+                            Figure paraFig = sectionToMarkup.ContentQueue.Dequeue() as Figure;
+                            if (paraFig != null) markup += "</Paragraph><Paragraph></Paragraph><Paragraph TextAlignment=\"Center\">"
+                                                           + "<InlineUIContainer><Image Source=\"" + paraFig.ImageSource + "\" Stretch=\"Uniform\"/></InlineUIContainer>" +
+                                                           "</Paragraph>" +
+                                                           "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + paraFig.Text + "</Paragraph>";
+                        }
+                        else
+                        {
+                            markup += "</Paragraph>";
+                        }
+                        break;
+                    case "Figure":
+                        Figure fig = sectionToMarkup.ContentQueue.Dequeue() as Figure;
+                        if (fig != null) markup += "<Paragraph></Paragraph><Paragraph TextAlignment=\"Center\">" +
+                                                   "<InlineUIContainer><Image Source=\"" + fig.ImageSource + "\" Stretch=\"Uniform\"/>" + "</InlineUIContainer>" +
+                                                   "</Paragraph>" +
+                                                   "<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + fig.Text + "</Paragraph>";
+                        break;
+                    case "List":
+                        List list = sectionToMarkup.ContentQueue.Dequeue() as List;
+                        if (list != null)
+                        {
+                            while (list.ContentQueue.Count > 0)
+                            {
+                                DescriptionParagraph listItem = list.ContentQueue.Dequeue() as DescriptionParagraph;
+                                if (listItem != null) markup += "<Paragraph Margin=\"25,0,0,16\" TextIndent=\"-25\">> " + listItem.FormatLinks() + "</Paragraph>";
+                            }
+                        }
+                        break;
+                    case "Quote":
+                        Quote quote = sectionToMarkup.ContentQueue.Dequeue() as Quote;
+                        if (quote != null) markup += "<Paragraph Margin=\"10\"><Bold>" + quote.FormatLinks() + "</Bold></Paragraph>";
+                        break;
+                    case "Section":
+                        Section section = sectionToMarkup.ContentQueue.Dequeue() as Section;
+                        if (section != null) markup += MarkupSection(section);
+                        break;
+                }
+            }
+
+            return markup;
+        } 
+
+        #endregion
+
+        private void HideOrShowSections()
         {
             BioHubSection.Visibility = _team.Deck != String.Empty ? Visibility.Visible : Visibility.Collapsed;
             FirstAppearanceSection.Visibility = _team.FirstAppearanceIssue.UniqueId != 0 ? Visibility.Visible : Visibility.Collapsed;

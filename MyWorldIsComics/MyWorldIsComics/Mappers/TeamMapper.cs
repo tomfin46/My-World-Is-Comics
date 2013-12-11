@@ -45,22 +45,16 @@
                 if (!GenericResourceMapper.EnsureResultsExist(reader)) return _teamToMap;
                 reader.ReadToFollowing("results");
                 ParseAliases(reader);
-                _teamToMap = GenericResourceMapper.ParseComicVineApiUrl(reader, _teamToMap) as Team;
                 ParseEnemies(reader);
                 ParseFriends(reader);
                 ParseMembers(reader);
-                ParseAppearanceCount(reader);
-                ParseMembersCount(reader);
                 _teamToMap = GenericResourceMapper.ParseDeck(reader, _teamToMap) as Team;
                 _teamToMap = GenericResourceMapper.ParseDescriptionString(reader, _teamToMap) as Team;
                 ParseIssuesDispandedIn(reader);
                 ParseFirstAppearance(reader);
                 _teamToMap = GenericResourceMapper.ParseId(reader, _teamToMap) as Team;
                 _teamToMap = GenericResourceMapper.ParseImage(reader, _teamToMap) as Team;
-                ParseMovies(reader);
                 _teamToMap = GenericResourceMapper.ParseName(reader, _teamToMap) as Team;
-                ParsePublisher(reader);
-                _teamToMap = GenericResourceMapper.ParseComicVineSiteUrl(reader, _teamToMap) as Team;
             }
             return _teamToMap;
         }
@@ -124,6 +118,8 @@
         private void ParseEnemies(XmlReader reader)
         {
             if (reader.Name != "character_enemies") { reader.ReadToFollowing("character_enemies"); }
+            if (reader.Name == "character_enemies" && reader.IsEmptyElement) return;
+
             while (reader.Read())
             {
                 if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
@@ -141,6 +137,7 @@
         private void ParseFriends(XmlReader reader)
         {
             if (reader.Name != "character_friends") { reader.ReadToFollowing("character_friends"); }
+            if (reader.Name == "character_friends" && reader.IsEmptyElement) return;
             while (reader.Read())
             {
                 if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
@@ -158,6 +155,7 @@
         private void ParseMembers(XmlReader reader)
         {
             if (reader.Name != "characters") { reader.ReadToFollowing("characters"); }
+            if (reader.Name == "characters" && reader.IsEmptyElement) return;
             while (reader.Read())
             {
                 if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
@@ -187,6 +185,7 @@
         private void ParseIssuesDispandedIn(XmlReader reader)
         {
             if (reader.Name != "disbanded_in_issues") { reader.ReadToFollowing("disbanded_in_issues"); }
+            if (reader.Name == "disbanded_in_issues" && reader.IsEmptyElement) return;
             reader.Read();
             while (reader.Name == "issue")
             {
@@ -211,6 +210,7 @@
         private void ParseMovies(XmlReader reader)
         {
             if (reader.Name != "movies") { reader.ReadToFollowing("movies"); }
+            if (reader.Name == "movies" && reader.IsEmptyElement) return;
             reader.ReadToDescendant("movie");
 
             for (int i = 0; i < 10; i++)

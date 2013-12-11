@@ -65,7 +65,7 @@
             </TransitionCollection>
         </Grid.ChildrenTransitions>
 
-        <Hub SectionHeaderClick="HubSection_HeaderClick" DataContext="{Binding Team}" HorizontalContentAlignment="Stretch">
+        <Hub x:Name="Hub" SectionHeaderClick="HubSection_HeaderClick" DataContext="{Binding Team}" HorizontalContentAlignment="Stretch">
             <Hub.Header>
                 <!-- Back button and page title -->
                 <Border x:Name="HeaderBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25">

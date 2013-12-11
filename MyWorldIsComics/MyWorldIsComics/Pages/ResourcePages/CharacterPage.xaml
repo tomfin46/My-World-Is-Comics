@@ -112,32 +112,6 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="CurrentEventsHubSection" Width="520" Header="Current Events" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="OriginHubSection" Width="520" Header="Origin" IsHeaderInteractive="True" Visibility="Collapsed"/>
-            
-            <HubSection x:Name="BriefHistoryHubSection" Width="520" Header="Origin" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="CreationHubSection" Width="520" Header="Creation" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="CharacterEvolutionHubSection" Width="520" Header="Character Evolution" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="DistinguishingCharacteristicsHubSection" Width="520" Header="Distinguishing Characteristics" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="MajorStoryArcsHubSection" Width="520" Header="Major Story Arcs" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="PowersAndAbilitiesHubSection" Width="520" Header="Powers and Abilities" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="WeaponsAndEquipmentHubSection" Width="520" Header="Weapons and Equipment" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="MiscellaneousHubSection" Width="520" Header="Miscellaneous" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="HulksIncarnationsHubSection" Width="520" Header="Hulk's Incarnations" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="AlternateRealitiesHubSection" Width="520" Header="Alternate Realities" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="OtherMediaHubSection" Width="520" Header="Other Media" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
             <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>
                     <Grid>

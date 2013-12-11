@@ -31,56 +31,7 @@ namespace MyWorldIsComics.Mappers
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
             foreach (HtmlNode link in collection.Where(link => link.Name == "h2"))
             {
-                switch (link.InnerText)
-                {
-                    case "Current Events":
-                        this.descriptionToMap.CurrentEvents = ProcessSection(link);
-                        break;
-                    case "Origin":
-                    case "Origins":
-                        this.descriptionToMap.Origin = ProcessSection(link);
-                        break;
-                    case "Overview":
-                        this.descriptionToMap.Overview = ProcessSection(link);
-                        break;
-                    case "Brief History":
-                        this.descriptionToMap.BriefHistory = ProcessSection(link);
-                        break;
-                    case "Creation":
-                        this.descriptionToMap.Creation = ProcessSection(link);
-                        break;
-                    case "Distinguishing Characteristics":
-                        this.descriptionToMap.DistinguishingCharacteristics = ProcessSection(link);
-                        break;
-                    case "Character Evolution":
-                        this.descriptionToMap.CharacterEvolution = ProcessSection(link);
-                        break;
-                    case "Major Story Arcs":
-                        this.descriptionToMap.MajorStoryArcs = ProcessSection(link);
-                        break;
-                    case "Miscellaneous":
-                        this.descriptionToMap.Miscellaneous = ProcessSection(link);
-                        break;
-                    case "Hulk's Incarnations":
-                        this.descriptionToMap.HulksIncarnations = ProcessSection(link);
-                        break;
-                    case "Powers and Abilities":
-                    case "Abilties":
-                    case "Powers":
-                    case "Powers and Abilties":
-                        this.descriptionToMap.PowersAndAbilities = ProcessSection(link);
-                        break;
-                    case "Weapons and Equipment":
-                        this.descriptionToMap.WeaponsAndEquipment = ProcessSection(link);
-                        break;
-                    case "Other Versions":
-                    case "Alternate Realities":
-                        this.descriptionToMap.AlternateRealities = ProcessSection(link);
-                        break;
-                    case "Other Media":
-                        this.descriptionToMap.OtherMedia = ProcessSection(link);
-                        break;
-                }
+                this.descriptionToMap.Sections.Add(this.ProcessSection(link));
             }
 
             if (collection.Count > 0 && collection.First().Name == "p")
@@ -150,6 +101,9 @@ namespace MyWorldIsComics.Mappers
                     case "p":
                         section.ContentQueue.Enqueue(ProcessParagraph(nextSibling));
                         break;
+                    case "a":
+                        section.ContentQueue.Enqueue(ProcessLinkBeginningParagraph(nextSibling, out nextSibling));
+                        break;
                     case "figure":
                         section.ContentQueue.Enqueue(ProcessFigure(nextSibling));
                         break;
@@ -196,26 +150,68 @@ namespace MyWorldIsComics.Mappers
                 Links = new List<Link>()
             };
 
-            if (paragraphNode.HasChildNodes)
-            {
-                var nodes = paragraphNode.ChildNodes;
-                foreach (HtmlNode htmlNode in nodes.Where(htmlNode => htmlNode.Name == "a")
-                    .Where(htmlNode => htmlNode.GetAttributeValue("rel", String.Empty) != "nofollow"))
-                {
-                    if (paragraph.Links.Any(link => link.Text == htmlNode.InnerText)) { continue; }
+            if (!paragraphNode.HasChildNodes) return paragraph;
 
-                    if (paragraph.Links.All(link => link.Href != htmlNode.GetAttributeValue("href", String.Empty)))
-                    {
-                        paragraph.Links.Add(new Link
-                        {
-                            Href = htmlNode.GetAttributeValue("href", String.Empty),
-                            DataRefId = htmlNode.GetAttributeValue("data-ref-id", String.Empty),
-                            Text = htmlNode.InnerText
-                        });
-                    }
+            var nodes = paragraphNode.ChildNodes;
+            foreach (HtmlNode htmlNode in nodes.Where(htmlNode => htmlNode.Name == "a")
+                .Where(htmlNode => htmlNode.GetAttributeValue("rel", String.Empty) != "nofollow"))
+            {
+                if (paragraph.Links.Any(link => link.Text == htmlNode.InnerText)) { continue; }
+
+                if (paragraph.Links.All(link => link.Href != htmlNode.GetAttributeValue("href", String.Empty)))
+                {
+                    paragraph.Links.Add(new Link
+                                        {
+                                            Href = htmlNode.GetAttributeValue("href", String.Empty),
+                                            DataRefId = htmlNode.GetAttributeValue("data-ref-id", String.Empty),
+                                            Text = htmlNode.InnerText
+                                        });
                 }
             }
 
+            return paragraph;
+        }
+
+        private DescriptionParagraph ProcessLinkBeginningParagraph(HtmlNode paragraphNode, out HtmlNode nextSibling)
+        {
+            nextSibling = paragraphNode.NextSibling;
+            
+            if (!paragraphNode.HasChildNodes) return new DescriptionParagraph {Text = paragraphNode.InnerText};
+            DescriptionParagraph paragraph = new DescriptionParagraph
+            {
+                Text = paragraphNode.FirstChild.InnerText,
+                Links = new List<Link> { 
+                    new Link { 
+                        Href = paragraphNode.GetAttributeValue("href", String.Empty),
+                        DataRefId = paragraphNode.GetAttributeValue("data-ref-id", String.Empty),
+                        Text = paragraphNode.InnerText
+                    }
+                }
+            };
+            
+            do
+            {
+                switch (nextSibling.Name)
+                {
+                    case "#text":
+                        paragraph.Text += nextSibling.InnerText;
+                        break;
+                    case "a":
+                        paragraph.Text += nextSibling.InnerText;
+                        paragraph.Links.Add(
+                            new Link
+                            {
+                                Href = nextSibling.GetAttributeValue("href", String.Empty),
+                                DataRefId = nextSibling.GetAttributeValue("data-ref-id", String.Empty),
+                                Text = nextSibling.InnerText
+                            });
+                        break;
+
+                }
+                nextSibling = nextSibling.NextSibling;
+            }
+            while (nextSibling != null && (nextSibling.Name == "a" || nextSibling.Name == "#text"));
+            
             return paragraph;
         }
 

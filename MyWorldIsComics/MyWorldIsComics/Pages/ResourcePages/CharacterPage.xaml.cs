@@ -111,6 +111,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
             {
                 if (SavedData.Character != null && SavedData.Character.UniqueId == id) { _character = SavedData.Character; }
                 else { _character = await GetCharacter(id); }
+                PageTitle.Text = _character.Name;
+
 
                 CharacterPageViewModel["Character"] = _character;
 
@@ -420,41 +422,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     IssuePage.BasicIssue = _character.FirstAppearanceIssue;
                     Frame.Navigate(typeof(IssuePage), _character.FirstAppearanceIssue);
                     break;
-                case "Current Events":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.CurrentEvents);
-                    break;
-                case "Origin":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.Origin);
-                    break;
-                case "Creation":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.Creation);
-                    break;
-                case "Distinguishing Characteristics":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.DistinguishingCharacteristics);
-                    break;
-                case "Character Evolution":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.CharacterEvolution);
-                    break;
-                case "Major Story Arcs":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.MajorStoryArcs);
-                    break;
-                case "Powers and Abilities":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.PowersAndAbilities);
-                    break;
-                case "Weapons and Equipment":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.WeaponsAndEquipment);
-                    break;
-                case "Miscellaneous":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.Miscellaneous);
-                    break;
-                case "Hulk's Incarnations":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.HulksIncarnations);
-                    break;
-                case "Alternate Realities":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.AlternateRealities);
-                    break;
-                case "Other Media":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _characterDescription.OtherMedia);
+                default:
+                    Section section = _characterDescription.Sections.First(d => d.Title == e.Section.Header.ToString());
+                    Frame.Navigate(typeof(DescriptionSectionPage), section);
                     break;
             }
         }

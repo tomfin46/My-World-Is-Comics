@@ -45,12 +45,12 @@
                 if (!GenericResourceMapper.EnsureResultsExist(reader)) return _teamToMap;
                 reader.ReadToFollowing("results");
                 ParseAliases(reader);
-                ParseEnemies(reader);
-                ParseFriends(reader);
-                ParseMembers(reader);
+                //ParseEnemies(reader);
+                //ParseFriends(reader);
+                //ParseMembers(reader);
                 _teamToMap = GenericResourceMapper.ParseDeck(reader, _teamToMap) as Team;
                 _teamToMap = GenericResourceMapper.ParseDescriptionString(reader, _teamToMap) as Team;
-                ParseIssuesDispandedIn(reader);
+                //ParseIssuesDispandedIn(reader);
                 ParseFirstAppearance(reader);
                 _teamToMap = GenericResourceMapper.ParseId(reader, _teamToMap) as Team;
                 _teamToMap = GenericResourceMapper.ParseImage(reader, _teamToMap) as Team;

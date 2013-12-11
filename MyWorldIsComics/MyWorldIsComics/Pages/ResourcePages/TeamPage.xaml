@@ -81,20 +81,43 @@
                             AutomationProperties.Name="Back"
                             AutomationProperties.AutomationId="BackButton"
                             AutomationProperties.ItemType="Navigation Button"/>
-                        <TextBlock x:Name="pageTitle" Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
+                        <TextBlock x:Name="PageTitle" Text="Loading..." Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                             IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Top"/>
                         <SearchBox Grid.Column="2" x:Name="SearchBoxSuggestions" Height="35" VerticalAlignment="Top"  FocusOnKeyboardInput="True" Margin="-120,0,0,0" QuerySubmitted="SearchBoxEventsQuerySubmitted" SuggestionsRequested="SearchBoxEventsSuggestionsRequested"/>
                     </Grid>
                 </Border>
             </Hub.Header>
 
-            <HubSection x:Name="ImageHubSection" Width="780" Margin="0,0,20,0" Tapped="ImageHubSection_Tapped">
+            <HubSection x:Name="ImageHubSection" Width="620" Margin="0,0,20,0" Visibility="Visible" Tapped="StatsHubSection_Tapped">
                 <HubSection.Background>
                     <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" AlignmentX="Left" />
                 </HubSection.Background>
             </HubSection>
 
-            <HubSection x:Name="BioHubSection" Width="500" Header="Bio" Visibility="Collapsed">
+            <HubSection x:Name="StatsHubSection" Width="620" Margin="0,0,20,0" Visibility="Collapsed" Tapped="StatsHubSection_Tapped">
+                <HubSection.Background>
+                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" AlignmentX="Left" />
+                </HubSection.Background>
+
+                <DataTemplate x:Name="StatsTemplate">
+                    <Grid>
+                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
+                        <StackPanel x:Name="StatsStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10" TextWrapping="Wrap" FlowDirection="RightToLeft">
+                                <Run Text="Aliases: " />
+                                <Run Text="{Binding AliasesString}" FontWeight="Normal"/>
+                            </TextBlock>
+
+                            <!--<TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,10" TextWrapping="Wrap" FlowDirection="RightToLeft" FontFamily="Global User Interface">
+                                <Run Text="Publisher: " />
+                                <Run Text="{Binding PublisherName}" FontWeight="Normal"/>
+                            </TextBlock>-->
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+
+            <HubSection x:Name="BioHubSection" Width="500" Visibility="Collapsed">
                 <DataTemplate>
                     <StackPanel>
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">

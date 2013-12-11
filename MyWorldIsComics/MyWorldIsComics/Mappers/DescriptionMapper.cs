@@ -108,6 +108,7 @@ namespace MyWorldIsComics.Mappers
                         section.ContentQueue.Enqueue(ProcessFigure(nextSibling));
                         break;
                     case "ul":
+                    case "ol":
                         section.ContentQueue.Enqueue(ProcessList(nextSibling));
                         break;
                     case "blockquote":

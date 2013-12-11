@@ -54,8 +54,7 @@ namespace MyWorldIsComics.DataSource
 
         public static async Task<string> GetTeamAsync(int teamId)
         {
-            List<string> filters = new List<string> { "aliases", "characters", "character_enemies", "character_friends", "deck", "description", "disbanded_in_issues",
-                "first_appeared_in_issue", "id", "image", "name" };
+            List<string> filters = new List<string> { "aliases", "deck", "description", "first_appeared_in_issue", "id", "image", "name" };
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Team, teamId.ToString(), filters));
         }
 

@@ -27,6 +27,11 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
             {
                 if (link.Text == String.Empty) continue;
                 if (link.DataRefId == String.Empty) continue;
+                int i;
+                if (int.TryParse(link.Text, out i))
+                {
+                    if(i < 10) continue;
+                }
 
                 var ids = link.DataRefId.Split('-');
                 if (ids.Length < 2) continue;

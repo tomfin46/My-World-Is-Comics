@@ -170,18 +170,6 @@
             }
         }
 
-        private void ParseAppearanceCount(XmlReader reader)
-        {
-            if (reader.Name != "count_of_issue_appearances") { reader.ReadToFollowing("count_of_issue_appearances"); }
-            _teamToMap.IssueAppearancesCount = reader.ReadElementContentAsInt();
-        }
-
-        private void ParseMembersCount(XmlReader reader)
-        {
-            if (reader.Name != "count_of_team_members") { reader.ReadToFollowing("count_of_team_members"); }
-            _teamToMap.MembersCount = reader.ReadElementContentAsInt();
-        }
-
         private void ParseIssuesDispandedIn(XmlReader reader)
         {
             if (reader.Name != "disbanded_in_issues") { reader.ReadToFollowing("disbanded_in_issues"); }
@@ -203,6 +191,7 @@
         private void ParseFirstAppearance(XmlReader reader)
         {
             if (reader.Name != "first_appeared_in_issue") { reader.ReadToFollowing("first_appeared_in_issue"); }
+            if (reader.IsEmptyElement) return; 
             reader.ReadToDescendant("id");
             _teamToMap.FirstAppearanceId = reader.ReadElementContentAsInt();
         }

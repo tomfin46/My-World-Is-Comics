@@ -140,7 +140,7 @@ namespace MyWorldIsComics.Pages
             }
             else if (e.ClickedItem as Concept != null)
             {
-                //Frame.Navigate(typeof(ConceptPage), id);
+                Frame.Navigate(typeof(ConceptPage), id);
             }
             else if (e.ClickedItem as Creator != null)
             {

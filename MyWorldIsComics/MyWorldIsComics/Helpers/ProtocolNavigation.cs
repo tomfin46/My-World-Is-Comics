@@ -56,6 +56,10 @@ namespace MyWorldIsComics.Helpers
                     var publisherPage = rootFrame.Content as PublisherPage;
                     if (publisherPage != null) NavigateToProtocolPage(publisherPage.Frame);
                     break;
+                case "ConceptPage":
+                    var conceptPage = rootFrame.Content as ConceptPage;
+                    if (conceptPage != null) NavigateToProtocolPage(conceptPage.Frame);
+                    break;
             }
         }
         private void NavigateToProtocolPage(Frame pageFrame)
@@ -79,7 +83,7 @@ namespace MyWorldIsComics.Helpers
                     pageFrame.Navigate(typeof(LocationPage), _protocolEventArgs.Uri.Segments[2]);
                     break;
                 case "4015":
-                    // TODO pageFrame.Navigate(typeof(ConceptPage), _protocolEventArgs.Uri.Segments[2]);
+                    pageFrame.Navigate(typeof(ConceptPage), _protocolEventArgs.Uri.Segments[2]);
                     break;
                 case "4055":
                     // TODO pageFrame.Navigate(typeof(ObjectPage), _protocolEventArgs.Uri.Segments[2]);

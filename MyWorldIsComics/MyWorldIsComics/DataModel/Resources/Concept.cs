@@ -34,7 +34,9 @@ namespace MyWorldIsComics.DataModel.Resources
                 return uri;
             }
         }
-
         public string PublisherName { get; set; }
+        public int IssueAppearancesCount { get; set; }
+        public int FirstAppearanceId { get; set; }
+        public Issue FirstAppearanceIssue { get; set; }
     }
 }

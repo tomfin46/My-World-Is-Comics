@@ -159,7 +159,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private void HideOrShowSections()
         {
             TeamSection.Visibility = _character.TeamIds.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            FirstAppearanceSection.Visibility = _character.FirstAppearanceIssue.UniqueId != 0 ? Visibility.Visible : Visibility.Collapsed;
+            FirstAppearanceSection.Visibility = _character.FirstAppearanceIssue != null ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
@@ -222,8 +222,6 @@ namespace MyWorldIsComics.Pages.ResourcePages
             _characterDescription = await ComicVineSource.FormatDescriptionAsync(_character.DescriptionString);
         }
 
-        #region DataTemplate Creation
-
         private void CreateDataTemplates()
         {
             int i = 3;
@@ -233,8 +231,6 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 i++;
             }
         }
-
-        #endregion
 
         #region NavigationHelper registration
 

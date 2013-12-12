@@ -205,6 +205,7 @@ namespace MyWorldIsComics.Mappers
         private void ParseFirstAppearance(XmlReader reader)
         {
             if (reader.Name != "first_appeared_in_issue") { reader.ReadToFollowing("first_appeared_in_issue"); }
+            if (reader.IsEmptyElement) return; 
             reader.ReadToDescendant("id");
             _characterToMap.FirstAppearanceId = reader.ReadElementContentAsInt();
         }

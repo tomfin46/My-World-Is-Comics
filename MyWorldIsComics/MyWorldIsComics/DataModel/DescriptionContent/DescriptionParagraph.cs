@@ -36,8 +36,7 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
                 var ids = link.DataRefId.Split('-');
                 if (ids.Length < 2) continue;
 
-                var hyperlink = "<Hyperlink NavigateUri=\"myworldiscomics:///" + ids[0] + "/" + ids[1] + "\">"
-                                + link.Text + "</Hyperlink>";
+                var hyperlink = "<Hyperlink NavigateUri=\"myworldiscomics:///" + ids[0] + "/" + ids[1] + "\">" + link.Text + "</Hyperlink>";
 
                 Link linkCopy = link;
                 Boolean contains = false;

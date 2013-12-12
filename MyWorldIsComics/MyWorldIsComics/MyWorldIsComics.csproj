@@ -167,6 +167,9 @@
     </Compile>
     <Compile Include="Mappers\CharacterMapper.cs" />
     <Compile Include="Mappers\DescriptionMapper.cs" />
+    <Compile Include="Pages\ResourcePages\ConceptPage.xaml.cs">
+      <DependentUpon>ConceptPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\ResourcePages\IssuePage.xaml.cs">
       <DependentUpon>IssuePage.xaml</DependentUpon>
     </Compile>
@@ -247,6 +250,10 @@
     <Page Include="HubPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\ResourcePages\ConceptPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\ResourcePages\IssuePage.xaml">
       <SubType>Designer</SubType>

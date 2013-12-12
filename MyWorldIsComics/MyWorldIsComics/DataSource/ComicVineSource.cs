@@ -65,10 +65,16 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Location, locationId.ToString(), filters));
         }
 
-        public static async Task<string> GetPublisherAsync(int locationId)
+        public static async Task<string> GetPublisherAsync(int publisherId)
         {
             List<string> filters = new List<string> { "aliases", "deck", "description", "id", "image", "name", "location_address", "location_city", "location_state" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Publisher, locationId.ToString(), filters));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Publisher, publisherId.ToString(), filters));
+        }
+
+        public static async Task<string> GetConceptAsync(int conceptId)
+        {
+            List<string> filters = new List<string> { "count_of_isssue_appearances", "deck", "description", "first_appeared_in_issue", "id", "image", "name" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Concept, conceptId.ToString(), filters));
         }
 
         #endregion
@@ -161,6 +167,8 @@ namespace MyWorldIsComics.DataSource
 
         #endregion
 
+        #region Format Description
+
         public static async Task<Description> FormatDescriptionAsync(string descriptionString)
         {
             return await Task.Run(() => new DescriptionMapper().MapDescription(descriptionString));
@@ -172,7 +180,9 @@ namespace MyWorldIsComics.DataSource
         public static async Task<Section> FormatDescriptionAsync(Volume volume)
         {
             return await Task.Run(() => new DescriptionMapper().MapDescription(volume));
-        }
+        } 
+
+        #endregion
 
         private static async Task<string> QueryServiceAsync(Uri uri)
         {

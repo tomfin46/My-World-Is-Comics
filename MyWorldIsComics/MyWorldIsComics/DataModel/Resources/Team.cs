@@ -1,4 +1,6 @@
-﻿namespace MyWorldIsComics.DataModel.Resources
+﻿using System.Linq;
+
+namespace MyWorldIsComics.DataModel.Resources
 {
     using System;
     using System.Collections.Generic;
@@ -53,6 +55,13 @@
         #region Collections
 
         public List<String> Aliases { get; set; }
+        public string AliasesString
+        {
+            get
+            {
+                return Aliases.Count == 1 && Aliases.First() == String.Empty ? "None" : string.Join(", ", Aliases);
+            }
+        }
         public ObservableCollection<Character> Members { get; set; }
         public List<int> MemberIds { get; set; }
         public ObservableCollection<Character> Enemies { get; set; }

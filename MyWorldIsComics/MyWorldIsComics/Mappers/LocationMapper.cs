@@ -39,7 +39,7 @@ namespace MyWorldIsComics.Mappers
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
             {
                 if (!GenericResourceMapper.EnsureResultsExist(reader)) return new Location { Name = ServiceConstants.QueryNotFound };
-                if (reader.Name == "response") reader.ReadToFollowing("results");
+                if (reader.Name == "response" || reader.Name != "results") reader.ReadToFollowing("results");
 
                 ParseAliases(reader);
                 this.ParseAppearanceCount(reader);

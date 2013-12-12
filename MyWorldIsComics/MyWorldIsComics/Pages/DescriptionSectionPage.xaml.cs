@@ -77,7 +77,9 @@ namespace MyWorldIsComics.Pages
         /// session. The state will be null the first time a page is visited.</param>
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            _descSection = e.NavigationParameter as Section;
+            if (SavedData.DescriptionSection != null && SavedData.DescriptionSection.Title == pageTitle.Text) { _descSection = SavedData.DescriptionSection; }
+            else { _descSection = e.NavigationParameter as Section; }
+            
             if (_descSection == null) return;
             pageTitle.Text = _descSection.Title;
 
@@ -102,6 +104,10 @@ namespace MyWorldIsComics.Pages
         /// serializable state.</param>
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
+            if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
+
+            // Save response content so don't have to fetch from api service again
+            SavedData.DescriptionSection = _descSection;
         }
 
         private void PopulateRichTextBlock()

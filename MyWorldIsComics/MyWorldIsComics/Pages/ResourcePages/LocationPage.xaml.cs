@@ -111,12 +111,15 @@ namespace MyWorldIsComics.Pages.ResourcePages
             SavedData.Location = _location;
         }
 
+        #region Load Location
+
         private async Task LoadLocation(int id)
         {
             try
             {
                 if (SavedData.Location != null && SavedData.Location.UniqueId == id) { _location = SavedData.Location; }
                 else { _location = await GetLocation(id); }
+                PageTitle.Text = _location.Name;
 
                 LocationPageViewModel["Location"] = _location;
                 ImageHubSection.Visibility = Visibility.Collapsed;
@@ -154,7 +157,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             var locationSearchString = await ComicVineSource.GetLocationAsync(id);
             return MapLocation(locationSearchString);
-        }
+        } 
+
+        #endregion
 
         #region Fetch methods
 
@@ -218,17 +223,15 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void CreateDataTemplates()
         {
-            if (_locationDescription.Overview == null || _locationDescription.Overview.ContentQueue.Count == 0) HideHubSection("Overview");
-            else CreateDataTemplate(_locationDescription.Overview);
-
-            if (_locationDescription.OtherMedia == null || _locationDescription.OtherMedia.ContentQueue.Count == 0) HideHubSection("Other Media");
-            else CreateDataTemplate(_locationDescription.OtherMedia);
-
-            if (_locationDescription.EmptyHeader == null || _locationDescription.EmptyHeader.ContentQueue.Count == 0) HideHubSection(String.Empty);
-            else CreateDataTemplate(_locationDescription.EmptyHeader);
+            int i = 2;
+            foreach (Section section in _locationDescription.Sections)
+            {
+                this.CreateDataTemplate(section, i);
+                i++;
+            }
         }
 
-        private void CreateDataTemplate(Section descriptionSection)
+        private void CreateDataTemplate(Section descriptionSection, int i)
         {
             String markup = String.Empty;
             markup += "<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">";
@@ -300,7 +303,16 @@ namespace MyWorldIsComics.Pages.ResourcePages
             markup += "</DataTemplate>";
 
             DataTemplate dataTemplate = (DataTemplate)XamlReader.Load(markup);
-            SetHubSectionContentTemplate(dataTemplate, descriptionSection.Title);
+
+            HubSection hubSection = new HubSection
+            {
+                ContentTemplate = dataTemplate,
+                Width = 520,
+                IsHeaderInteractive = true,
+                Header = descriptionSection.Title
+            };
+            Hub.Sections.Insert(i, hubSection);
+            //SetHubSectionContentTemplate(dataTemplate, descriptionSection.Title);
         }
 
         private static string MarkupSection(Section sectionToMarkup)
@@ -375,41 +387,6 @@ namespace MyWorldIsComics.Pages.ResourcePages
             return markup;
         }
 
-        private void HideHubSection(string sectionTitle)
-        {
-            switch (sectionTitle)
-            {
-                case "Overview":
-                    OverviewHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                case "Other Media":
-                    OtherMediaHubSection.Visibility = Visibility.Collapsed;
-                    break;
-                default:
-                    DescriptionHubSection.Visibility = Visibility.Collapsed;
-                    break;
-            }
-        }
-
-        private void SetHubSectionContentTemplate(DataTemplate sectionTemplate, string sectionTitle)
-        {
-            switch (sectionTitle)
-            {
-                case "Overview":
-                    OverviewHubSection.ContentTemplate = sectionTemplate;
-                    OverviewHubSection.Visibility = Visibility.Visible;
-                    break;
-                case "Other Media":
-                    OtherMediaHubSection.ContentTemplate = sectionTemplate;
-                    OtherMediaHubSection.Visibility = Visibility.Visible;
-                    break;
-                default:
-                    DescriptionHubSection.ContentTemplate = sectionTemplate;
-                    DescriptionHubSection.Visibility = Visibility.Visible;
-                    break;
-            }
-        }
-
         #endregion
 
         #region NavigationHelper registration
@@ -447,7 +424,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (e == null) return;
             if (e.Section.Header == null) return;
-            if (e.Section.Header.ToString() != "Volumes" || e.Section.Header.ToString() != "First Appearance") await this.FormatDescriptionForPage();
+            var header = e.Section.Header.ToString();
+            if (header != "Volumes" || header != "First Appearance") await this.FormatDescriptionForPage();
             switch (e.Section.Header.ToString())
             {
                 case "Volumes":
@@ -457,11 +435,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     IssuePage.BasicIssue = _location.FirstAppearanceIssue;
                     Frame.Navigate(typeof(IssuePage), _location.FirstAppearanceIssue);
                     break;
-                case "Overview":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _locationDescription.Overview);
-                    break;
-                case "Other Media":
-                    Frame.Navigate(typeof(DescriptionSectionPage), _locationDescription.OtherMedia);
+                default:
+                    Section section = _locationDescription.Sections.First(d => d.Title == header);
+                    Frame.Navigate(typeof(DescriptionSectionPage), section);
                     break;
             }
         }

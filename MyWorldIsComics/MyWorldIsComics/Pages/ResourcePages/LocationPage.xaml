@@ -20,7 +20,7 @@
             </TransitionCollection>
         </Grid.ChildrenTransitions>
 
-        <Hub SectionHeaderClick="HubSection_HeaderClick" HorizontalContentAlignment="Stretch">
+        <Hub x:Name="Hub" SectionHeaderClick="HubSection_HeaderClick" HorizontalContentAlignment="Stretch">
             <Hub.Header>
                 <!-- Back button and page title -->
                 <Border x:Name="HeaderBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25">
@@ -37,7 +37,7 @@
                             AutomationProperties.AutomationId="BackButton"
                             AutomationProperties.ItemType="Navigation Button"/>
 
-                        <TextBlock Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" IsHitTestVisible="false"
+                        <TextBlock x:Name="PageTitle" Text="Loading..." Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" IsHitTestVisible="false"
                                    TextWrapping="NoWrap" VerticalAlignment="Top"/>
                         <SearchBox Grid.Column="2" x:Name="SearchBoxSuggestions" Height="35" VerticalAlignment="Top"  FocusOnKeyboardInput="True" Margin="-120,0,0,0" QuerySubmitted="SearchBoxEventsQuerySubmitted" SuggestionsRequested="SearchBoxEventsSuggestionsRequested"/>
                     </Grid>
@@ -73,12 +73,6 @@
                     </Grid>
                 </DataTemplate>
             </HubSection>
-
-            <HubSection x:Name="OverviewHubSection" Width="520" Header="Overview" IsHeaderInteractive="True" Visibility="Collapsed"/>
-
-            <HubSection x:Name="DescriptionHubSection" Width="650" Header="" IsHeaderInteractive="True" Visibility="Collapsed"/>
-            
-            <HubSection x:Name="OtherMediaHubSection" Width="520" Header="Other Media" IsHeaderInteractive="True" Visibility="Collapsed"/>
 
             <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>

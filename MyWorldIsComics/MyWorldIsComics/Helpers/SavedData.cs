@@ -1,4 +1,5 @@
-﻿using MyWorldIsComics.DataModel.Resources;
+﻿using MyWorldIsComics.DataModel.DescriptionContent;
+using MyWorldIsComics.DataModel.Resources;
 
 namespace MyWorldIsComics.Helpers
 {
@@ -9,6 +10,7 @@ namespace MyWorldIsComics.Helpers
         public static Team Team { get; set; }
         public static Volume Volume { get; set; }
         public static Location Location { get; set; }
+        public static Section DescriptionSection { get; set; }
         public static Publisher Publisher { get; set; }
 
         public static void Clear()
@@ -18,6 +20,7 @@ namespace MyWorldIsComics.Helpers
             Team = null;
             Volume = null;
             Location = null;
+            DescriptionSection = null;
             Publisher = null;
         }
     }

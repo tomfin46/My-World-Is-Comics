@@ -7,6 +7,11 @@ namespace MyWorldIsComics.Mappers
     #region usings
 
     using System;
+    using System.Text;
+
+    using Windows.UI.Xaml;
+    using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Markup;
 
     using HtmlAgilityPack;
 
@@ -25,7 +30,7 @@ namespace MyWorldIsComics.Mappers
 
         public Description MapDescription(string htmlString)
         {
-            if(htmlString == null) return new Description();
+            if (htmlString == null) return new Description();
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(htmlString);
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
@@ -176,8 +181,8 @@ namespace MyWorldIsComics.Mappers
         private DescriptionParagraph ProcessLinkBeginningParagraph(HtmlNode paragraphNode, out HtmlNode nextSibling)
         {
             nextSibling = paragraphNode.NextSibling;
-            
-            if (!paragraphNode.HasChildNodes) return new DescriptionParagraph {Text = paragraphNode.InnerText};
+
+            if (!paragraphNode.HasChildNodes) return new DescriptionParagraph { Text = paragraphNode.InnerText };
             DescriptionParagraph paragraph = new DescriptionParagraph
             {
                 Text = paragraphNode.FirstChild.InnerText,
@@ -189,7 +194,7 @@ namespace MyWorldIsComics.Mappers
                     }
                 }
             };
-            
+
             do
             {
                 switch (nextSibling.Name)
@@ -212,7 +217,7 @@ namespace MyWorldIsComics.Mappers
                 nextSibling = nextSibling.NextSibling;
             }
             while (nextSibling != null && (nextSibling.Name == "a" || nextSibling.Name == "#text"));
-            
+
             return paragraph;
         }
 
@@ -302,6 +307,192 @@ namespace MyWorldIsComics.Mappers
                 if (nextSibling != null) nextSibling = nextSibling.NextSibling;
             }
             return section;
+        }
+
+        public static HubSection CreateDataTemplate(Section descriptionSection, int i)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">");
+            sb.Append("<ScrollViewer VerticalScrollBarVisibility=\"Hidden\">");
+            sb.Append("<RichTextBlock>");
+
+            if (descriptionSection == null) return new HubSection();
+
+            while (descriptionSection.ContentQueue.Count > 0)
+            {
+                var queuePeekType = descriptionSection.ContentQueue.Peek().GetType();
+                switch (queuePeekType.Name)
+                {
+                    case "DescriptionParagraph":
+                        DescriptionParagraph para = descriptionSection.ContentQueue.Dequeue() as DescriptionParagraph;
+                        if (para != null)
+                        {
+                            sb.Append("<Paragraph FontSize=\"15\" FontFamily=\"Segoe UI Semilight\" Margin=\"0,0,0,10\">");
+                            sb.Append(para.FormatLinks());
+                        }
+                        if (descriptionSection.ContentQueue.Count > 0 && descriptionSection.ContentQueue.Peek().GetType() == typeof(Figure))
+                        {
+                            Figure paraFig = descriptionSection.ContentQueue.Dequeue() as Figure;
+                            if (paraFig != null)
+                            {
+                                sb.Append("</Paragraph>");
+                                sb.Append("<Paragraph></Paragraph>");
+                                sb.Append("<Paragraph TextAlignment=\"Center\">");
+                                sb.Append("<InlineUIContainer>");
+                                sb.Append("<Image Source=\"" + paraFig.ImageSource + "\" Stretch=\"Uniform\"/>");
+                                sb.Append("</InlineUIContainer>");
+                                sb.Append("</Paragraph>");
+                                sb.Append("<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + paraFig.Text + "</Paragraph>");
+                            }
+                        }
+                        else
+                        {
+                            sb.Append("</Paragraph>");
+                        }
+                        break;
+                    case "Figure":
+                        Figure fig = descriptionSection.ContentQueue.Dequeue() as Figure;
+                        if (fig != null)
+                        {
+                            sb.Append("<Paragraph></Paragraph>");
+                            sb.Append("<Paragraph TextAlignment=\"Center\">");
+                            sb.Append("<InlineUIContainer>");
+                            sb.Append("<Image Source=\"" + fig.ImageSource + "\" Stretch=\"Uniform\"/>");
+                            sb.Append("</InlineUIContainer>");
+                            sb.Append("</Paragraph>");
+                            sb.Append("<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + fig.Text + "</Paragraph>");
+                        }
+                        break;
+                    case "List":
+                        List list = descriptionSection.ContentQueue.Dequeue() as List;
+                        if (list != null)
+                        {
+                            while (list.ContentQueue.Count > 0)
+                            {
+                                DescriptionParagraph listItem = list.ContentQueue.Dequeue() as DescriptionParagraph;
+                                if (listItem != null)
+                                {
+                                    sb.Append("<Paragraph Margin=\"25,0,0,16\" TextIndent=\"-25\">> " + listItem.FormatLinks() + "</Paragraph>");
+                                }
+                            }
+                        }
+                        break;
+                    case "Quote":
+                        Quote quote = descriptionSection.ContentQueue.Dequeue() as Quote;
+                        if (quote != null)
+                        {
+                            sb.Append("<Paragraph Margin=\"10\"><Bold>" + quote.FormatLinks() + "</Bold></Paragraph>");
+                        }
+                        break;
+                    case "Section":
+                        Section section = descriptionSection.ContentQueue.Dequeue() as Section;
+                        if (section != null)
+                        {
+                            sb.Append(MarkupSection(section));
+                        }
+                        break;
+                }
+            }
+
+            sb.Append("</RichTextBlock>");
+            sb.Append("</ScrollViewer>");
+            sb.Append("</DataTemplate>");
+
+            DataTemplate dataTemplate = (DataTemplate)XamlReader.Load(sb.ToString());
+            return new HubSection
+            {
+                ContentTemplate = dataTemplate,
+                Width = 520,
+                IsHeaderInteractive = true,
+                Header = descriptionSection.Title
+            };
+        }
+
+        private static string MarkupSection(Section sectionToMarkup)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (sectionToMarkup == null) return sb.ToString();
+
+            sb.Append("<Paragraph Margin=\"0,0,0,10\" FontSize=\"17\">");
+            if (sectionToMarkup.Type == "h3") sb.Append("<Bold>" + sectionToMarkup.Title + "</Bold>");
+            else if (sectionToMarkup.Type == "h4") sb.Append("<Underline>" + sectionToMarkup.Title + "</Underline>");
+            sb.Append("</Paragraph>");
+
+            while (sectionToMarkup.ContentQueue.Count > 0)
+            {
+                var queuePeekType = sectionToMarkup.ContentQueue.Peek().GetType();
+                switch (queuePeekType.Name)
+                {
+                    case "DescriptionParagraph":
+                        DescriptionParagraph para = sectionToMarkup.ContentQueue.Dequeue() as DescriptionParagraph;
+                        if (para != null)
+                        {
+                            sb.Append("<Paragraph FontSize=\"15\" FontFamily=\"Segoe UI Semilight\" Margin=\"0,0,0,10\">");
+                            sb.Append(para.FormatLinks());
+                        }
+                        if (sectionToMarkup.ContentQueue.Count > 0 && sectionToMarkup.ContentQueue.Peek().GetType() == typeof(Figure))
+                        {
+                            Figure paraFig = sectionToMarkup.ContentQueue.Dequeue() as Figure;
+                            if (paraFig != null)
+                            {
+                                sb.Append("</Paragraph><Paragraph></Paragraph><Paragraph TextAlignment=\"Center\">");
+                                sb.Append("<InlineUIContainer>");
+                                sb.Append("<Image Source=\"" + paraFig.ImageSource + "\" Stretch=\"Uniform\"/>");
+                                sb.Append("</InlineUIContainer>");
+                                sb.Append("</Paragraph>");
+                                sb.Append("<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + paraFig.Text + "</Paragraph>");
+                            }
+                        }
+                        else
+                        {
+                            sb.Append("</Paragraph>");
+                        }
+                        break;
+                    case "Figure":
+                        Figure fig = sectionToMarkup.ContentQueue.Dequeue() as Figure;
+                        if (fig != null)
+                        {
+                            sb.Append("<Paragraph></Paragraph><Paragraph TextAlignment=\"Center\">");
+                            sb.Append("<InlineUIContainer>");
+                            sb.Append("<Image Source=\"" + fig.ImageSource + "\" Stretch=\"Uniform\"/>");
+                            sb.Append("</InlineUIContainer>");
+                            sb.Append("</Paragraph>");
+                            sb.Append("<Paragraph TextAlignment=\"Center\" Margin=\"0,0,0,10\">" + fig.Text + "</Paragraph>");
+                        }
+                        break;
+                    case "List":
+                        List list = sectionToMarkup.ContentQueue.Dequeue() as List;
+                        if (list != null)
+                        {
+                            while (list.ContentQueue.Count > 0)
+                            {
+                                DescriptionParagraph listItem = list.ContentQueue.Dequeue() as DescriptionParagraph;
+                                if (listItem != null)
+                                {
+                                    sb.Append("<Paragraph Margin=\"25,0,0,16\" TextIndent=\"-25\">> " + listItem.FormatLinks() + "</Paragraph>");
+                                }
+                            }
+                        }
+                        break;
+                    case "Quote":
+                        Quote quote = sectionToMarkup.ContentQueue.Dequeue() as Quote;
+                        if (quote != null)
+                        {
+                            sb.Append("<Paragraph Margin=\"10\"><Bold>" + quote.FormatLinks() + "</Bold></Paragraph>");
+                        }
+                        break;
+                    case "Section":
+                        Section section = sectionToMarkup.ContentQueue.Dequeue() as Section;
+                        if (section != null)
+                        {
+                            sb.Append(MarkupSection(section));
+                        }
+                        break;
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }

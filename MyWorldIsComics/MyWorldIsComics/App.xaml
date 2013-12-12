@@ -9,5 +9,91 @@
         <!-- Application-specific resources -->
 
         <x:String x:Key="AppName">MyWorldIsComics</x:String>
+        <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
+
+        <DataTemplate x:Key="Standard310x260ItemTemplate">
+            <Grid Height="250" Width="310" Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="150">
+                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                </Border>
+                <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                        <TextBlock Text="{Binding Deck}" Style="{StaticResource BodyTextBlockStyle}"/>
+                    </ScrollViewer>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="IssueCoverDataTemplate">
+            <Grid Width="200" Height="300" Margin="10">
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                    <Image Source="{Binding MainImage}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
+                </Border>
+                <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,0"/>
+                    <TextBlock Text="{Binding StartYear}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,10"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+        
+        <DataTemplate x:Key="IssueItemTemplate">
+            <Grid Height="250" Width="450" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="250">
+                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                </Border>
+                <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
+                    <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,0,20,0" TextWrapping="Wrap">
+                        <Run Text="{Binding VolumeName}"></Run>
+                        <Run Text="{Binding IssueNumberString}"></Run>
+                    </TextBlock>
+                    <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
+                    <TextBlock Text="{Binding IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
+
+                    <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
+                    <TextBlock Text="{Binding CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+
+                    <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
+                    <TextBlock Text="{Binding StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="50x50CreatorAvatarItemTemplate">
+            <Grid Height="50" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="50">
+                    <Image Source="{Binding AvatarImage}" Stretch="Uniform" AutomationProperties.Name="{Binding Name}" Height="50" Width="50"/>
+                </Border>
+                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
+                    <TextBlock Text="{Binding Role}" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="NoWrap"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="50x50AvatarItemTemplate">
+            <Grid Height="50" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="50">
+                    <Image Source="{Binding AvatarImage}" Stretch="Uniform" AutomationProperties.Name="{Binding Name}" Height="50" Width="50"/>
+                </Border>
+                <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap" Grid.Column="1" Margin="10,0,0,0"/>
+            </Grid>
+        </DataTemplate>
     </Application.Resources>
 </Application>

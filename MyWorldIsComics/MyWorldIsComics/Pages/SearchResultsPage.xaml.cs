@@ -165,7 +165,7 @@ namespace MyWorldIsComics.Pages
             }
             else if (e.ClickedItem as Publisher != null)
             {
-                //Frame.Navigate(typeof(PublisherPage), id);
+                Frame.Navigate(typeof(PublisherPage), id);
             }
             else if (e.ClickedItem as StoryArc != null)
             {

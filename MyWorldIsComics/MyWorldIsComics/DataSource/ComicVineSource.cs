@@ -66,6 +66,12 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Location, locationId.ToString(), filters));
         }
 
+        public static async Task<string> GetPublisherAsync(int locationId)
+        {
+            List<string> filters = new List<string> { "aliases", "deck", "description", "id", "image", "name", "location_address", "location_city", "location_state" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Publisher, locationId.ToString(), filters));
+        }
+
         #endregion
 
         #region GetFiltered methods

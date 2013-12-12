@@ -10,23 +10,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Page.Resources>
-        <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
-
-        <DataTemplate x:Key="IssueCoverDataTemplate">
-            <Grid Width="200" Height="300" Margin="10">
-                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
-                    <Image Source="{Binding MainImage}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
-                </Border>
-                <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
-                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,0"/>
-                    <TextBlock Text="{Binding StartYear}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,10"/>
-                </StackPanel>
-            </Grid>
-        </DataTemplate>
-
-    </Page.Resources>
-
     <!--
         This grid acts as a root panel for the page.
     -->

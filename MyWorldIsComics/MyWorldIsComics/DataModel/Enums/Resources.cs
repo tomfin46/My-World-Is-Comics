@@ -121,6 +121,8 @@ namespace MyWorldIsComics.DataModel.Enums
                     return "story_arc";
                 case ResourcesEnum.Volume:
                     return "volume";
+                case ResourcesEnum.Publisher:
+                    return "publisher";
                 default:
                     return String.Empty;
             }
@@ -150,6 +152,8 @@ namespace MyWorldIsComics.DataModel.Enums
                     return "4045-";
                 case ResourcesEnum.Volume:
                     return "4050-";
+                case ResourcesEnum.Publisher:
+                    return "4010-";
                 default:
                     return String.Empty;
             }

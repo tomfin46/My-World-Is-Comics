@@ -9,52 +9,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Page.Resources>
-        <DataTemplate x:Key="Standard310x260ItemTemplate">
-            <Grid Height="250" Width="310" Margin="5">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="150">
-                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
-                </Border>
-                <StackPanel Grid.Row="1" Margin="0,10,0,0">
-                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
-                    <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                        <TextBlock Text="{Binding Deck}" Style="{StaticResource BodyTextBlockStyle}"/>
-                    </ScrollViewer>
-                </StackPanel>
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:Key="IssueItemTemplate">
-            <Grid Height="250" Width="450" Margin="5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="250">
-                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
-                </Border>
-                <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
-                    <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,0,20,0" TextWrapping="Wrap">
-                        <Run Text="{Binding VolumeName}"></Run>
-                        <Run Text="{Binding IssueNumberString}"></Run>
-                    </TextBlock>
-                    <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
-                    <TextBlock Text="{Binding IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
-
-                    <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                    <TextBlock Text="{Binding CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
-
-                    <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                    <TextBlock Text="{Binding StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
-                </StackPanel>
-            </Grid>
-        </DataTemplate>
-    </Page.Resources>
-
     <!--
         This grid acts as a root panel for the page.
     -->

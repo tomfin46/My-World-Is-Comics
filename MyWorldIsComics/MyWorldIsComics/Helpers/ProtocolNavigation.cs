@@ -48,6 +48,10 @@ namespace MyWorldIsComics.Helpers
                     var volumePage = rootFrame.Content as VolumePage;
                     if (volumePage != null) NavigateToProtocolPage(volumePage.Frame);
                     break;
+                case "PublisherPage":
+                    var publisherPage = rootFrame.Content as PublisherPage;
+                    if (publisherPage != null) NavigateToProtocolPage(publisherPage.Frame);
+                    break;
             }
         }
         private void NavigateToProtocolPage(Frame pageFrame)
@@ -81,6 +85,9 @@ namespace MyWorldIsComics.Helpers
                     break;
                 case "4050":
                      pageFrame.Navigate(typeof(VolumePage), _protocolEventArgs.Uri.Segments[2]);
+                    break;
+                case "4010":
+                    pageFrame.Navigate(typeof(PublisherPage), _protocolEventArgs.Uri.Segments[2]);
                     break;
             }
         }

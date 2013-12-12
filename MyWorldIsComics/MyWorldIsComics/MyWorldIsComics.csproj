@@ -105,8 +105,10 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DataModel\RealLifeLocation.cs" />
     <Compile Include="DataModel\Results.cs" />
     <Compile Include="Helpers\SearchTools.cs" />
+    <Compile Include="Mappers\PublisherMapper.cs" />
     <Compile Include="Mappers\SearchResultsMapper.cs" />
     <Compile Include="Pages\CollectionPages\CharactersPage.xaml.cs">
       <DependentUpon>CharactersPage.xaml</DependentUpon>
@@ -170,6 +172,9 @@
     </Compile>
     <Compile Include="Pages\ResourcePages\LocationPage.xaml.cs">
       <DependentUpon>LocationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ResourcePages\PublisherPage.xaml.cs">
+      <DependentUpon>PublisherPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\ResourcePages\TeamPage.xaml.cs">
       <DependentUpon>TeamPage.xaml</DependentUpon>
@@ -248,6 +253,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\ResourcePages\LocationPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ResourcePages\PublisherPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

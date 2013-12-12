@@ -9,6 +9,7 @@ namespace MyWorldIsComics.Helpers
         public static Team Team { get; set; }
         public static Volume Volume { get; set; }
         public static Location Location { get; set; }
+        public static Publisher Publisher { get; set; }
 
         public static void Clear()
         {
@@ -17,6 +18,7 @@ namespace MyWorldIsComics.Helpers
             Team = null;
             Volume = null;
             Location = null;
+            Publisher = null;
         }
     }
 }

@@ -40,6 +40,7 @@ namespace MyWorldIsComics.DataModel.Resources
 
         #region IPerson Fields
         public DateTime Birth { get; set; }
+        public DateTime Death { get; set; }
         public Gender.GenderEnum Gender { get; set; }
 
         #endregion
@@ -58,5 +59,9 @@ namespace MyWorldIsComics.DataModel.Resources
         {
             return Name;
         }
+
+        public string Country { get; set; }
+        public string Hometown { get; set; }
+        public Uri Website { get; set; }
     }
 }

@@ -45,7 +45,14 @@ namespace MyWorldIsComics.DataModel.Resources
         #endregion
 
         public string Role { get; set; }
+        public List<int> CreatedCharacterIds { get; set; }
+        public List<Character> CreatedCharacters { get; set; }
 
+        public Creator()
+        {
+            CreatedCharacterIds = new List<int>();
+            CreatedCharacters = new List<Character>();
+        }
 
         public override string ToString()
         {

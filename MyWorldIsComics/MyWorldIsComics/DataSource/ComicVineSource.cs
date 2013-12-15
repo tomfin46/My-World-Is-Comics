@@ -77,6 +77,13 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Concept, conceptId.ToString(), filters));
         }
 
+        public static async Task<string> GetCreatorAsync(int personId)
+        {
+            List<string> filters = new List<string> { "birth", "country", "created_characters", "death", "deck", "description", "hometown", "id",
+                "image", "name", "website" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Person, personId.ToString(), filters));
+        }
+
         #endregion
 
         #region GetFiltered methods

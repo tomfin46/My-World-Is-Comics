@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Markup;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.Common;
 using MyWorldIsComics.DataModel.DescriptionContent;
@@ -22,8 +16,6 @@ using MyWorldIsComics.Pages.CollectionPages;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
-    using Windows.ApplicationModel.Activation;
-
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
@@ -192,7 +184,6 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (_character.FirstAppearanceId != 0)
             {
                 _character.FirstAppearanceIssue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_character.FirstAppearanceId));
-                //this.FormatIssueDescriptionForPage();
             }
         }
 

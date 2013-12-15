@@ -13,6 +13,7 @@ namespace MyWorldIsComics.Helpers
         public static Section DescriptionSection { get; set; }
         public static Publisher Publisher { get; set; }
         public static Concept Concept { get; set; }
+        public static Creator Creator { get; set; }
 
         public static void Clear()
         {
@@ -24,6 +25,7 @@ namespace MyWorldIsComics.Helpers
             DescriptionSection = null;
             Publisher = null;
             Concept = null;
+            Creator = null;
         }
     }
 }

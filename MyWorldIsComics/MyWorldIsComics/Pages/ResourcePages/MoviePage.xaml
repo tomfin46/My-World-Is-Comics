@@ -1,7 +1,7 @@
 ﻿<Page
     x:Name="pageRoot"
-    x:Class="MyWorldIsComics.Pages.ResourcePages.CreatorPage"
-    DataContext="{Binding CreatorPageViewModel, RelativeSource={RelativeSource Self}}"
+    x:Class="MyWorldIsComics.Pages.ResourcePages.MoviePage"
+    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MyWorldIsComics.Pages.ResourcePages"
@@ -13,7 +13,7 @@
     <!--
         This grid acts as a root panel for the page.
     -->
-    <Grid DataContext="{Binding Creator}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid DataContext="{Binding Movie}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition/>
@@ -60,33 +60,25 @@
                         <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
                         <StackPanel x:Name="BioStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
+                                <Run Text="Real Name: " />
+                                <Run Text="{Binding RealNameString}" FontWeight="Normal"/>
+                            </TextBlock>
+
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
+                                <Run Text="Aliases: " />
+                                <Run Text="{Binding AliasesString}" FontWeight="Normal"/>
+                            </TextBlock>
+
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Date of Birth: " />
                                 <Run Text="{Binding BirthString}" FontWeight="Normal"/>
                             </TextBlock>
 
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
-                                <Run Text="Date of Death: " />
-                                <Run Text="{Binding DeathString}" FontWeight="Normal"/>
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,10" TextWrapping="Wrap" FlowDirection="RightToLeft">
+                                <Run Text="Appears in: " />
+                                <Run Text="{Binding IssueAppearancesCount}" FontWeight="Normal"/>
+                                <Run Text=" issues" />
                             </TextBlock>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
-                                <Run Text="Country: " />
-                                <Run Text="{Binding Country}" FontWeight="Normal"/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
-                                <Run Text="Hometown: " />
-                                <Run Text="{Binding Hometown}" FontWeight="Normal"/>
-                            </TextBlock>
-
-                            <RichTextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
-                                <Paragraph>
-                                    <Run Text="Website: " />
-                                    <Hyperlink NavigateUri="{Binding Website}">
-                                        <Run Text="{Binding Website.AbsoluteUri}" FontWeight="Normal"/>
-                                    </Hyperlink>
-                                </Paragraph>
-                            </RichTextBlock>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>

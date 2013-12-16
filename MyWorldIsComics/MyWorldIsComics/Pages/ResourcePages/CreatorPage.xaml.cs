@@ -103,13 +103,13 @@ namespace MyWorldIsComics.Pages.ResourcePages
             SavedData.Creator = _creator;
         }
 
-        #region Load Character
+        #region Load Creator
 
         private async Task LoadCreator(int id)
         {
             try
             {
-                if (SavedData.Character != null && SavedData.Character.UniqueId == id) { _creator = SavedData.Creator; }
+                if (SavedData.Creator != null && SavedData.Creator.UniqueId == id) { _creator = SavedData.Creator; }
                 else { _creator = await GetCreator(id); }
                 PageTitle.Text = _creator.Name;
 

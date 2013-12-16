@@ -7,7 +7,7 @@ namespace MyWorldIsComics.Helpers
 {
     class ProtocolNavigation
     {
-        private ProtocolActivatedEventArgs _protocolEventArgs = null;
+        private ProtocolActivatedEventArgs _protocolEventArgs;
 
         private Frame rootFrame;
 
@@ -60,6 +60,14 @@ namespace MyWorldIsComics.Helpers
                     var conceptPage = rootFrame.Content as ConceptPage;
                     if (conceptPage != null) NavigateToProtocolPage(conceptPage.Frame);
                     break;
+                case "CreatorPage":
+                    var creatorPage = rootFrame.Content as CreatorPage;
+                    if (creatorPage != null) NavigateToProtocolPage(creatorPage.Frame);
+                    break;
+                case "MoviePage":
+                    var moviePage = rootFrame.Content as MoviePage;
+                    if (moviePage != null) NavigateToProtocolPage(moviePage.Frame);
+                    break;
             }
         }
         private void NavigateToProtocolPage(Frame pageFrame)
@@ -77,10 +85,13 @@ namespace MyWorldIsComics.Helpers
                     pageFrame.Navigate(typeof(IssuePage), _protocolEventArgs.Uri.Segments[2]);
                     break;
                 case "4040":
-                    // TODO pageFrame.Navigate(typeof(PersonPage), _protocolEventArgs.Uri.Segments[2]);
+                     pageFrame.Navigate(typeof(CreatorPage), _protocolEventArgs.Uri.Segments[2]); //PersonPage
                     break;
                 case "4020":
                     pageFrame.Navigate(typeof(LocationPage), _protocolEventArgs.Uri.Segments[2]);
+                    break;
+                case "4025":
+                    pageFrame.Navigate(typeof(MoviePage), _protocolEventArgs.Uri.Segments[2]);
                     break;
                 case "4015":
                     pageFrame.Navigate(typeof(ConceptPage), _protocolEventArgs.Uri.Segments[2]);

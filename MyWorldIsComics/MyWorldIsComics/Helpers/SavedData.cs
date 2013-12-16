@@ -14,6 +14,7 @@ namespace MyWorldIsComics.Helpers
         public static Publisher Publisher { get; set; }
         public static Concept Concept { get; set; }
         public static Creator Creator { get; set; }
+        public static Movie Movie { get; set; }
 
         public static void Clear()
         {
@@ -26,6 +27,7 @@ namespace MyWorldIsComics.Helpers
             Publisher = null;
             Concept = null;
             Creator = null;
+            Movie = null;
         }
     }
 }

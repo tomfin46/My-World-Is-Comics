@@ -70,16 +70,16 @@
                             </TextBlock>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
-                                <Run Text="Country: " />
-                                <Run Text="{Binding Country}" FontWeight="Normal"/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Hometown: " />
                                 <Run Text="{Binding Hometown}" FontWeight="Normal"/>
                             </TextBlock>
 
-                            <RichTextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
+                                <Run Text="Country: " />
+                                <Run Text="{Binding Country}" FontWeight="Normal"/>
+                            </TextBlock>
+
+                            <RichTextBlock FontSize="15" FontFamily="Segoe UI Semilight" FontWeight="Bold" Margin="10" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Paragraph>
                                     <Run Text="Website: " />
                                     <Hyperlink NavigateUri="{Binding Website}">

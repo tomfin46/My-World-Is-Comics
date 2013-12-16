@@ -5,6 +5,8 @@ using MyWorldIsComics.DataModel.Interfaces;
 
 namespace MyWorldIsComics.DataModel.Resources
 {
+    using System.Collections.ObjectModel;
+
     public class Creator : IResource, IPerson
     {
         #region IResource Fields
@@ -40,19 +42,36 @@ namespace MyWorldIsComics.DataModel.Resources
 
         #region IPerson Fields
         public DateTime Birth { get; set; }
+        public string BirthString
+        {
+            get
+            {
+                return Birth == default(DateTime) ? "Unknown" : Birth.ToString("d MMM yyyy");
+            }
+        }
         public DateTime Death { get; set; }
+        public string DeathString
+        {
+            get
+            {
+                return Death == default(DateTime) ? "N/A" : Death.ToString("d MMM yyyy");
+            }
+        }
         public Gender.GenderEnum Gender { get; set; }
 
         #endregion
 
         public string Role { get; set; }
         public List<int> CreatedCharacterIds { get; set; }
-        public List<Character> CreatedCharacters { get; set; }
+        public ObservableCollection<Character> CreatedCharacters { get; set; }
+        public string Country { get; set; }
+        public string Hometown { get; set; }
+        public Uri Website { get; set; }
 
         public Creator()
         {
             CreatedCharacterIds = new List<int>();
-            CreatedCharacters = new List<Character>();
+            CreatedCharacters = new ObservableCollection<Character>();
         }
 
         public override string ToString()
@@ -60,8 +79,6 @@ namespace MyWorldIsComics.DataModel.Resources
             return Name;
         }
 
-        public string Country { get; set; }
-        public string Hometown { get; set; }
-        public Uri Website { get; set; }
+
     }
 }

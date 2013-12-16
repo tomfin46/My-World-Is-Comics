@@ -282,11 +282,6 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #region Mapping Methods
 
-        private Team GetMappedTeam(string teamString)
-        {
-            return teamString == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().MapXmlObject(teamString);
-        }
-        
         private Character GetMappedCharacter(string quickCharacter)
         {
             return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);

@@ -108,6 +108,7 @@
     <Compile Include="DataModel\RealLifeLocation.cs" />
     <Compile Include="DataModel\Results.cs" />
     <Compile Include="Helpers\SearchTools.cs" />
+    <Compile Include="Mappers\MovieMapper.cs" />
     <Compile Include="Mappers\PublisherMapper.cs" />
     <Compile Include="Mappers\SearchResultsMapper.cs" />
     <Compile Include="Pages\CollectionPages\CharactersPage.xaml.cs">

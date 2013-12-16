@@ -144,7 +144,7 @@ namespace MyWorldIsComics.Pages
             }
             else if (e.ClickedItem as Creator != null)
             {
-                //Frame.Navigate(typeof(CreatorPage), id);
+                Frame.Navigate(typeof(CreatorPage), id);
             }
             else if (e.ClickedItem as Issue != null)
             {
@@ -157,7 +157,7 @@ namespace MyWorldIsComics.Pages
             }
             else if (e.ClickedItem as Movie != null)
             {
-                //Frame.Navigate(typeof(MoviePage), id);
+                Frame.Navigate(typeof(MoviePage), id);
             }
             else if (e.ClickedItem as ObjectResource != null)
             {

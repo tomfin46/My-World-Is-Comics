@@ -152,7 +152,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void HideOrShowSections()
         {
-            CreatedCharacterSection.Visibility = _creator.CreatedCharacterIds.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            CreatedCharacterSection.Visibility = _creator.CreatedCharacters.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
@@ -215,8 +215,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void CreatedCharacterView_CharacterClick (object sender, ItemClickEventArgs e)
         {
-            var team = ((Team)e.ClickedItem);
-            Frame.Navigate(typeof(TeamPage), team.UniqueId);
+            var character = ((Character)e.ClickedItem);
+            Frame.Navigate(typeof(CharacterPage), character.UniqueId);
         }
 
         private async void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)

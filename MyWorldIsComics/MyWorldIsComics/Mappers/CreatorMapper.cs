@@ -64,10 +64,10 @@ namespace MyWorldIsComics.Mappers
 
             if (date == String.Empty) { return; }
 
-            var commaPos = date.IndexOf(',');
-            var year = int.Parse(date.Substring(commaPos + 1));
-            var month = Month.GetMonthInt(date.Substring(0, 3));
-            var day = int.Parse(date.Substring(4, commaPos - 4));
+            var arr = date.Split('-');
+            var year = int.Parse(arr[0]);
+            var month = int.Parse(arr[1]);
+            var day = int.Parse(arr[2].Substring(0,2));
 
             _creatorToMap.Birth = new DateTime(year, month, day);
         }
@@ -81,7 +81,8 @@ namespace MyWorldIsComics.Mappers
 
         private void ParseCreatedCharacters(XmlReader reader)
         {
-            if (reader.Name != "characters") { reader.ReadToFollowing("characters"); }
+            if (reader.Name != "created_characters") { reader.ReadToFollowing("created_characters"); }
+            if (reader.IsEmptyElement) return;
             while (reader.Read())
             {
                 if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
@@ -89,7 +90,7 @@ namespace MyWorldIsComics.Mappers
                     reader.ReadToDescendant("id");
                     _creatorToMap.CreatedCharacterIds.Add(reader.ReadElementContentAsInt());
                 }
-                else if (reader.Name == "characters" && reader.NodeType == XmlNodeType.EndElement)
+                else if (reader.Name == "created_characters" && reader.NodeType == XmlNodeType.EndElement)
                 {
                     return;
                 }
@@ -104,10 +105,10 @@ namespace MyWorldIsComics.Mappers
 
             if (date == String.Empty) { return; }
 
-            var commaPos = date.IndexOf(',');
-            var year = int.Parse(date.Substring(commaPos + 1));
-            var month = Month.GetMonthInt(date.Substring(0, 3));
-            var day = int.Parse(date.Substring(4, commaPos - 4));
+            var arr = date.Split('-');
+            var year = int.Parse(arr[0]);
+            var month = int.Parse(arr[1]);
+            var day = int.Parse(arr[2].Substring(0, 2));
 
             _creatorToMap.Death = new DateTime(year, month, day);
         }

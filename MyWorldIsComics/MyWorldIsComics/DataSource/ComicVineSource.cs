@@ -38,7 +38,7 @@ namespace MyWorldIsComics.DataSource
 
         public static async Task<string> GetSuggestionList(Resources.ResourcesEnum resourceEnum, int offset)
         {
-            return await QueryServiceAsync(comicVineSource.ContructUrl(resourceEnum, offset.ToString(), new List<string>{ "name" }));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(resourceEnum, offset.ToString(), new List<string> { "name" }));
         }
 
         #endregion
@@ -84,13 +84,19 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Person, personId.ToString(), filters));
         }
 
+        public static async Task<string> GetMovieAsync(int movieId)
+        {
+            List<string> filters = new List<string> { "box_office_revenue", "budget", "deck", "description", "id", "image", "name", "rating", "release_date", "runtime", "total_revenue" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Movie, movieId.ToString(), filters));
+        }
+
         #endregion
 
         #region GetFiltered methods
 
-        public static async Task<string> GetFilteredCharacterAsync(int id, string filter)
+        public static async Task<string> GetFilteredCharacterAsync(int characterId, string filter)
         {
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, id.ToString(), filter));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, characterId.ToString(), filter));
         }
 
         public static async Task<string> GetFilteredTeamAsync(int teamId, string filter)
@@ -101,6 +107,11 @@ namespace MyWorldIsComics.DataSource
         public static async Task<string> GetFilteredIssueAsync(int issueId, List<string> filters)
         {
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issue, issueId.ToString(), filters));
+        }
+
+        public static async Task<string> GetFilteredMovieAsync(int movieId, string filter)
+        {
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Movie, movieId.ToString(), filter));
         }
 
         public static async Task<string> GetSpecificIssueAsync(int volumeId, int issueId)
@@ -187,7 +198,7 @@ namespace MyWorldIsComics.DataSource
         public static async Task<Section> FormatDescriptionAsync(Volume volume)
         {
             return await Task.Run(() => new DescriptionMapper().MapDescription(volume));
-        } 
+        }
 
         #endregion
 

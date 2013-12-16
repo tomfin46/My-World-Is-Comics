@@ -45,12 +45,8 @@
                 if (!GenericResourceMapper.EnsureResultsExist(reader)) return _teamToMap;
                 reader.ReadToFollowing("results");
                 ParseAliases(reader);
-                //ParseEnemies(reader);
-                //ParseFriends(reader);
-                //ParseMembers(reader);
                 _teamToMap = GenericResourceMapper.ParseDeck(reader, _teamToMap) as Team;
                 _teamToMap = GenericResourceMapper.ParseDescriptionString(reader, _teamToMap) as Team;
-                //ParseIssuesDispandedIn(reader);
                 ParseFirstAppearance(reader);
                 _teamToMap = GenericResourceMapper.ParseId(reader, _teamToMap) as Team;
                 _teamToMap = GenericResourceMapper.ParseImage(reader, _teamToMap) as Team;
@@ -111,7 +107,7 @@
         {
             _teamToMap.Aliases.Clear();
             if (reader.Name != "aliases") { reader.ReadToFollowing("aliases"); }
-            var aliases = reader.ReadElementContentAsString().Split('\n'); 
+            var aliases = reader.ReadElementContentAsString().Split('\n');
             _teamToMap.Aliases.AddRange(aliases);
         }
 
@@ -191,7 +187,7 @@
         private void ParseFirstAppearance(XmlReader reader)
         {
             if (reader.Name != "first_appeared_in_issue") { reader.ReadToFollowing("first_appeared_in_issue"); }
-            if (reader.IsEmptyElement) return; 
+            if (reader.IsEmptyElement) return;
             reader.ReadToDescendant("id");
             _teamToMap.FirstAppearanceId = reader.ReadElementContentAsInt();
         }

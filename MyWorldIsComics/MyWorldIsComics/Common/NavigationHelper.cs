@@ -185,7 +185,7 @@ namespace MyWorldIsComics.Common
         {
             if (this.Frame != null && this.Frame.CanGoBack)
             {
-                if (this.Frame.CurrentSourcePageType.Name == "CharacterPage")
+                if (this.Frame.CurrentSourcePageType.Name == "HubPage")
                 {
                     SavedData.Clear();
                     ComicVineSource.CancelTask();

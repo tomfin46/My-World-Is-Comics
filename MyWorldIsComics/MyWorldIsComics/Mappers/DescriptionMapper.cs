@@ -104,6 +104,7 @@ namespace MyWorldIsComics.Mappers
                 switch (nextSibling.Name)
                 {
                     case "p":
+                    case "#text":
                         section.ContentQueue.Enqueue(ProcessParagraph(nextSibling));
                         break;
                     case "a":

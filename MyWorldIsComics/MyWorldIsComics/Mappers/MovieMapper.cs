@@ -200,31 +200,33 @@ namespace MyWorldIsComics.Mappers
                     return;
                 }
             }
-        } 
+        }
 
         #endregion
 
         private void ParseBoxOfficeRevenue(XmlReader reader)
         {
             if (reader.Name != "box_office_revenue") { reader.ReadToFollowing("box_office_revenue"); }
-            _movieToMap.BoxOfficeRevenue = reader.ReadElementContentAsInt();
+            this._movieToMap.BoxOfficeRevenue = reader.IsEmptyElement ? 0 : reader.ReadElementContentAsInt();
         }
 
         private void ParseBudget(XmlReader reader)
         {
             if (reader.Name != "budget") { reader.ReadToFollowing("budget"); }
-            _movieToMap.Budget = reader.ReadElementContentAsInt();
+            this._movieToMap.Budget = reader.IsEmptyElement ? 0 : reader.ReadElementContentAsInt();
         }
 
         private void ParseRating(XmlReader reader)
         {
             if (reader.Name != "rating") { reader.ReadToFollowing("rating"); }
+            if(reader.IsEmptyElement) return;
             _movieToMap.Rating = reader.ReadElementContentAsString();
         }
 
         private void ParseReleaseDate(XmlReader reader)
         {
             if (reader.Name != "release_date") { reader.ReadToFollowing("release_date"); }
+            if (reader.IsEmptyElement) return;
 
             var date = reader.ReadElementContentAsString();
 
@@ -241,13 +243,13 @@ namespace MyWorldIsComics.Mappers
         private void ParseRuntime(XmlReader reader)
         {
             if (reader.Name != "runtime") { reader.ReadToFollowing("runtime"); }
-            _movieToMap.Runtime = reader.ReadElementContentAsInt();
+            this._movieToMap.Runtime = reader.IsEmptyElement ? 0 : reader.ReadElementContentAsInt();
         }
 
         private void ParseTotalRevenue(XmlReader reader)
         {
             if (reader.Name != "total_revenue") { reader.ReadToFollowing("total_revenue"); }
-            _movieToMap.TotalRevenue = reader.ReadElementContentAsInt();
+            this._movieToMap.TotalRevenue = reader.IsEmptyElement ? 0 : reader.ReadElementContentAsInt();
         }
     }
 }

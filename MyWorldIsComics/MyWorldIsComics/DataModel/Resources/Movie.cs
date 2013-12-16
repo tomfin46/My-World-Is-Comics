@@ -48,7 +48,7 @@
         {
             get
             {
-                return BoxOfficeRevenue.ToString("C0", new CultureInfo("en-US"));
+                return BoxOfficeRevenue == 0 ? "N/A" : BoxOfficeRevenue.ToString("C0", new CultureInfo("en-US"));
             }
         }
         public int TotalRevenue { get; set; }
@@ -56,7 +56,7 @@
         {
             get
             {
-                return TotalRevenue.ToString("C0", new CultureInfo("en-US"));
+                return TotalRevenue == 0 ? "N/A" : TotalRevenue.ToString("C0", new CultureInfo("en-US"));
             }
         }
         public int Budget { get; set; }
@@ -64,7 +64,7 @@
         {
             get
             {
-                return Budget.ToString("C0", new CultureInfo("en-US"));
+                return Budget == 0 ? "N/A" : Budget.ToString("C0", new CultureInfo("en-US"));
             }
         }
         public string Distributor { get; set; }

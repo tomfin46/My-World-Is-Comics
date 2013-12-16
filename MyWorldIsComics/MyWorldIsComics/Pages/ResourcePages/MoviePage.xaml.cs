@@ -189,7 +189,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             ConceptSection.Visibility = _movie.Concepts.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             LocationSection.Visibility = _movie.Locations.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             TeamSection.Visibility = _movie.Teams.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            WriterSection.Visibility = _movie.Teams.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            WriterSection.Visibility = _movie.Writers.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion

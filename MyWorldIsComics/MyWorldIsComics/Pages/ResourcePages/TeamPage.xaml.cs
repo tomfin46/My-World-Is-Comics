@@ -195,8 +195,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (_team.FirstAppearanceId != 0)
             {
-                Issue issue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(_team.FirstAppearanceId));
-                _team.FirstAppearanceIssue = issue;
+                _team.FirstAppearanceIssue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(_team.FirstAppearanceId));
+                _team.FirstAppearanceIssue.Description = await ComicVineSource.FormatDescriptionAsync(_team.FirstAppearanceIssue);
             }
         }
 

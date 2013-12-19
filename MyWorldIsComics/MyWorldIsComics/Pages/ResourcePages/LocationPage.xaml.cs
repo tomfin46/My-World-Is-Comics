@@ -168,7 +168,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (_location.FirstAppearanceId != 0)
             {
                 _location.FirstAppearanceIssue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_location.FirstAppearanceId));
-                //this.FormatIssueDescriptionForPage();
+                _location.FirstAppearanceIssue.Description = await ComicVineSource.FormatDescriptionAsync(_location.FirstAppearanceIssue);
             }
         }
 

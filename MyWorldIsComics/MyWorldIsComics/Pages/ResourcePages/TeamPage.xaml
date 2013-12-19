@@ -61,11 +61,6 @@
                                 <Run Text="Aliases: " />
                                 <Run Text="{Binding AliasesString}" FontWeight="Normal"/>
                             </TextBlock>
-
-                            <!--<TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,10" TextWrapping="Wrap" FlowDirection="RightToLeft" FontFamily="Global User Interface">
-                                <Run Text="Publisher: " />
-                                <Run Text="{Binding PublisherName}" FontWeight="Normal"/>
-                            </TextBlock>-->
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
@@ -112,7 +107,7 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionSectionString}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </Grid>

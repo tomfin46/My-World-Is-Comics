@@ -226,7 +226,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             int i = 2;
             foreach (Section section in _locationDescription.Sections)
             {
-                Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section, i));
+                Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
                 i++;
             }
         }

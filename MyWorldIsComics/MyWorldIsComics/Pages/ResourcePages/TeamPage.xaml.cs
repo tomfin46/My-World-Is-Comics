@@ -301,7 +301,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             int i = 3;
             foreach (Section section in _teamDescription.Sections)
             {
-                Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section, i));
+                Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
                 i++;
             }
         }

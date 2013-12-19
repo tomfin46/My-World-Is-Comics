@@ -365,7 +365,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             int i = 3;
             foreach (Section section in _movieDescription.Sections)
             {
-                Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section, i));
+                Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
                 i++;
             }
         }

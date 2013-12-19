@@ -184,6 +184,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (_character.FirstAppearanceId != 0)
             {
                 _character.FirstAppearanceIssue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_character.FirstAppearanceId));
+                _character.FirstAppearanceIssue.Description = await ComicVineSource.FormatDescriptionAsync(_character.FirstAppearanceIssue);
             }
         }
 
@@ -218,7 +219,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             int i = 3;
             foreach (Section section in _characterDescription.Sections)
             {
-                Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section, i));
+                Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
                 i++;
             }
         }
@@ -295,7 +296,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
             Frame.Navigate(typeof(SearchResultsPage), queryText);
         }
-        
+
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
             Frame.Navigate(typeof(VolumePage), _character.FirstAppearanceIssue.VolumeId);

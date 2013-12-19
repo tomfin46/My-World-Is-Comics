@@ -9,12 +9,14 @@ namespace MyWorldIsComics.Mappers
     using System;
     using System.Text;
 
+    using Windows.ApplicationModel.Contacts;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Markup;
 
     using HtmlAgilityPack;
 
+    using MyWorldIsComics.DataModel.Interfaces;
     using MyWorldIsComics.DataModel.Resources;
 
     #endregion
@@ -49,11 +51,59 @@ namespace MyWorldIsComics.Mappers
         public Section MapDescription(Issue issue)
         {
             HtmlDocument document = new HtmlDocument();
+            Section sectionToMap = new Section();
             document.LoadHtml(issue.DescriptionString);
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
 
-            HtmlNode link = collection.First();
-            return ProcessSection(link);
+            if (collection.Count == 1)
+            {
+                sectionToMap = this.ProcessSection(collection.First());
+            }
+            else
+            {
+                bool contains = false;
+                foreach (HtmlNode link in collection)
+                {
+                    switch (link.Name)
+                    {
+                        case "p":
+                            foreach (IDescriptionContent content in sectionToMap.ContentQueue)
+                            {
+                                if (content.Title == link.InnerText) contains = true;
+                                HtmlNode link1 = link;
+                                foreach (IDescriptionContent contentContent in content.ContentQueue.Where(contentContent => contentContent.Title == link1.InnerText))
+                                {
+                                    contains = true;
+                                }
+                            }
+
+                            if (contains)
+                            {
+                                contains = false;
+                                break;
+                            }
+
+                            if (link.FirstChild.Name == "b")
+                            {
+                                Section s = new Section { Title = link.InnerText, Type = "h4" };
+                                HtmlNode nextSibling = link.NextSibling;
+                                while (nextSibling != null && nextSibling.FirstChild.Name != "b")
+                                {
+                                    s.ContentQueue.Enqueue(this.ProcessSection(nextSibling));
+                                    nextSibling = nextSibling.NextSibling;
+                                }
+                                sectionToMap.ContentQueue.Enqueue(s);
+                            }
+                            else
+                            {
+                                sectionToMap.ContentQueue.Enqueue(ProcessSection(link));
+                            }
+                            break;
+                    }
+                }
+            }
+
+            return sectionToMap;
         }
 
         public Section MapDescription(Volume volume)
@@ -325,13 +375,11 @@ namespace MyWorldIsComics.Mappers
                 if (nextSibling != null) nextSibling = nextSibling.NextSibling;
             }
             return section;
-        } 
+        }
 
         #endregion
 
-        #region Markup
-
-        public static HubSection CreateDataTemplate(Section descriptionSection, int i)
+        public static HubSection CreateDataTemplate(Section descriptionSection)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(
@@ -339,7 +387,74 @@ namespace MyWorldIsComics.Mappers
             sb.Append("<ScrollViewer VerticalScrollBarVisibility=\"Hidden\">");
             sb.Append("<RichTextBlock>");
 
-            if (descriptionSection == null) return new HubSection();
+            sb.Append(MarkupDescription(descriptionSection));
+
+            sb.Append("</RichTextBlock>");
+            sb.Append("</ScrollViewer>");
+            sb.Append("</DataTemplate>");
+
+            DataTemplate dataTemplate = (DataTemplate)XamlReader.Load(sb.ToString());
+            return new HubSection
+                   {
+                       ContentTemplate = dataTemplate,
+                       Width = 520,
+                       IsHeaderInteractive = true,
+                       Header = descriptionSection.Title
+                   };
+        }
+
+        public static DataTemplate CreateIssueDataTemplate(Issue issue)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(
+                "<DataTemplate xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:local=\"using:MyWorldIsComics\">");
+            sb.Append("<Grid>");
+            sb.Append("<ScrollViewer VerticalScrollBarVisibility=\"Hidden\">");
+            sb.Append("<StackPanel Orientation=\"Vertical\">");
+            sb.Append("<Grid>");
+            sb.Append("<Grid.ColumnDefinitions>");
+            sb.Append("<ColumnDefinition Width=\"200\"/>");
+            sb.Append("<ColumnDefinition Width=\"*\"/>");
+            sb.Append("</Grid.ColumnDefinitions>");
+
+            sb.Append("<Image Source=\"{Binding FirstAppearanceIssue.MainImage}\" Stretch=\"Uniform\" Grid.Column=\"0\" />");
+
+            sb.Append("<StackPanel Grid.Column=\"1\" Orientation=\"Vertical\" Margin=\"20,20,0,0\">");
+            sb.Append("<GridViewItem Margin=\"-10,-20,-10,-10\" HorizontalAlignment=\"Left\" VerticalAlignment=\"Top\">");
+            sb.Append("<TextBlock Text=\"{Binding FirstAppearanceIssue.VolumeName}\" Style=\"{StaticResource SubheaderTextBlockStyle}\" TextWrapping=\"WrapWholeWords\"/>");
+            sb.Append("</GridViewItem>");
+            sb.Append("<TextBlock Style=\"{StaticResource TitleTextBlockStyle}\" Margin=\"10,0,0,20\" TextWrapping=\"Wrap\" FontWeight=\"Bold\">");
+            sb.Append("<Run Text=\"Issue\"/>");
+            sb.Append("<Run Text=\"{Binding FirstAppearanceIssue.IssueNumberString}\"/>");
+            sb.Append("</TextBlock>");
+
+            sb.Append("<TextBlock Text=\"Title:\" Style=\"{StaticResource TitleTextBlockStyle}\"/>");
+            sb.Append("<TextBlock Text=\"{Binding FirstAppearanceIssue.IssueTitle}\" Style=\"{StaticResource BodyTextBlockStyle}\"/>");
+
+            sb.Append("<TextBlock Text=\"Cover Date:\" Style=\"{StaticResource TitleTextBlockStyle}\"/>");
+            sb.Append("<TextBlock Text=\"{Binding FirstAppearanceIssue.CoverDateString}\" Style=\"{StaticResource BodyTextBlockStyle}\"/>");
+
+            sb.Append("<TextBlock Text=\"Store Date:\" Style=\"{StaticResource TitleTextBlockStyle}\"/>");
+            sb.Append("<TextBlock Text=\"{Binding FirstAppearanceIssue.StoreDateString}\" Style=\"{StaticResource BodyTextBlockStyle}\"/>");
+            sb.Append("</StackPanel>");
+            sb.Append("</Grid>");
+
+            sb.Append("<RichTextBlock>");
+            sb.Append(MarkupDescription(issue.Description));
+            sb.Append("</RichTextBlock>");
+
+            sb.Append("</StackPanel>");
+            sb.Append("</ScrollViewer>");
+            sb.Append("</Grid>");
+            sb.Append("</DataTemplate>");
+
+            return (DataTemplate)XamlReader.Load(sb.ToString());
+        }
+
+        public static string MarkupDescription(Section descriptionSection)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (descriptionSection == null) return sb.ToString();
 
             while (descriptionSection.ContentQueue.Count > 0)
             {
@@ -368,20 +483,12 @@ namespace MyWorldIsComics.Mappers
                         break;
                 }
             }
-
-            sb.Append("</RichTextBlock>");
-            sb.Append("</ScrollViewer>");
-            sb.Append("</DataTemplate>");
-
-            DataTemplate dataTemplate = (DataTemplate)XamlReader.Load(sb.ToString());
-            return new HubSection
-                   {
-                       ContentTemplate = dataTemplate,
-                       Width = 520,
-                       IsHeaderInteractive = true,
-                       Header = descriptionSection.Title
-                   };
+            return sb.ToString();
         }
+
+        #region Markup
+
+
 
         private static string MarkupSection(Section sectionToMarkup)
         {
@@ -474,7 +581,7 @@ namespace MyWorldIsComics.Mappers
         private static string MarkupQuote(Quote quote)
         {
             return "<Paragraph Margin=\"10\"><Bold>" + quote.FormatLinks() + "</Bold></Paragraph>";
-        } 
+        }
 
         #endregion
     }

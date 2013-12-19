@@ -196,7 +196,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task FormatDescriptionForPage()
         {
-            _volume.Description = await Task.Run(() => new DescriptionMapper().MapDescription(_volume));
+            _volume.Description = await ComicVineSource.FormatDescriptionAsync(_volume);
         }
         
         #region Create RichTextBlock

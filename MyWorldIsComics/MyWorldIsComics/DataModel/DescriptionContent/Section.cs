@@ -26,5 +26,23 @@ namespace MyWorldIsComics.DataModel.DescriptionContent
         {
             return Title;
         }
+
+        public string ToPlainString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(Title);
+            foreach (Section section in ContentQueue)
+            {
+                sb.Append(section.Title);
+                foreach (IDescriptionContent content in section.ContentQueue)
+                {
+                    sb.Append(Environment.NewLine);
+                    sb.Append(content.Title);
+                    sb.Append(Environment.NewLine);
+                }
+                sb.Append(Environment.NewLine);
+            }
+            return sb.ToString();
+        }
     }
 }

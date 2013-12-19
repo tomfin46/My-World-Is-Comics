@@ -3,7 +3,9 @@
 namespace MyWorldIsComics.DataModel.Resources
 {
     using System;
+    using System.Text;
 
+    using MyWorldIsComics.DataModel.DescriptionContent;
     using MyWorldIsComics.DataModel.Enums;
     using MyWorldIsComics.DataModel.Interfaces;
     using System.Collections.Generic;
@@ -27,6 +29,16 @@ namespace MyWorldIsComics.DataModel.Resources
         public Uri ComicVineSiteUrl { get; set; }
         public string Deck { get; set; }
         public string DescriptionString { get; set; }
+        public Section Description { get; set; }
+
+        public string DescriptionSectionString
+        {
+            get
+            {
+                return Description.ToPlainString();
+            }
+        }
+
         public Uri MainImage { get; set; }
         public Uri AvatarImage
         {

@@ -124,7 +124,7 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionSectionString}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </Grid>

@@ -163,7 +163,16 @@ namespace MyWorldIsComics.Mappers
         private void ParseIssueNumber(XmlReader reader)
         {
             if (reader.Name != "issue_number") { reader.ReadToFollowing("issue_number"); }
-            _issueToMap.IssueNumber = reader.ReadElementContentAsInt();
+            string issueNumString = reader.ReadElementContentAsString();
+            try
+            {
+                _issueToMap.IssueNumber = int.Parse(issueNumString);
+            }
+            catch (FormatException)
+            {
+                _issueToMap.IssueNumber = -1;
+                _issueToMap.IssueNumberNonInt = issueNumString;
+            }
         }
 
         private void ParseLocations(XmlReader reader)

@@ -64,10 +64,15 @@ namespace MyWorldIsComics.DataModel.Resources
 
         #region Issue Specific Fields
         public int IssueNumber { get; set; }
+        public string IssueNumberNonInt { get; set; }
         public string IssueNumberString
         {
             get
             {
+                if (IssueNumber == -1)
+                {
+                    return "#" + IssueNumberNonInt;
+                }
                 return "#" + IssueNumber;
             }
         }

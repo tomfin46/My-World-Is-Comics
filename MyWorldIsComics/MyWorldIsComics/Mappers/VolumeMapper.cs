@@ -64,6 +64,61 @@ namespace MyWorldIsComics.Mappers
             return _volumeToMap;
         }
 
+        public static string FetchNextIssueNumber(string xmlString, string currentIssueNum)
+        {
+            using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
+            {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return ServiceConstants.QueryNotFound;
+                reader.ReadToFollowing("results");
+                
+                if (reader.Name != "issues") { reader.ReadToFollowing("issues"); }
+                while (reader.Read())
+                {
+                    if (reader.Name == "issue" && reader.NodeType != XmlNodeType.EndElement)
+                    {
+                        reader.ReadToDescendant("issue_number");
+                        var issueNumber = reader.ReadElementContentAsString();
+                        if (issueNumber != currentIssueNum) continue;
+                        reader.ReadToFollowing("issue_number");
+                        return reader.ReadElementContentAsString();
+                    }
+                    if (reader.Name == "issues" && reader.NodeType == XmlNodeType.EndElement)
+                    {
+                        return currentIssueNum;
+                    }
+                }
+            }
+            return currentIssueNum;
+        }
+
+        public static string FetchPreviousIssueNumber(string xmlString, string currentIssueNum)
+        {
+            using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
+            {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return ServiceConstants.QueryNotFound;
+                reader.ReadToFollowing("results");
+                string prevIssueNum = null;
+                if (reader.Name != "issues") { reader.ReadToFollowing("issues"); }
+                while (reader.Read())
+                {
+                    string issueNumber = null;
+                    if (reader.Name == "issue" && reader.NodeType != XmlNodeType.EndElement)
+                    {
+                        reader.ReadToDescendant("issue_number");
+                        issueNumber = reader.ReadElementContentAsString();
+
+                        if (issueNumber == currentIssueNum) return prevIssueNum;
+                    }
+                    if (reader.Name == "issues" && reader.NodeType == XmlNodeType.EndElement)
+                    {
+                        return currentIssueNum;
+                    }
+                    prevIssueNum = issueNumber;
+                }
+            }
+            return currentIssueNum;
+        }
+
         private void ParseIssueCount(XmlReader reader)
         {
             if (reader.Name != "count_of_issues") { reader.ReadToFollowing("count_of_issues"); }

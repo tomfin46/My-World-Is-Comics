@@ -48,7 +48,7 @@
             ItemClick="IssueView_IssueClick">
             <GridView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Height="300" Width="200" Margin="10">
+                    <Grid Height="270" Width="180" Margin="10">
                         <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
                             <Image Source="{Binding MainImage}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
                         </Border>

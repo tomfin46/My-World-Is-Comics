@@ -15,7 +15,7 @@ using MyWorldIsComics.Mappers;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
-    using MyWorldIsComics.Helpers;
+    using Helpers;
 
     /// <summary>
     /// A page that displays details for a single item within a group while allowing gestures to
@@ -34,7 +34,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private Issue _nextIssue = new Issue();
         private Issue _previousIssue = new Issue();
 
-        List<string> filters = new List<string>
+        readonly List<string> _filters = new List<string>
                 {
                     "person_credits",
                     "character_credits",
@@ -99,7 +99,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     id = (int)e.NavigationParameter;
                 }
 
-                BasicIssue = this.GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(id));
+                BasicIssue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(id));
             }
 
             if (BasicIssue != null)
@@ -168,7 +168,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task LoadIssue()
         {
-            await FetchFilteredIssueResource(filters);
+            await FetchFilteredIssueResource(_filters);
 
             if (_filteredIssueForPage.Creators.Count != _filteredIssueForPage.PersonIds.Count) await FetchPeople(_filteredIssueForPage);
             if (_filteredIssueForPage.Characters.Count != _filteredIssueForPage.CharacterIds.Count) await FetchCharacters(_filteredIssueForPage);
@@ -181,7 +181,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task LoadNextIssue()
         {
-            await FetchNextIssueResource(filters);
+            await FetchNextIssueResource(_filters);
 
             if (_nextIssue.Creators.Count != _nextIssue.PersonIds.Count) await FetchPeople(_nextIssue);
             if (_nextIssue.Characters.Count != _nextIssue.CharacterIds.Count) await FetchCharacters(_nextIssue);
@@ -194,7 +194,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task LoadPreviousIssue()
         {
-            await FetchPreviousIssueResource(filters);
+            await FetchPreviousIssueResource(_filters);
 
             if (_previousIssue.Creators.Count != _previousIssue.PersonIds.Count) await FetchPeople(_previousIssue);
             if (_previousIssue.Characters.Count != _previousIssue.CharacterIds.Count) await FetchCharacters(_previousIssue);
@@ -211,7 +211,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task FetchBasicNextIssueResource()
         {
-            _nextIssue = GetMappedIssue(await ComicVineSource.GetSpecificIssueAsync(_basicIssueForPage.VolumeId, _basicIssueForPage.IssueNumber + 1));
+            string issueNumber = VolumeMapper.FetchNextIssueNumber(
+                await ComicVineSource.GetFilteredVolumeAsync(_basicIssueForPage.VolumeId, new List<string> {"issues"}), 
+                    _basicIssueForPage.IssueNumber == -1 ? _basicIssueForPage.IssueNumberNonInt : _basicIssueForPage.IssueNumber.ToString());
+
+            _nextIssue = GetMappedIssue(await ComicVineSource.GetSpecificIssueAsync(_basicIssueForPage.VolumeId, issueNumber));
+
         }
 
         private async Task FetchNextIssueResource(List<string> filters)
@@ -225,7 +230,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task FetchBasicPreviousIssueResource()
         {
-            _previousIssue = GetMappedIssue(await ComicVineSource.GetSpecificIssueAsync(_basicIssueForPage.VolumeId, _basicIssueForPage.IssueNumber - 1));
+            string issueNumber = VolumeMapper.FetchPreviousIssueNumber(
+                await ComicVineSource.GetFilteredVolumeAsync(_basicIssueForPage.VolumeId, new List<string> { "issues" }),
+                    _basicIssueForPage.IssueNumber == -1 ? _basicIssueForPage.IssueNumberNonInt : _basicIssueForPage.IssueNumber.ToString());
+
+            _previousIssue = GetMappedIssue(await ComicVineSource.GetSpecificIssueAsync(_basicIssueForPage.VolumeId, issueNumber));
+
         }
 
         private async Task FetchPreviousIssueResource(List<string> filters)
@@ -482,91 +492,96 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private async void IssueImagesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             FlipView flipView = sender as FlipView;
-            if (flipView != null)
+            if (flipView == null) return;
+
+
+            Issue selectedIssue = flipView.SelectedItem as Issue;
+            if (selectedIssue == null) return;
+            GridTitles.DataContext = selectedIssue;
+
+            ComicVineSource.CancelTask();
+            ComicVineSource.ReinstateCts();
+
+            try
             {
-                Issue selectedIssue = flipView.SelectedItem as Issue;
-                if (selectedIssue == null) return;
-                GridTitles.DataContext = selectedIssue;
-                
-                ComicVineSource.CancelTask();
+                int selectedIssueNumber = selectedIssue.IssueNumber != -1 ? 
+                    selectedIssue.IssueNumber : 
+                    Convert.ToInt32(selectedIssue.IssueNumberNonInt.Substring(0, selectedIssue.IssueNumberNonInt.IndexOf('.')));
+
+                int basicIssueNumber = _basicIssueForPage.IssueNumber != -1 ?
+                    _basicIssueForPage.IssueNumber :
+                    Convert.ToInt32(_basicIssueForPage.IssueNumberNonInt.Substring(0, _basicIssueForPage.IssueNumberNonInt.IndexOf('.')));
+
+                switch (selectedIssueNumber - basicIssueNumber)
+                {
+                    case 1:
+                        _previousIssue = _basicIssueForPage;
+                        _basicIssueForPage = _nextIssue;
+                        await FetchBasicNextIssueResource();
+                        if (flipView.Items != null)
+                        {
+                            var contains = false;
+                            foreach (int issuePos in flipView.Items.Cast<Issue>().Where(issue => issue.UniqueId == _nextIssue.UniqueId)
+                                .Select(issue => flipView.Items.IndexOf(issue)))
+                            {
+                                flipView.Items.RemoveAt(issuePos);
+                                flipView.Items.Insert(issuePos, _nextIssue);
+                                contains = true;
+                            }
+
+                            if (!contains && _nextIssue.Name != ServiceConstants.QueryNotFound)
+                            {
+                                flipView.Items.Add(_nextIssue);
+                            }
+
+                            flipView.SelectedItem = _basicIssueForPage;
+                        }
+                        await LoadIssue();
+                        await LoadNextIssue();
+                        await LoadPreviousIssue();
+                        break;
+
+                    case 0:
+                    case -1:
+                        _nextIssue = _basicIssueForPage;
+                        _basicIssueForPage = _previousIssue;
+                        await FetchBasicPreviousIssueResource();
+                        if (flipView.Items != null)
+                        {
+                            var contains = false;
+                            foreach (int issuePos in flipView.Items.Cast<Issue>().Where(issue => issue.UniqueId == _previousIssue.UniqueId).Select(issue => flipView.Items.IndexOf(issue)))
+                            {
+                                flipView.Items.RemoveAt(issuePos);
+                                flipView.Items.Insert(issuePos, _previousIssue);
+                                contains = true;
+                            }
+
+                            if (!contains && _previousIssue.Name != ServiceConstants.QueryNotFound)
+                            {
+                                flipView.Items.Insert(flipView.SelectedIndex, _previousIssue);
+                            }
+
+                            flipView.SelectedItem = _basicIssueForPage;
+                        }
+                        await LoadIssue();
+                        await LoadNextIssue();
+                        await LoadPreviousIssue();
+                        break;
+                }
+            }
+            catch (TaskCanceledException)
+            {
                 ComicVineSource.ReinstateCts();
+            }
+            catch (InvalidOperationException ioe)
+            {
 
-                try
-                {
-                    switch (selectedIssue.IssueNumber - this._basicIssueForPage.IssueNumber)
-                    {
-                        case 1:
-                            this._previousIssue = this._basicIssueForPage;
-                            this._basicIssueForPage = this._nextIssue;
-                            await this.FetchBasicNextIssueResource();
-                            if (flipView.Items != null)
-                            {
-                                var contains = false;
-                                foreach (int issuePos in flipView.Items.Cast<Issue>().Where(issue => issue.UniqueId == this._nextIssue.UniqueId)
-                                    .Select(issue => flipView.Items.IndexOf(issue)))
-                                {
-                                    flipView.Items.RemoveAt(issuePos);
-                                    flipView.Items.Insert(issuePos, this._nextIssue);
-                                    contains = true;
-                                }
-
-                                if (!contains && this._nextIssue.Name != ServiceConstants.QueryNotFound)
-                                {
-                                    flipView.Items.Add(this._nextIssue);
-                                }
-
-                                flipView.SelectedItem = this._basicIssueForPage;
-                            }
-                            await this.LoadIssue();
-                            await this.LoadNextIssue();
-                            await this.LoadPreviousIssue();
-                            break;
-
-                        case -1:
-                            this._nextIssue = this._basicIssueForPage;
-                            this._basicIssueForPage = this._previousIssue;
-                            await this.FetchBasicPreviousIssueResource();
-                            if (flipView.Items != null)
-                            {
-                                var contains = false;
-                                foreach (
-                                    int issuePos in
-                                        flipView.Items.Cast<Issue>()
-                                            .Where(issue => issue.UniqueId == this._previousIssue.UniqueId)
-                                            .Select(issue => flipView.Items.IndexOf(issue)))
-                                {
-                                    flipView.Items.RemoveAt(issuePos);
-                                    flipView.Items.Insert(issuePos, this._previousIssue);
-                                    contains = true;
-                                }
-
-                                if (!contains && this._previousIssue.Name != ServiceConstants.QueryNotFound)
-                                {
-                                    flipView.Items.Insert(flipView.SelectedIndex, this._previousIssue);
-                                }
-
-                                flipView.SelectedItem = this._basicIssueForPage;
-                            }
-                            await this.LoadIssue();
-                            await this.LoadNextIssue();
-                            await this.LoadPreviousIssue();
-                            break;
-                    }
-                }
-                catch (TaskCanceledException)
-                {
-                    ComicVineSource.ReinstateCts();
-                }
-                catch (InvalidOperationException ioe)
-                {
-
-                }
             }
         }
 
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            Frame.Navigate(typeof (VolumePage), _basicIssueForPage.VolumeId);
+            Frame.Navigate(typeof(VolumePage), _basicIssueForPage.VolumeId);
         }
 
         private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)

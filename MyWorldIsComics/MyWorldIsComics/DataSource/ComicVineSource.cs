@@ -126,10 +126,10 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Movie, movieId.ToString(), filter));
         }
 
-        public static async Task<string> GetSpecificIssueAsync(int volumeId, int issueId)
+        public static async Task<string> GetSpecificIssueAsync(int volumeId, string issueNumber)
         {
             List<string> filters = new List<string> { "cover_date", "description", "id", "image", "issue_number", "name", "store_date", "volume" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issues, volumeId.ToString(), issueId.ToString(), filters));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Issues, volumeId.ToString(), issueNumber, filters));
         }
 
         public static async Task<string> GetFilteredVolumeAsync(int volumeId, List<string> filters)

@@ -439,7 +439,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void CreatorsView_CreatorClick(object sender, ItemClickEventArgs e)
         {
-            //throw new NotImplementedException();
+            var creator = ((Creator)e.ClickedItem);
+            Frame.Navigate(typeof(CreatorPage), creator.UniqueId);
         }
 
         private void CharactersView_CharacterClick(object sender, ItemClickEventArgs e)
@@ -451,7 +452,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private void TeamsView_TeamClick(object sender, ItemClickEventArgs e)
         {
             var team = ((Team)e.ClickedItem);
-            Frame.Navigate(typeof(TeamPage), team);
+            Frame.Navigate(typeof(TeamPage), team.UniqueId);
         }
 
         private void LocationsView_LocationClick(object sender, ItemClickEventArgs e)
@@ -462,7 +463,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void ConceptsView_ConceptClick(object sender, ItemClickEventArgs e)
         {
-            //throw new NotImplementedException();
+            var concept = ((Concept)e.ClickedItem);
+            Frame.Navigate(typeof(ConceptPage), concept.UniqueId);
         }
 
         private void ObjectsView_ObjectClick(object sender, ItemClickEventArgs e)

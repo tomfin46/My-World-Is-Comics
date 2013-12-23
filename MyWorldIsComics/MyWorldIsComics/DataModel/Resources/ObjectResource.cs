@@ -36,5 +36,16 @@ namespace MyWorldIsComics.DataModel.Resources
         }
 
         public string PublisherName { get; set; }
+        public int FirstAppearanceId { get; set; }
+        public Issue FirstAppearanceIssue { get; set; }
+        public List<String> Aliases { get; set; }
+        public string AliasesString
+        {
+            get
+            {
+                return Aliases.Count == 1 && Aliases.First() == String.Empty ? "None" : string.Join(", ", Aliases);
+            }
+        }
+        public int IssueAppearancesCount { get; set; }
     }
 }

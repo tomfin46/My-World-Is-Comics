@@ -469,7 +469,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void ObjectsView_ObjectClick(object sender, ItemClickEventArgs e)
         {
-            //throw new NotImplementedException();
+            var objectResource = ((ObjectResource)e.ClickedItem);
+            Frame.Navigate(typeof(ObjectPage), objectResource.UniqueId);
         }
 
         private void StoryArcsView_StoryArcClick(object sender, ItemClickEventArgs e)

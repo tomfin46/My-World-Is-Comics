@@ -30,20 +30,20 @@ namespace MyWorldIsComics.Pages.ResourcePages
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
-    public sealed partial class StoryArcPage : Page
+    public sealed partial class ObjectPage : Page
     {
         private NavigationHelper navigationHelper;
-        private ObservableDictionary storyArcPageViewModel = new ObservableDictionary();
+        private ObservableDictionary objectPageViewModel = new ObservableDictionary();
 
-        private StoryArc _storyArc;
-        private Description _storyArcDescription;
+        private ObjectResource _object;
+        private Description _objectDescription;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
-        public ObservableDictionary StoryArcPageViewModel
+        public ObservableDictionary ObjectPageViewModel
         {
-            get { return this.storyArcPageViewModel; }
+            get { return this.objectPageViewModel; }
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             get { return this.navigationHelper; }
         }
 
-        public StoryArcPage()
+        public ObjectPage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
@@ -91,55 +91,47 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
             try
             {
-                await LoadStoryArc(id);
+                await this.LoadObject(id);
             }
             catch (HttpRequestException)
             {
-                _storyArc = new StoryArc { Name = "An internet connection is required here" };
-                StoryArcPageViewModel["StoryArc"] = _storyArc;
+                _object = new ObjectResource { Name = "An internet connection is required here" };
+                ObjectPageViewModel["Object"] = _object;
             }
         }
-
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
 
             // Save response content so don't have to fetch from api service again
-            SavedData.StoryArc = _storyArc;
+            SavedData.Object = _object;
         }
 
-        #region Load Story Arc
+        #region Load Object
 
-        private async Task LoadStoryArc(int id)
+        private async Task LoadObject(int id)
         {
             try
             {
-                if (SavedData.StoryArc != null && SavedData.StoryArc.UniqueId == id) { _storyArc = SavedData.StoryArc; }
-                else { _storyArc = await this.GetStoryArc(id); }
-                PageTitle.Text = _storyArc.Name;
+                if (SavedData.Object != null && SavedData.Object.UniqueId == id) { _object = SavedData.Object; }
+                else { _object = await this.GetObject(id); }
+                PageTitle.Text = _object.Name;
 
 
-                StoryArcPageViewModel["StoryArc"] = _storyArc;
+                ObjectPageViewModel["Object"] = _object;
 
-                if (_storyArc.Name != ServiceConstants.QueryNotFound)
+                if (_object.Name != ServiceConstants.QueryNotFound)
                 {
                     ImageHubSection.Visibility = Visibility.Collapsed;
                     BioHubSection.Visibility = Visibility.Visible;
 
                     await LoadDescription();
 
-                    if (_storyArc.FirstAppearanceIssue == null)
+                    if (_object.FirstAppearanceIssue == null)
                     {
                         await FetchFirstAppearance();
                     }
                     HideOrShowSections();
-
-                    if (_storyArc.Issues.Count == 0)
-                    {
-                        await this.FetchFirstIssue();
-                    }
-                    HideOrShowSections();
-                    if (_storyArc.IssueIds.Count > 1) await this.FetchRemainingIssues();
                 }
             }
             catch (TaskCanceledException)
@@ -151,53 +143,31 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            _storyArcDescription.UniqueId = _storyArc.UniqueId;
+            _objectDescription.UniqueId = _object.UniqueId;
             CreateDataTemplates();
         }
 
-        private async Task<StoryArc> GetStoryArc(int id)
+        private async Task<ObjectResource> GetObject(int id)
         {
-            var storyArcString = await ComicVineSource.GetStoryArcAsync(id);
-            return this.MapStoryArc(storyArcString);
+            var objectString = await ComicVineSource.GetObjectAsync(id);
+            return this.MapObject(objectString);
         }
 
         private void HideOrShowSections()
         {
-            IssueSection.Visibility = _storyArc.IssueIds.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            FirstAppearanceSection.Visibility = _storyArc.FirstAppearanceIssue != null ? Visibility.Visible : Visibility.Collapsed;
+            FirstAppearanceSection.Visibility = _object.FirstAppearanceIssue != null ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
 
         #region Fetch methods
-
-        private async Task FetchFirstIssue()
-        {
-            foreach (int issueId in _storyArc.IssueIds.Take(1))
-            {
-                Issue issue = this.MapQuickIssue(await ComicVineSource.GetQuickIssueAsync(issueId));
-                if (_storyArc.Issues.Any(i => i.UniqueId == issue.UniqueId)) continue;
-                _storyArc.Issues.Add(issue);
-            }
-        }
-
-        private async Task FetchRemainingIssues()
-        {
-            var firstId = _storyArc.IssueIds.First();
-            foreach (int issueId in _storyArc.IssueIds.Where(id => id != firstId).Take(_storyArc.IssueIds.Count - 1))
-            {
-                Issue issue = this.MapQuickIssue(await ComicVineSource.GetQuickIssueAsync(issueId));
-                if (_storyArc.Issues.Any(i => i.UniqueId == issue.UniqueId)) continue;
-                _storyArc.Issues.Add(issue);
-            }
-        }
-
+        
         private async Task FetchFirstAppearance()
         {
-            if (_storyArc.FirstAppearanceId != 0)
+            if (_object.FirstAppearanceId != 0)
             {
-                _storyArc.FirstAppearanceIssue = this.MapQuickIssue(await ComicVineSource.GetQuickIssueAsync(_storyArc.FirstAppearanceId));
-                _storyArc.FirstAppearanceIssue.Description = await ComicVineSource.FormatDescriptionAsync(_storyArc.FirstAppearanceIssue);
+                _object.FirstAppearanceIssue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_object.FirstAppearanceId));
+                _object.FirstAppearanceIssue.Description = await ComicVineSource.FormatDescriptionAsync(_object.FirstAppearanceIssue);
             }
         }
 
@@ -205,27 +175,27 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #region Mapping Methods
 
-        private StoryArc MapStoryArc(string storyArcString)
+        private ObjectResource MapObject(string objectString)
         {
-            return storyArcString == ServiceConstants.QueryNotFound ? new StoryArc { Name = ServiceConstants.QueryNotFound } : new StoryArcMapper().MapXmlObject(storyArcString);
+            return objectString == ServiceConstants.QueryNotFound ? new ObjectResource { Name = ServiceConstants.QueryNotFound } : new ObjectMapper().MapXmlObject(objectString);
         }
 
-        private Issue MapQuickIssue(string quickIssue)
+       private Issue MapIssue(string issue)
         {
-            return quickIssue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(quickIssue);
+            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
         }
 
         #endregion
 
         private async Task FormatDescriptionForPage()
         {
-            _storyArcDescription = await ComicVineSource.FormatDescriptionAsync(_storyArc.DescriptionString);
+            _objectDescription = await ComicVineSource.FormatDescriptionAsync(_object.DescriptionString);
         }
 
         private void CreateDataTemplates()
         {
-            int i = 2;
-            foreach (Section section in _storyArcDescription.Sections)
+            int i = 3;
+            foreach (Section section in _objectDescription.Sections)
             {
                 Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
                 i++;
@@ -234,28 +204,19 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #region Event Listners
 
-        private void IssuesView_IssueClick(object sender, ItemClickEventArgs e)
-        {
-            var issue = ((Issue)e.ClickedItem);
-            Frame.Navigate(typeof(IssuePage), issue.UniqueId);
-        }
-
         private async void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
             if (e == null) return;
             if (e.Section.Header == null) return;
-            if (e.Section.Header.ToString() != "Issues" || e.Section.Header.ToString() != "First Appearance") await this.FormatDescriptionForPage();
+            if (e.Section.Header.ToString() != "First Appearance") await this.FormatDescriptionForPage();
             switch (e.Section.Header.ToString())
             {
-                case "Issues":
-                    //Frame.Navigate(typeof(IssuesPage), _storyArc);
-                    break;
                 case "First Appearance":
-                    IssuePage.BasicIssue = _storyArc.FirstAppearanceIssue;
-                    Frame.Navigate(typeof(IssuePage), _storyArc.FirstAppearanceIssue);
+                    IssuePage.BasicIssue = _object.FirstAppearanceIssue;
+                    Frame.Navigate(typeof(IssuePage), _object.FirstAppearanceIssue);
                     break;
                 default:
-                    Section section = _storyArcDescription.Sections.First(d => d.Title == e.Section.Header.ToString());
+                    Section section = _objectDescription.Sections.First(d => d.Title == e.Section.Header.ToString());
                     Frame.Navigate(typeof(DescriptionSectionPage), section);
                     break;
             }
@@ -284,7 +245,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            Frame.Navigate(typeof(VolumePage), _storyArc.FirstAppearanceIssue.VolumeId);
+            Frame.Navigate(typeof(VolumePage), _object.FirstAppearanceIssue.VolumeId);
         }
 
         #endregion

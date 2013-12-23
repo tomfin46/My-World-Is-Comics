@@ -104,7 +104,7 @@ namespace MyWorldIsComics.Mappers
                 {
                     if (reader.Name == "character" && reader.NodeType != XmlNodeType.EndElement)
                     {
-                        
+
                         reader.ReadToFollowing("name");
                         var name = reader.ReadElementContentAsString();
                         names.Add(name);
@@ -205,7 +205,7 @@ namespace MyWorldIsComics.Mappers
         private void ParseFirstAppearance(XmlReader reader)
         {
             if (reader.Name != "first_appeared_in_issue") { reader.ReadToFollowing("first_appeared_in_issue"); }
-            if (reader.IsEmptyElement) return; 
+            if (reader.IsEmptyElement) return;
             reader.ReadToDescendant("id");
             _characterToMap.FirstAppearanceId = reader.ReadElementContentAsInt();
         }
@@ -252,7 +252,7 @@ namespace MyWorldIsComics.Mappers
             }
         }
 
-       private void ParseOrigin(XmlReader reader)
+        private void ParseOrigin(XmlReader reader)
         {
             if (reader.Name != "origin") { reader.ReadToFollowing("origin"); }
             reader.ReadToFollowing("name");
@@ -301,6 +301,5 @@ namespace MyWorldIsComics.Mappers
                 }
             }
         }
-
     }
 }

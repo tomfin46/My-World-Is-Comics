@@ -29,7 +29,7 @@
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:Key="IssueCoverDataTemplate">
+        <DataTemplate x:Key="VolumeCoverDataTemplate">
             <Grid Width="200" Height="300" Margin="10">
                 <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
                     <Image Source="{Binding MainImage}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
@@ -40,7 +40,22 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
-        
+
+        <DataTemplate x:Key="IssueCoverDataTemplate">
+            <Grid Width="200" Height="300" Margin="10">
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                    <Image Source="{Binding MainImage}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
+                </Border>
+                <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
+                    <TextBlock Style="{StaticResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,0">
+                        <Run Text="{Binding VolumeName}"></Run>
+                        <Run Text="{Binding IssueNumberString}"></Run>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="WrapWholeWords" Height="40" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,5"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
         <DataTemplate x:Key="IssueItemTemplate">
             <Grid Height="250" Width="450" Margin="5">
                 <Grid.ColumnDefinitions>

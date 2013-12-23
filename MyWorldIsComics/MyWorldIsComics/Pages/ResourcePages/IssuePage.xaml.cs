@@ -143,7 +143,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
             // Save response content so don't have to fetch from api service again
-            BasicIssue = _basicIssueForPage;
+            BasicIssue = _filteredIssueForPage;
             FilteredIssue = _filteredIssueForPage;
         }
 
@@ -474,7 +474,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void StoryArcsView_StoryArcClick(object sender, ItemClickEventArgs e)
         {
-            //throw new NotImplementedException();
+            var storyArc = ((StoryArc)e.ClickedItem);
+            Frame.Navigate(typeof(StoryArcPage), storyArc.UniqueId);
         }
 
         private async void IssueImagesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)

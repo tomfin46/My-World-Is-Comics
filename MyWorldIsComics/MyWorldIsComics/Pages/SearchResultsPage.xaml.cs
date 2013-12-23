@@ -169,7 +169,7 @@ namespace MyWorldIsComics.Pages
             }
             else if (e.ClickedItem as StoryArc != null)
             {
-                //Frame.Navigate(typeof(StoryArcPage), id);
+                Frame.Navigate(typeof(StoryArcPage), id);
             }
             else if (e.ClickedItem as Team != null)
             {

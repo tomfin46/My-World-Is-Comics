@@ -44,6 +44,13 @@
         public Issue FirstAppearanceIssue { get; set; }
         public List<int> IssueIds { get; set; }
         public ObservableCollection<Issue> Issues { get; set; }
+        public int IssueAppearancesCount
+        {
+            get
+            {
+                return IssueIds.Count;
+            }
+        }
 
         public StoryArc()
         {

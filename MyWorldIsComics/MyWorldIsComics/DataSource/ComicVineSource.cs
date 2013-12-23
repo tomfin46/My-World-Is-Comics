@@ -90,6 +90,12 @@ namespace MyWorldIsComics.DataSource
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Movie, movieId.ToString(), filters));
         }
 
+        public static async Task<string> GetStoryArcAsync(int storyArcId)
+        {
+            List<string> filters = new List<string> { "deck", "description", "first_appeared_in_issue", "id", "image", "issues", "name" };
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.StoryArc, storyArcId.ToString(), filters));
+        }
+
         #endregion
 
         #region GetFiltered methods

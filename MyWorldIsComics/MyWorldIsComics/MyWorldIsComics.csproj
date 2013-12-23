@@ -186,6 +186,9 @@
     <Compile Include="Pages\ResourcePages\PublisherPage.xaml.cs">
       <DependentUpon>PublisherPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\ResourcePages\StoryArcPage.xaml.cs">
+      <DependentUpon>StoryArcPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\ResourcePages\TeamPage.xaml.cs">
       <DependentUpon>TeamPage.xaml</DependentUpon>
     </Compile>
@@ -279,6 +282,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\ResourcePages\PublisherPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ResourcePages\StoryArcPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

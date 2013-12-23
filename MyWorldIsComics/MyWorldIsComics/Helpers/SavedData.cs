@@ -15,6 +15,7 @@ namespace MyWorldIsComics.Helpers
         public static Concept Concept { get; set; }
         public static Creator Creator { get; set; }
         public static Movie Movie { get; set; }
+        public static StoryArc StoryArc { get; set; }
 
         public static void Clear()
         {
@@ -28,6 +29,7 @@ namespace MyWorldIsComics.Helpers
             Concept = null;
             Creator = null;
             Movie = null;
+            StoryArc = null;
         }
     }
 }

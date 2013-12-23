@@ -47,5 +47,10 @@ namespace MyWorldIsComics.DataModel.Resources
             }
         }
         public int IssueAppearancesCount { get; set; }
+
+        public ObjectResource()
+        {
+            Aliases = new List<string>();
+        }
     }
 }

@@ -194,7 +194,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void CreateDataTemplates()
         {
-            int i = 3;
+            int i = 2;
             foreach (Section section in _objectDescription.Sections)
             {
                 Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));

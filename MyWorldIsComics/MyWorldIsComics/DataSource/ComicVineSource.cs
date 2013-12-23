@@ -99,7 +99,7 @@ namespace MyWorldIsComics.DataSource
         public static async Task<string> GetObjectAsync(int objectId)
         {
             List<string> filters = new List<string> { "aliases", "count_of_issue_appearances", "deck", "description", "first_appeared_in_issue", "id", "image", "name" };
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.StoryArc, objectId.ToString(), filters));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Object, objectId.ToString(), filters));
         }
 
         #endregion

@@ -79,16 +79,6 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection Width="520">
-                <DataTemplate>
-                    <Grid>
-                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Deck}" TextWrapping="Wrap" />
-                        </ScrollViewer>
-                    </Grid>
-                </DataTemplate>
-            </HubSection>
-
             <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed">
                 <DataTemplate>
                     <Grid>

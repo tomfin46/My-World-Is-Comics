@@ -4,6 +4,8 @@
     using Interfaces;
 
     using MyWorldIsComics.DataModel.Enums;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
 
     public class StoryArc : IResource
     {
@@ -37,5 +39,16 @@
         public string PublisherName { get; set; }
 
         #endregion
+
+        public int FirstAppearanceId { get; set; }
+        public Issue FirstAppearanceIssue { get; set; }
+        public List<int> IssueIds { get; set; }
+        public ObservableCollection<Issue> Issues { get; set; }
+
+        public StoryArc()
+        {
+            IssueIds = new List<int>();
+            Issues = new ObservableCollection<Issue>();
+        }
     }
 }

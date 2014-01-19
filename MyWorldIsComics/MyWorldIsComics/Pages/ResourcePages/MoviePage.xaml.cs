@@ -13,8 +13,6 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Hub Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=321224
-
 namespace MyWorldIsComics.Pages.ResourcePages
 {
     using System.Net.Http;

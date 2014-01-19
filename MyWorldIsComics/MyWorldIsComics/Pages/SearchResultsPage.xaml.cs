@@ -15,7 +15,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-// The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
 using MyWorldIsComics.DataModel;
 using MyWorldIsComics.DataModel.Interfaces;
 using MyWorldIsComics.DataModel.Resources;

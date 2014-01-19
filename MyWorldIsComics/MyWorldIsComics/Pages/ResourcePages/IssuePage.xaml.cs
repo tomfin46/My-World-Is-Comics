@@ -100,6 +100,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 }
 
                 BasicIssue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(id));
+                BasicIssue.Description = await ComicVineSource.FormatDescriptionAsync(BasicIssue);
             }
 
             if (BasicIssue != null)
@@ -164,7 +165,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             ContentRegion.Children.Insert(0, issuesFlipView);
         }
 
-        #region Load Issues
+        #region Load Issue
 
         private async Task LoadIssue()
         {
@@ -216,7 +217,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     _basicIssueForPage.IssueNumber == -1 ? _basicIssueForPage.IssueNumberNonInt : _basicIssueForPage.IssueNumber.ToString());
 
             _nextIssue = GetMappedIssue(await ComicVineSource.GetSpecificIssueAsync(_basicIssueForPage.VolumeId, issueNumber));
-
+            _nextIssue.Description = await ComicVineSource.FormatDescriptionAsync(_nextIssue);
         }
 
         private async Task FetchNextIssueResource(List<string> filters)
@@ -235,7 +236,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     _basicIssueForPage.IssueNumber == -1 ? _basicIssueForPage.IssueNumberNonInt : _basicIssueForPage.IssueNumber.ToString());
 
             _previousIssue = GetMappedIssue(await ComicVineSource.GetSpecificIssueAsync(_basicIssueForPage.VolumeId, issueNumber));
-
+            _previousIssue.Description = await ComicVineSource.FormatDescriptionAsync(_previousIssue);
         }
 
         private async Task FetchPreviousIssueResource(List<string> filters)

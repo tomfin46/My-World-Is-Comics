@@ -54,7 +54,7 @@
                                     <Run Text="{Binding StoreDateString}"/>
                         </TextBlock>
 
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding DescriptionString}"/>
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding DescriptionSectionString}"/>
 
                         <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Text="Creators" Margin="0,20"/>
 

@@ -16,7 +16,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-// The Group Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234229
 using MyWorldIsComics.DataModel.Resources;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Helpers;

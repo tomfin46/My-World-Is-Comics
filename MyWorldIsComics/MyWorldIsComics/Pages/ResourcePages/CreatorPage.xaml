@@ -85,6 +85,7 @@
                                     <Hyperlink NavigateUri="{Binding Website}">
                                         <Run Text="{Binding Website.AbsoluteUri}" FontWeight="Normal"/>
                                     </Hyperlink>
+                                    <Run Text="i" FontSize="0.01"/>
                                 </Paragraph>
                             </RichTextBlock>
                         </StackPanel>

@@ -10,6 +10,7 @@ namespace MyWorldIsComics
 
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -22,6 +23,9 @@ namespace MyWorldIsComics
     using Data;
 
     using MyWorldIsComics.DataSource;
+    using MyWorldIsComics.DataModel;
+    using MyWorldIsComics.DataModel.Resources;
+    using MyWorldIsComics.DataModel.Interfaces;
     using MyWorldIsComics.Mappers;
 
     #endregion
@@ -78,6 +82,51 @@ namespace MyWorldIsComics
             // TODO: Create an appropriate data model for your problem domain to replace the sample data
             var sampleDataGroup = await SampleDataSource.GetGroupAsync("Group-3");
             DefaultViewModel["Section3Items"] = sampleDataGroup;
+
+            var characterResults = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResource>() };
+            DefaultViewModel["Characters"] = characterResults;
+
+            var response = await MarvelWikiaSource.GetTrendingCharactersAsync();
+            TrendingCharactersMapper tcm = new TrendingCharactersMapper();
+            tcm.DeserializeJsonContent(response);
+
+            int firstChar = 0;
+            Character topCharacter = null;
+
+            while (topCharacter == null)
+            {
+                var topCharacterTitle = tcm.GetResponseTitle(firstChar);
+                topCharacterTitle = topCharacterTitle.Substring(0, topCharacterTitle.IndexOf('('));
+                var results = await ComicVineSource.ExecuteSearchLimitOneAsync(topCharacterTitle);
+                var character = new CharacterMapper().MapTrendingCharactersXmlObject(results);
+                if (character.Name == null)
+                {
+                    firstChar++;
+                }
+                else
+                {
+                    topCharacter = character;
+                }
+            }
+            DefaultViewModel["TopCharacter"] = topCharacter;
+
+            int loopLimit = firstChar + 13;
+            for (int i = firstChar + 1; i < loopLimit; i++)
+            {
+                var title = tcm.GetResponseTitle(i);
+                title = title.Substring(0, title.IndexOf('('));
+                var results = await ComicVineSource.ExecuteSearchLimitOneAsync(title);
+                var character = new CharacterMapper().MapTrendingCharactersXmlObject(results);
+                if (character.Name == null)
+                {
+                    loopLimit++;
+                }
+                else
+                {
+                    characterResults.ResultsList.Add(character);
+                }
+            }
+
             //SearchTools.FetchSuggestions();
         }
 
@@ -102,7 +151,7 @@ namespace MyWorldIsComics
         {
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            var itemId = ((SampleDataItem)e.ClickedItem).UniqueId;
+            var itemId = ((Character)e.ClickedItem).UniqueId;
             Frame.Navigate(typeof(CharacterPage), itemId);
         }
         #region NavigationHelper registration
@@ -130,7 +179,10 @@ namespace MyWorldIsComics
 
         private void HeroImage_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            Frame.Navigate(typeof(FurtherDescription));
+            var topChar = DefaultViewModel["TopCharacter"] as Character;
+            var itemId = topChar.UniqueId;
+            Frame.Navigate(typeof(CharacterPage), itemId);
+            //Frame.Navigate(typeof(FurtherDescription));
         }
 
         private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)

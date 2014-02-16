@@ -14,17 +14,14 @@
     <Page.Resources>
         <!-- Grid-appropriate 310 by 260 pixel item template as seen in section 4 -->
         <DataTemplate x:Key="Standard310x260ItemTemplate">
-            <Grid Height="250" Width="310" Margin="5,10,5,10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="150">
-                    <Image Source="{Binding ImagePath}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
+            <Grid HorizontalAlignment="Left" Width="250" Height="250">
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
                 </Border>
-                <StackPanel Grid.Row="1" Margin="0,10,0,0">
-                    <TextBlock Text="{Binding Title}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
-                    <TextBlock Text="{Binding Description}" Style="{StaticResource BodyTextBlockStyle}" MaxHeight="60" />
+                <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
+                    <TextBlock Text="{Binding Name}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="20" Margin="15,0,15,0"/>
+                    <TextBlock Text="{Binding PublisherName}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="20" TextWrapping="WrapWholeWords" Margin="30,0,15,0"/>
+                    <TextBlock Text="{Binding Deck}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" Height="50" TextWrapping="WrapWholeWords" Margin="15,0,15,10"/>
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -62,10 +59,45 @@
                     <!-- SearchBox Control that provides suggestions to the user, focus given to control by keybaord by FocusOnKeyboardInput being set to true -->
                 </Grid>
             </Hub.Header>
-            <HubSection Width="780" Margin="0,0,80,0" Tapped="HeroImage_Tapped">
+            <!--<HubSection Width="780" Margin="0,0,80,0" Tapped="HeroImage_Tapped" DataContext="{Binding TopCharacter}">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="Assets/MediumGray.png" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
                 </HubSection.Background>
+            </HubSection>-->
+
+            <HubSection x:Name="ImageHubSection" Width="620" Margin="0,0,20,0" Tapped="HeroImage_Tapped" Visibility="Visible" DataContext="{Binding TopCharacter}">
+                <HubSection.Background>
+                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                </HubSection.Background>
+
+                <DataTemplate x:Name="BioHubTemplate">
+                    <Grid>
+                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
+                        <StackPanel x:Name="NameStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="150,0,0,50">
+                            <Border x:Name="NameBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25">
+                                <TextBlock Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Margin="10"
+                                       TextWrapping="NoWrap" Height="40" VerticalAlignment="Top" FlowDirection="RightToLeft"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+
+            <HubSection IsHeaderInteractive="True" DataContext="{Binding Characters}" Header="Trending Characters" Padding="40,40,40,32">
+                <DataTemplate>
+                    <GridView
+                        x:Name="itemGridView"
+                        ItemsSource="{Binding ResultsList}"
+                        Margin="-9,-14,0,0"
+                        AutomationProperties.AutomationId="ItemGridView"
+                        AutomationProperties.Name="Items In Group"
+                        ItemTemplate="{StaticResource Standard310x260ItemTemplate}"
+                        SelectionMode="None"
+                        IsSwipeEnabled="false"
+                        IsItemClickEnabled="True"
+                        ItemClick="ItemView_ItemClick">
+                    </GridView>
+                </DataTemplate>
             </HubSection>
 
             <HubSection Width="500" x:Uid="Section1Header" Header="Section 1" Visibility="Collapsed">
@@ -109,25 +141,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection IsHeaderInteractive="True" DataContext="{Binding Section3Items}" d:DataContext="{Binding Groups[3], Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:SampleDataSource}}"
-                        x:Uid="Section3Header" Header="Section 3" Padding="40,40,40,32">
-                <DataTemplate>
-                    <GridView
-                        x:Name="itemGridView"
-                        ItemsSource="{Binding Items}"
-                        Margin="-9,-14,0,0"
-                        AutomationProperties.AutomationId="ItemGridView"
-                        AutomationProperties.Name="Items In Group"
-                        ItemTemplate="{StaticResource Standard310x260ItemTemplate}"
-                        SelectionMode="None"
-                        IsSwipeEnabled="false"
-                        IsItemClickEnabled="True"
-                        ItemClick="ItemView_ItemClick">
-                    </GridView>
-                </DataTemplate>
-            </HubSection>
-
-            <HubSection x:Uid="Section4Header" Header="Section 4">
+            <HubSection x:Uid="Section4Header" Header="Section 4" Visibility="Collapsed">
                 <DataTemplate>
                     <!-- width of 400 -->
                     <StackPanel Orientation="Vertical">

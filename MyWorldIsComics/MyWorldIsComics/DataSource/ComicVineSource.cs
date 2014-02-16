@@ -1,11 +1,10 @@
-﻿using System.Threading;
-
-namespace MyWorldIsComics.DataSource
+﻿namespace MyWorldIsComics.DataSource
 {
     #region usings
 
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using DataModel.Resources;
     using System.Net.Http;
@@ -32,6 +31,13 @@ namespace MyWorldIsComics.DataSource
         public static async Task<string> ExecuteSearchAsync(string query)
         {
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query, new List<string> { "deck", "id", "image", "name", "publisher" }));
+        }
+
+        public static async Task<string> ExecuteSearchLimitOneAsync(string query)
+        {
+            var uri = comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query, new List<string> { "deck", "id", "image", "name", "publisher" });
+            uri = new Uri(uri.AbsoluteUri.Replace("limit=25", "limit=1"));
+            return await QueryServiceAsync(uri);
         }
 
         #region Get Suggestion Lists

@@ -107,10 +107,12 @@
     </Compile>
     <Compile Include="DataModel\RealLifeLocation.cs" />
     <Compile Include="DataModel\Results.cs" />
+    <Compile Include="DataSource\MarvelWikiaSource.cs" />
     <Compile Include="Helpers\SearchTools.cs" />
     <Compile Include="Mappers\MovieMapper.cs" />
     <Compile Include="Mappers\PublisherMapper.cs" />
     <Compile Include="Mappers\SearchResultsMapper.cs" />
+    <Compile Include="Mappers\TrendingCharactersMapper.cs" />
     <Compile Include="Pages\CollectionPages\CharactersPage.xaml.cs">
       <DependentUpon>CharactersPage.xaml</DependentUpon>
     </Compile>
@@ -316,6 +318,10 @@
   <ItemGroup>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\packages\HtmlAgilityPack.1.4.6\lib\winrt45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\netcore45\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">

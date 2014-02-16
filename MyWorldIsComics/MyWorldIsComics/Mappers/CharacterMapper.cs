@@ -90,6 +90,22 @@ namespace MyWorldIsComics.Mappers
             return _characterToMap;
         }
 
+        public Character MapTrendingCharactersXmlObject(string trendingCharacterString)
+        {
+            using (XmlReader reader = XmlReader.Create(new StringReader(trendingCharacterString)))
+            {
+                if (!GenericResourceMapper.EnsureResultsExist(reader)) return _characterToMap;
+                if (reader.Name == "response") reader.ReadToFollowing("results");
+
+                _characterToMap = GenericResourceMapper.ParseDeck(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseId(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseImage(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParseName(reader, _characterToMap) as Character;
+                _characterToMap = GenericResourceMapper.ParsePublisher(reader, _characterToMap) as Character;
+            }
+            return _characterToMap;
+        }
+
         public List<string> GetSuggestionsList(string suggestionsString)
         {
             List<string> names = new List<string>();

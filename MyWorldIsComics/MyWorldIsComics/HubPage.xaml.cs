@@ -85,9 +85,10 @@ namespace MyWorldIsComics
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            //SearchTools.FetchSuggestions();
+
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
             if (MarvelWikiaSource.IsCanceled()) { MarvelWikiaSource.ReinstateCts(); }
-            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
 
             try
             {
@@ -98,7 +99,6 @@ namespace MyWorldIsComics
                 pageTitle.Text = "An internet connection is required here";
             }
 
-            //SearchTools.FetchSuggestions();
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)

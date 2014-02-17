@@ -257,6 +257,7 @@
                     break;
                 case Resources.ResourcesEnum.Characters:
                 case Resources.ResourcesEnum.Teams:
+                case Resources.ResourcesEnum.Volumes:
                     uri += "?offset=" + query + "&";
                     break;
                 default:

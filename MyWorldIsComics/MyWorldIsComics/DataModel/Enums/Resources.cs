@@ -121,6 +121,8 @@ namespace MyWorldIsComics.DataModel.Enums
                     return "story_arc";
                 case ResourcesEnum.Volume:
                     return "volume";
+                case ResourcesEnum.Volumes:
+                    return "volumes";
                 case ResourcesEnum.Publisher:
                     return "publisher";
                 case ResourcesEnum.Movie:

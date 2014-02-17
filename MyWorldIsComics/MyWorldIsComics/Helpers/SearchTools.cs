@@ -37,7 +37,7 @@ namespace MyWorldIsComics.Helpers
         {
             List<string> names = new List<string>();
             int totalResults;
-            var suggestionsString = await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Teams, 0);
+            var suggestionsString = await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Volumes, 0);
             using (XmlReader reader = XmlReader.Create(new StringReader(suggestionsString)))
             {
                 reader.ReadToFollowing("number_of_total_results");
@@ -48,7 +48,7 @@ namespace MyWorldIsComics.Helpers
 
             for (int i = 0; i < pages+1; i++)
             {
-                IEnumerable<string> results = MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Teams, i * 100));
+                IEnumerable<string> results = MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Volumes, i * 100));
                 foreach (string result in results.Where(result => !names.Contains(result)))
                 {
                     names.Add(result);
@@ -84,10 +84,10 @@ namespace MyWorldIsComics.Helpers
                 if (!GenericResourceMapper.EnsureResultsExist(reader)) return new List<string>();
                 reader.ReadToFollowing("results");
 
-                if (reader.Name != "team") { reader.ReadToFollowing("team"); }
+                if (reader.Name != "volume") { reader.ReadToFollowing("volume"); }
                 do
                 {
-                    if (reader.Name == "team" && reader.NodeType != XmlNodeType.EndElement)
+                    if (reader.Name == "volume" && reader.NodeType != XmlNodeType.EndElement)
                     {
 
                         reader.ReadToFollowing("name");

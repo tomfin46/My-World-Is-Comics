@@ -8,7 +8,7 @@
     <Application.Resources>
         <!-- Application-specific resources -->
 
-        <x:String x:Key="AppName">MyWorldIsComics</x:String>
+        <x:String x:Key="AppName">My World Is Comics</x:String>
         <x:String x:Key="ChevronGlyph">&#xE26B;</x:String>
 
         <DataTemplate x:Key="Standard310x260ItemTemplate">
@@ -108,6 +108,19 @@
                     <Image Source="{Binding AvatarImage}" Stretch="Uniform" AutomationProperties.Name="{Binding Name}" Height="50" Width="50"/>
                 </Border>
                 <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap" Grid.Column="1" Margin="10,0,0,0"/>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SearchResultItemTemplate">
+            <Grid HorizontalAlignment="Left" Width="250" Height="250">
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                </Border>
+                <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
+                    <TextBlock Text="{Binding Name}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="20" Margin="15,0,15,0"/>
+                    <TextBlock Text="{Binding PublisherName}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="20" TextWrapping="WrapWholeWords" Margin="30,0,15,0"/>
+                    <TextBlock Text="{Binding Deck}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" Height="50" TextWrapping="WrapWholeWords" Margin="15,0,15,10"/>
+                </StackPanel>
             </Grid>
         </DataTemplate>
     </Application.Resources>

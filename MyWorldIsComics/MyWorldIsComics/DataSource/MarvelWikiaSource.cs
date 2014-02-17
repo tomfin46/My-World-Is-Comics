@@ -59,5 +59,24 @@ namespace MyWorldIsComics.DataSource
 
             return new Uri(uri);
         }
+
+        #region CancellationTokenSource
+
+        public static void CancelTask()
+        {
+            cts.Cancel();
+        }
+
+        public static void ReinstateCts()
+        {
+            cts = new CancellationTokenSource();
+        }
+
+        public static bool IsCanceled()
+        {
+            return cts.IsCancellationRequested;
+        }
+
+        #endregion
     }
 }

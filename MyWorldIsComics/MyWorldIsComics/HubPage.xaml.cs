@@ -1,4 +1,6 @@
-﻿using Windows.UI.Xaml.Input;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
+using Windows.UI.Xaml.Input;
 using MyWorldIsComics.Helpers;
 using MyWorldIsComics.Pages;
 using MyWorldIsComics.Pages.CollectionPages;
@@ -38,6 +40,9 @@ namespace MyWorldIsComics
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
+        private Results _trendingCharacters;
+        private Character _topCharacter;
+
         private List<string> suggestionsList = new List<string>();
         private Dictionary<int, string> suggestionsDictionary = new Dictionary<int, string>();
 
@@ -64,6 +69,7 @@ namespace MyWorldIsComics
             InitializeComponent();
             navigationHelper = new NavigationHelper(this);
             navigationHelper.LoadState += navigationHelper_LoadState;
+            navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -79,55 +85,106 @@ namespace MyWorldIsComics
         /// session.  The state will be null the first time a page is visited.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            var sampleDataGroup = await SampleDataSource.GetGroupAsync("Group-3");
-            DefaultViewModel["Section3Items"] = sampleDataGroup;
+            if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
+            if (MarvelWikiaSource.IsCanceled()) { MarvelWikiaSource.ReinstateCts(); }
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
 
-            var characterResults = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResource>() };
-            DefaultViewModel["Characters"] = characterResults;
-
-            var response = await MarvelWikiaSource.GetTrendingCharactersAsync();
-            TrendingCharactersMapper tcm = new TrendingCharactersMapper();
-            tcm.DeserializeJsonContent(response);
-
-            int firstChar = 0;
-            Character topCharacter = null;
-
-            while (topCharacter == null)
+            try
             {
-                var topCharacterTitle = tcm.GetResponseTitle(firstChar);
-                topCharacterTitle = topCharacterTitle.Substring(0, topCharacterTitle.IndexOf('('));
-                var results = await ComicVineSource.ExecuteSearchLimitOneAsync(topCharacterTitle);
-                var character = new CharacterMapper().MapTrendingCharactersXmlObject(results);
-                if (character.Name == null)
-                {
-                    firstChar++;
-                }
-                else
-                {
-                    topCharacter = character;
-                }
+                await LoadTrendingCharacters();
             }
-            DefaultViewModel["TopCharacter"] = topCharacter;
-
-            int loopLimit = firstChar + 13;
-            for (int i = firstChar + 1; i < loopLimit; i++)
+            catch (HttpRequestException)
             {
-                var title = tcm.GetResponseTitle(i);
-                title = title.Substring(0, title.IndexOf('('));
-                var results = await ComicVineSource.ExecuteSearchLimitOneAsync(title);
-                var character = new CharacterMapper().MapTrendingCharactersXmlObject(results);
-                if (character.Name == null)
-                {
-                    loopLimit++;
-                }
-                else
-                {
-                    characterResults.ResultsList.Add(character);
-                }
+                pageTitle.Text = "An internet connection is required here";
             }
 
             //SearchTools.FetchSuggestions();
+        }
+
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            // Save response content so don't have to fetch from api service again
+            Results results = DefaultViewModel["TrendingCharacters"] as Results;
+            if (results == null) return;
+
+            results.ResultsList.Insert(0, DefaultViewModel["TopCharacter"] as Character);
+            SavedData.TrendingCharacters = results;
+        }
+
+        private async Task LoadTrendingCharacters()
+        {
+            if (SavedData.TrendingCharacters != null)
+            {
+                _topCharacter = SavedData.TrendingCharacters.ResultsList.First() as Character;
+                DefaultViewModel["TopCharacter"] = _topCharacter;
+
+                SavedData.TrendingCharacters.ResultsList.RemoveAt(0);
+                _trendingCharacters = SavedData.TrendingCharacters;
+                DefaultViewModel["TrendingCharacters"] = _trendingCharacters;
+            }
+
+            else
+            {
+                _trendingCharacters = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResource>() };
+                DefaultViewModel["TrendingCharacters"] = _trendingCharacters;
+
+                var response = await MarvelWikiaSource.GetTrendingCharactersAsync();
+                TrendingCharactersMapper tcm = new TrendingCharactersMapper();
+                tcm.DeserializeJsonContent(response);
+
+                int firstCharacter = await SetTopCharacter(tcm);
+                DefaultViewModel["TopCharacter"] = _topCharacter;
+
+                await FillTrendingCharacters(tcm, firstCharacter);
+            }
+        }
+
+        private async Task<int> SetTopCharacter(TrendingCharactersMapper tcm)
+        {
+            int firstChar = 0;
+            _topCharacter = null;
+
+            while (_topCharacter == null)
+            {
+                var topChar = await GetTrendingCharacter(tcm, firstChar);
+                if (topChar != null)
+                {
+                    _topCharacter = topChar;
+                }
+                else
+                {
+                    ++firstChar;
+                }
+            }
+
+            return firstChar;
+        }
+
+        private async Task FillTrendingCharacters(TrendingCharactersMapper tcm, int firstCharacter)
+        {
+            int loopLimit = firstCharacter + 13;
+            for (int i = firstCharacter + 1; i < loopLimit; ++i)
+            {
+                var trendChar = await GetTrendingCharacter(tcm, i);
+                if (trendChar != null)
+                {
+                    _trendingCharacters.ResultsList.Add(trendChar);
+                }
+                else
+                {
+                    ++loopLimit;
+                }
+            }
+        }
+
+        private async Task<Character> GetTrendingCharacter(TrendingCharactersMapper tcm, int index)
+        {
+            var title = tcm.GetResponseTitle(index);
+            title = title.Substring(0, title.IndexOf('('));
+            var results = await ComicVineSource.ExecuteSearchLimitOneAsync(title);
+            var character = new CharacterMapper().MapTrendingCharactersXmlObject(results);
+            
+            return character.Name == null ? null : character;
         }
 
         /// <summary>
@@ -182,7 +239,6 @@ namespace MyWorldIsComics
             var topChar = DefaultViewModel["TopCharacter"] as Character;
             var itemId = topChar.UniqueId;
             Frame.Navigate(typeof(CharacterPage), itemId);
-            //Frame.Navigate(typeof(FurtherDescription));
         }
 
         private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)

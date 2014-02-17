@@ -59,11 +59,6 @@
                     <!-- SearchBox Control that provides suggestions to the user, focus given to control by keybaord by FocusOnKeyboardInput being set to true -->
                 </Grid>
             </Hub.Header>
-            <!--<HubSection Width="780" Margin="0,0,80,0" Tapped="HeroImage_Tapped" DataContext="{Binding TopCharacter}">
-                <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
-                </HubSection.Background>
-            </HubSection>-->
 
             <HubSection x:Name="ImageHubSection" Width="620" Margin="0,0,20,0" Tapped="HeroImage_Tapped" Visibility="Visible" DataContext="{Binding TopCharacter}">
                 <HubSection.Background>
@@ -83,7 +78,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection IsHeaderInteractive="True" DataContext="{Binding Characters}" Header="Trending Characters" Padding="40,40,40,32">
+            <HubSection IsHeaderInteractive="False" DataContext="{Binding TrendingCharacters}" Header="Trending Characters" Padding="40,40,40,32">
                 <DataTemplate>
                     <GridView
                         x:Name="itemGridView"
@@ -91,7 +86,7 @@
                         Margin="-9,-14,0,0"
                         AutomationProperties.AutomationId="ItemGridView"
                         AutomationProperties.Name="Items In Group"
-                        ItemTemplate="{StaticResource Standard310x260ItemTemplate}"
+                        ItemTemplate="{StaticResource SearchResultItemTemplate}"
                         SelectionMode="None"
                         IsSwipeEnabled="false"
                         IsItemClickEnabled="True"

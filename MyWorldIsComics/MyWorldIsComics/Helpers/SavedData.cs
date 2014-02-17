@@ -1,4 +1,5 @@
-﻿using MyWorldIsComics.DataModel.DescriptionContent;
+﻿using MyWorldIsComics.DataModel;
+using MyWorldIsComics.DataModel.DescriptionContent;
 using MyWorldIsComics.DataModel.Resources;
 
 namespace MyWorldIsComics.Helpers
@@ -17,6 +18,7 @@ namespace MyWorldIsComics.Helpers
         public static Movie Movie { get; set; }
         public static StoryArc StoryArc { get; set; }
         public static ObjectResource Object { get; set; }
+        public static Results TrendingCharacters { get; set; }
 
         public static void Clear()
         {
@@ -32,6 +34,7 @@ namespace MyWorldIsComics.Helpers
             Movie = null;
             StoryArc = null;
             Object = null;
+            TrendingCharacters = null;
         }
     }
 }

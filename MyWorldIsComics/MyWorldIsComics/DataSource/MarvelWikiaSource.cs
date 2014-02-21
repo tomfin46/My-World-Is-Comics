@@ -52,10 +52,7 @@ namespace MyWorldIsComics.DataSource
         private Uri ContructUrl(string section, string method, Dictionary<string, string> parameters)
         {
             string uri = ServiceConstants.MarvelWikiaBaseUrl + section + "/" + method + "?";
-            foreach (var param in parameters)
-            {
-                uri += param.Key + "=" + param.Value;
-            }
+            uri = parameters.Aggregate(uri, (current, param) => current + (param.Key + "=" + param.Value));
 
             return new Uri(uri);
         }

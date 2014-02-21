@@ -5,6 +5,7 @@ using MyWorldIsComics.Helpers;
 using MyWorldIsComics.Pages;
 using MyWorldIsComics.Pages.CollectionPages;
 using MyWorldIsComics.Pages.ResourcePages;
+using Newtonsoft.Json;
 
 namespace MyWorldIsComics
 {
@@ -31,6 +32,46 @@ namespace MyWorldIsComics
     using MyWorldIsComics.Mappers;
 
     #endregion
+
+    class JsonResponse
+    {
+        public string Error { get; set; }
+        public int Limit { get; set; }
+        public int Offset { get; set; }
+        public int Number_Of_Page_Results { get; set; }
+        public int Number_Of_Total_Results { get; set; }
+        public int Status_Code { get; set; }
+        public List<CharacterTest> Results { get; set; }
+        public string Version { get; set; }
+    }
+
+    class CharacterTest
+    {
+        public string Deck { get; set; }
+        public int Id { get; set; }
+        public Images Image { get; set; }
+        public string Name { get; set; }
+        public PublisherTest Publisher { get; set; }
+    }
+
+    class Images
+    {
+        public string Icon_Url { get; set; }
+        public string Medium_Url { get; set; }
+        public string Screen_Url { get; set; }
+        public string Small_Url { get; set; }
+        public string Super_Url { get; set; }
+        public string Thumb_Url { get; set; }
+        public string Tiny_Url { get; set; }
+
+    }
+
+    class PublisherTest
+    {
+        public string Api_Detail_Url { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
 
     /// <summary>
     /// A page that displays a grouped collection of items.
@@ -128,14 +169,67 @@ namespace MyWorldIsComics
                 _trendingCharacters = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResource>() };
                 DefaultViewModel["TrendingCharacters"] = _trendingCharacters;
 
+                //var response = ServiceConstants.QueryNotFound;
                 var response = await MarvelWikiaSource.GetTrendingCharactersAsync();
-                TrendingCharactersMapper tcm = new TrendingCharactersMapper();
-                tcm.DeserializeJsonContent(response);
+                if (response != ServiceConstants.QueryNotFound)
+                {
+                    TrendingCharactersMapper tcm = new TrendingCharactersMapper();
+                    tcm.DeserializeJsonContent(response);
 
-                int firstCharacter = await SetTopCharacter(tcm);
-                DefaultViewModel["TopCharacter"] = _topCharacter;
+                    int firstCharacter = await SetTopCharacter(tcm);
+                    DefaultViewModel["TopCharacter"] = _topCharacter;
 
-                await FillTrendingCharacters(tcm, firstCharacter);
+                    await FillTrendingCharacters(tcm, firstCharacter);
+                }
+                else
+                {
+                    response = await ComicVineSource.GetLatestUpdatedCharacters();
+                    var jsonResponse = JsonConvert.DeserializeObject<JsonResponse>(response);
+                    var characters = jsonResponse.Results;
+
+                    var topChar = characters.First();
+                    _topCharacter = new Character()
+                    {
+                        UniqueId = topChar.Id,
+                        Name = topChar.Name,
+                        Deck = topChar.Deck,
+                    };
+                    if (topChar.Image != null)
+                    {
+                        _topCharacter.MainImage = new Uri(topChar.Image.Super_Url);
+                    }
+                    if (topChar.Publisher != null)
+                    {
+                        _topCharacter.PublisherName = topChar.Publisher.Name;
+                        _topCharacter.PublisherId = topChar.Publisher.Id;
+                    }
+                    DefaultViewModel["TopCharacter"] = _topCharacter;
+                    characters.RemoveAt(0);
+
+                    _trendingCharacters = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResource>() };
+                    DefaultViewModel["TrendingCharacters"] = _trendingCharacters;
+
+                    foreach (CharacterTest characterTest in characters)
+                    {
+                        var character = new Character
+                        {
+                            UniqueId = characterTest.Id,
+                            Name = characterTest.Name,
+                            Deck = characterTest.Deck,
+                        };
+                        if (characterTest.Image != null)
+                        {
+                            character.MainImage = new Uri(characterTest.Image.Super_Url);
+                        }
+                        if (characterTest.Publisher != null)
+                        {
+                            character.PublisherName = characterTest.Publisher.Name;
+                            character.PublisherId = characterTest.Publisher.Id;
+                        }
+                        _trendingCharacters.ResultsList.Add(character);
+                    }
+                }
+
             }
         }
 
@@ -183,7 +277,7 @@ namespace MyWorldIsComics
             title = title.Substring(0, title.IndexOf('('));
             var results = await ComicVineSource.ExecuteSearchLimitOneAsync(title);
             var character = new CharacterMapper().MapTrendingCharactersXmlObject(results);
-            
+
             return character.Name == null ? null : character;
         }
 

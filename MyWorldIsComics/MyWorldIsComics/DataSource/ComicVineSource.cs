@@ -40,6 +40,12 @@
             return await QueryServiceAsync(uri);
         }
 
+        public static async Task<string> GetLatestUpdatedCharacters()
+        {
+            var uri = comicVineSource.ContructUrl(Resources.ResourcesEnum.Characters, new List<string> {"deck", "id", "image", "name", "publisher"}, "date_last_updated", "asc", 15);
+            return await QueryServiceAsync(uri);
+        }
+
         #region Get Suggestion Lists
 
         public static async Task<string> GetSuggestionList(Resources.ResourcesEnum resourceEnum, int offset)
@@ -287,6 +293,16 @@
             string uri = this.ContructUrl(resourcesEnum, volumeId).AbsoluteUri;
             uri += "&field_list=" + string.Join(",", filters);
             uri += "&filter=volume:" + volumeId + ",issue_number:" + issueId;
+            return new Uri(uri);
+        }
+
+        private Uri ContructUrl(Resources.ResourcesEnum resourcesEnum, IEnumerable<string> filters, string sortField, string sortDirection, int resultLimit)
+        {
+            string uri = this.ContructUrl(resourcesEnum, resultLimit.ToString()).AbsoluteUri;
+            uri += "&field_list=" + string.Join(",", filters);
+            uri += "&sort=" + sortField + ":" + sortDirection;
+            uri = uri.Replace("offset=", "limit=");
+            uri = uri.Replace("format=xml", "format=json");
             return new Uri(uri);
         }
 

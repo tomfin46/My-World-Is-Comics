@@ -105,7 +105,12 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DataModel\DataSourceResponse.cs" />
     <Compile Include="DataModel\RealLifeLocation.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Character.cs" />
+    <Compile Include="DataModel\ResponseSchemas\IResponseSchema.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Issue.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Publisher.cs" />
     <Compile Include="DataModel\Results.cs" />
     <Compile Include="DataSource\MarvelWikiaSource.cs" />
     <Compile Include="Helpers\SearchTools.cs" />

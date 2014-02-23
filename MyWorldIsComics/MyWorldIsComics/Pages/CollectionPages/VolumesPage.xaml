@@ -14,7 +14,7 @@
         <!-- Collection of items displayed by this page -->
         <CollectionViewSource
             x:Name="itemsViewSource"
-            Source="{Binding Items}"/>
+            Source="{Binding Location.Volume_Credits}"/>
     </Page.Resources>
 
     <!--
@@ -49,7 +49,7 @@
             ItemClick="ItemView_ItemClick">
             <GridView.Header>
                 <StackPanel Width="480" Margin="0,4,14,0">
-                    <Image Source="{Binding MainImage}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                    <Image Source="{Binding Image.Super_Url}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
                     <TextBlock Text="{Binding Deck}" Margin="0,0,0,0" Style="{StaticResource BodyTextBlockStyle}"/>
                 </StackPanel>
             </GridView.Header>

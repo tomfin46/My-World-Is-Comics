@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
+﻿using System.Collections.ObjectModel;
+using System.Reflection;
 using MyWorldIsComics.DataModel;
 using MyWorldIsComics.DataModel.Interfaces;
-using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataModel.ResponseSchemas;
 
 namespace MyWorldIsComics.Mappers
 {
@@ -30,67 +24,18 @@ namespace MyWorldIsComics.Mappers
         public SearchResultsMapper()
         {
             Results = new ObservableCollection<Results>();
-            CharacterResults = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResource>() };
-            ConceptResults = new Results { Name = "Concepts", ResultsList = new ObservableCollection<IResource>() };
-            CreatorResults = new Results { Name = "Creators", ResultsList = new ObservableCollection<IResource>() };
-            IssueResults = new Results { Name = "Issues", ResultsList = new ObservableCollection<IResource>() };
-            LocationResults = new Results { Name = "Locations", ResultsList = new ObservableCollection<IResource>() };
-            MovieResults = new Results { Name = "Movies", ResultsList = new ObservableCollection<IResource>() };
-            ObjectResults = new Results { Name = "Objects", ResultsList = new ObservableCollection<IResource>() };
-            PublisherResults = new Results { Name = "Publishers", ResultsList = new ObservableCollection<IResource>() };
-            StoryArcResults = new Results { Name = "Story Arcs", ResultsList = new ObservableCollection<IResource>() };
-            TeamResults = new Results { Name = "Teams", ResultsList = new ObservableCollection<IResource>() };
-            VolumeResults = new Results { Name = "Volumes", ResultsList = new ObservableCollection<IResource>() };
+            CharacterResults = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResponse>() };
+            ConceptResults = new Results { Name = "Concepts", ResultsList = new ObservableCollection<IResponse>() };
+            CreatorResults = new Results { Name = "Creators", ResultsList = new ObservableCollection<IResponse>() };
+            IssueResults = new Results { Name = "Issues", ResultsList = new ObservableCollection<IResponse>() };
+            LocationResults = new Results { Name = "Locations", ResultsList = new ObservableCollection<IResponse>() };
+            MovieResults = new Results { Name = "Movies", ResultsList = new ObservableCollection<IResponse>() };
+            ObjectResults = new Results { Name = "Objects", ResultsList = new ObservableCollection<IResponse>() };
+            PublisherResults = new Results { Name = "Publishers", ResultsList = new ObservableCollection<IResponse>() };
+            StoryArcResults = new Results { Name = "Story Arcs", ResultsList = new ObservableCollection<IResponse>() };
+            TeamResults = new Results { Name = "Teams", ResultsList = new ObservableCollection<IResponse>() };
+            VolumeResults = new Results { Name = "Volumes", ResultsList = new ObservableCollection<IResponse>() };
             FillResults();
-        }
-
-        public void MapSearchResults(string searchResults)
-        {
-            using (XmlReader reader = XmlReader.Create(new StringReader(searchResults)))
-            {
-                if (!GenericResourceMapper.EnsureResultsExist(reader)) return;
-                reader.ReadToFollowing("results");
-                while (reader.Read())
-                {
-                    if (reader.NodeType == XmlNodeType.EndElement) continue;
-                    switch (reader.Name)
-                    {
-                        case "character":
-                            MapCharacter(reader);
-                            break;
-                        case "concept":
-                            MapConcepts(reader);
-                            break;
-                        case "issue":
-                            MapIssues(reader);
-                            break;
-                        case "location":
-                            MapLocations(reader);
-                            break;
-                        case "movie":
-                            MapMovie(reader);
-                            break;
-                        case "object":
-                            MapObjects(reader);
-                            break;
-                        case "person":
-                            MapCreators(reader);
-                            break;
-                        case "publisher":
-                            MapPublishers(reader);
-                            break;
-                        case "story_arc":
-                            MapStoryArc(reader);
-                            break;
-                        case "team":
-                            MapTeam(reader);
-                            break;
-                        case "volume":
-                            MapVolume(reader);
-                            break;
-                    }
-                }
-            }
         }
 
         private void FillResults()
@@ -108,125 +53,137 @@ namespace MyWorldIsComics.Mappers
             Results.Add(VolumeResults);
         }
 
-        private void MapVolume(XmlReader reader)
+        public void MapSearchResults(string searchResults)
         {
-            Volume volumeToMap = new Volume();
-            volumeToMap = GenericResourceMapper.ParseDeck(reader, volumeToMap) as Volume;
-            volumeToMap = GenericResourceMapper.ParseId(reader, volumeToMap) as Volume;
-            volumeToMap = GenericResourceMapper.ParseImage(reader, volumeToMap) as Volume;
-            volumeToMap = GenericResourceMapper.ParseName(reader, volumeToMap) as Volume;
-            volumeToMap = GenericResourceMapper.ParsePublisher(reader, volumeToMap) as Volume;
-            VolumeResults.ResultsList.Add(volumeToMap);
+            var json = JsonDeserialize.DeserializeJsonString<JsonMultipleBase>(searchResults);
+
+            foreach (var response in json.Results)
+            {
+                switch (response.Resource_Type)
+                {
+                    case "character":
+                        MapCharacter(response);
+                        break;
+                    case "concept":
+                        MapConcept(response);
+                        break;
+                    case "issue":
+                        MapIssue(response);
+                        break;
+                    case "location":
+                        MapLocation(response);
+                        break;
+                    case "movie":
+                        MapMovie(response);
+                        break;
+                    case "object":
+                        MapObject(response);
+                        break;
+                    case "person":
+                        MapCreator(response);
+                        break;
+                    case "publisher":
+                        MapPublisher(response);
+                        break;
+                    case "story_arc":
+                        MapStoryArc(response);
+                        break;
+                    case "team":
+                        MapTeam(response);
+                        break;
+                    case "volume":
+                        MapVolume(response);
+                        break;
+                }
+            }
         }
 
-        private void MapTeam(XmlReader reader)
+        private void MapCharacter(ResponseSchema response)
         {
-            Team teamToMap = new Team();
-            teamToMap = GenericResourceMapper.ParseDeck(reader, teamToMap) as Team;
-            teamToMap = GenericResourceMapper.ParseId(reader, teamToMap) as Team;
-            teamToMap = GenericResourceMapper.ParseImage(reader, teamToMap) as Team;
-            teamToMap = GenericResourceMapper.ParseName(reader, teamToMap) as Team;
-            teamToMap = GenericResourceMapper.ParsePublisher(reader, teamToMap) as Team;
-            TeamResults.ResultsList.Add(teamToMap);
+            var character = ResponseSchemaToT<Character>(response);
+            CharacterResults.ResultsList.Add(character);
         }
 
-        private void MapStoryArc(XmlReader reader)
+        private void MapVolume(ResponseSchema response)
         {
-            StoryArc storyArcToMap = new StoryArc();
-            storyArcToMap = GenericResourceMapper.ParseDeck(reader, storyArcToMap) as StoryArc;
-            storyArcToMap = GenericResourceMapper.ParseId(reader, storyArcToMap) as StoryArc;
-            storyArcToMap = GenericResourceMapper.ParseImage(reader, storyArcToMap) as StoryArc;
-            storyArcToMap = GenericResourceMapper.ParseName(reader, storyArcToMap) as StoryArc;
-            storyArcToMap = GenericResourceMapper.ParsePublisher(reader, storyArcToMap) as StoryArc;
-            StoryArcResults.ResultsList.Add(storyArcToMap);
-        }
-        
-        private void MapPublishers(XmlReader reader)
-        {
-            Publisher publisherToMap = new Publisher();
-            publisherToMap = GenericResourceMapper.ParseDeck(reader, publisherToMap) as Publisher;
-            publisherToMap = GenericResourceMapper.ParseId(reader, publisherToMap) as Publisher;
-            publisherToMap = GenericResourceMapper.ParseImage(reader, publisherToMap) as Publisher;
-            publisherToMap = GenericResourceMapper.ParseName(reader, publisherToMap) as Publisher;
-            publisherToMap = GenericResourceMapper.ParsePublisher(reader, publisherToMap) as Publisher;
-            PublisherResults.ResultsList.Add(publisherToMap);
+            var volume = ResponseSchemaToT<Volume>(response);
+            VolumeResults.ResultsList.Add(volume);
         }
 
-        private void MapCreators(XmlReader reader)
+        private void MapTeam(ResponseSchema response)
         {
-            Creator creatorToMap = new Creator();
-            creatorToMap = GenericResourceMapper.ParseDeck(reader, creatorToMap) as Creator;
-            creatorToMap = GenericResourceMapper.ParseId(reader, creatorToMap) as Creator;
-            creatorToMap = GenericResourceMapper.ParseImage(reader, creatorToMap) as Creator;
-            creatorToMap = GenericResourceMapper.ParseName(reader, creatorToMap) as Creator;
-            creatorToMap = GenericResourceMapper.ParsePublisher(reader, creatorToMap) as Creator;
-            CreatorResults.ResultsList.Add(creatorToMap);
+            var team = ResponseSchemaToT<Team>(response);
+            TeamResults.ResultsList.Add(team);
         }
 
-        private void MapObjects(XmlReader reader)
+        private void MapStoryArc(ResponseSchema response)
         {
-            ObjectResource objectToMap = new ObjectResource();
-            objectToMap = GenericResourceMapper.ParseDeck(reader, objectToMap) as ObjectResource;
-            objectToMap = GenericResourceMapper.ParseId(reader, objectToMap) as ObjectResource;
-            objectToMap = GenericResourceMapper.ParseImage(reader, objectToMap) as ObjectResource;
-            objectToMap = GenericResourceMapper.ParseName(reader, objectToMap) as ObjectResource;
-            objectToMap = GenericResourceMapper.ParsePublisher(reader, objectToMap) as ObjectResource;
-            ObjectResults.ResultsList.Add(objectToMap);
+            var storyArc = ResponseSchemaToT<StoryArc>(response);
+            StoryArcResults.ResultsList.Add(storyArc);
         }
 
-        private void MapMovie(XmlReader reader)
+        private void MapPublisher(ResponseSchema response)
         {
-            Movie movieToMap = new Movie();
-            movieToMap = GenericResourceMapper.ParseDeck(reader, movieToMap) as Movie;
-            movieToMap = GenericResourceMapper.ParseId(reader, movieToMap) as Movie;
-            movieToMap = GenericResourceMapper.ParseImage(reader, movieToMap) as Movie;
-            movieToMap = GenericResourceMapper.ParseName(reader, movieToMap) as Movie;
-            movieToMap = GenericResourceMapper.ParsePublisher(reader, movieToMap) as Movie;
-            MovieResults.ResultsList.Add(movieToMap);
+            var publisher = ResponseSchemaToT<Publisher>(response);
+            PublisherResults.ResultsList.Add(publisher);
         }
 
-        private void MapLocations(XmlReader reader)
+        private void MapCreator(ResponseSchema response)
         {
-            Location locationToMap = new Location();
-            locationToMap = GenericResourceMapper.ParseDeck(reader, locationToMap) as Location;
-            locationToMap = GenericResourceMapper.ParseId(reader, locationToMap) as Location;
-            locationToMap = GenericResourceMapper.ParseImage(reader, locationToMap) as Location;
-            locationToMap = GenericResourceMapper.ParseName(reader, locationToMap) as Location;
-            locationToMap = GenericResourceMapper.ParsePublisher(reader, locationToMap) as Location;
-            LocationResults.ResultsList.Add(locationToMap);
+            var creator = ResponseSchemaToT<Person>(response);
+            CreatorResults.ResultsList.Add(creator);
         }
 
-        private void MapIssues(XmlReader reader)
+        private void MapObject(ResponseSchema response)
         {
-            Issue issueToMap = new Issue();
-            issueToMap = GenericResourceMapper.ParseDeck(reader, issueToMap) as Issue;
-            issueToMap = GenericResourceMapper.ParseId(reader, issueToMap) as Issue;
-            issueToMap = GenericResourceMapper.ParseImage(reader, issueToMap) as Issue;
-            issueToMap = GenericResourceMapper.ParseName(reader, issueToMap) as Issue;
-            issueToMap = GenericResourceMapper.ParsePublisher(reader, issueToMap) as Issue;
-            IssueResults.ResultsList.Add(issueToMap);
+            var obj = ResponseSchemaToT<ObjectResource>(response);
+            ObjectResults.ResultsList.Add(obj);
         }
 
-        private void MapConcepts(XmlReader reader)
+        private void MapMovie(ResponseSchema response)
         {
-            Concept conceptToMap = new Concept();
-            conceptToMap = GenericResourceMapper.ParseDeck(reader, conceptToMap) as Concept;
-            conceptToMap = GenericResourceMapper.ParseId(reader, conceptToMap) as Concept;
-            conceptToMap = GenericResourceMapper.ParseImage(reader, conceptToMap) as Concept;
-            conceptToMap = GenericResourceMapper.ParseName(reader, conceptToMap) as Concept;
-            conceptToMap = GenericResourceMapper.ParsePublisher(reader, conceptToMap) as Concept;
-            ConceptResults.ResultsList.Add(conceptToMap);
+            var movie = ResponseSchemaToT<Movie>(response);
+            MovieResults.ResultsList.Add(movie);
         }
 
-        private void MapCharacter(XmlReader reader)
+        private void MapLocation(ResponseSchema response)
         {
-            Character characterToMap = new Character();
-            characterToMap = GenericResourceMapper.ParseDeck(reader, characterToMap) as Character;
-            characterToMap = GenericResourceMapper.ParseId(reader, characterToMap) as Character;
-            characterToMap = GenericResourceMapper.ParseImage(reader, characterToMap) as Character;
-            characterToMap = GenericResourceMapper.ParseName(reader, characterToMap) as Character;
-            characterToMap = GenericResourceMapper.ParsePublisher(reader, characterToMap) as Character;
-            CharacterResults.ResultsList.Add(characterToMap);
+            var location = ResponseSchemaToT<Location>(response);
+            LocationResults.ResultsList.Add(location);
+        }
+
+        private void MapIssue(ResponseSchema response)
+        {
+            var issue = ResponseSchemaToT<Issue>(response);
+            IssueResults.ResultsList.Add(issue);
+        }
+
+        private void MapConcept(ResponseSchema response)
+        {
+            var concept = ResponseSchemaToT<Concept>(response);
+            ConceptResults.ResultsList.Add(concept);
+        }
+
+        private T ResponseSchemaToT<T>(ResponseSchema response) where T : IResponse, new()
+        {
+            var iResponse = new T();
+            var iRespType = iResponse.GetType();
+
+            var respType = response.GetType();
+            var props = respType.GetRuntimeProperties();
+
+            foreach (var prop in props)
+            {
+                var value = prop.GetValue(response);
+
+                if (value == null) continue;
+                if (prop.SetMethod == null) continue;
+
+                var iProp = iRespType.GetRuntimeProperty(prop.Name);
+                iProp.SetValue(iResponse, value);
+            }
+
+            return iResponse;
         }
     }
 }

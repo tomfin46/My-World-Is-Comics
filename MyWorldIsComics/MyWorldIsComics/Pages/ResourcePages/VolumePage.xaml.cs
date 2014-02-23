@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using MyWorldIsComics.Common;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataModel.ResponseSchemas;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Helpers;
 using MyWorldIsComics.Mappers;
@@ -26,8 +19,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
     using Windows.UI.Text;
     using Windows.UI.Xaml.Documents;
 
-    using MyWorldIsComics.DataModel.DescriptionContent;
-    using MyWorldIsComics.DataModel.Interfaces;
+    using DataModel.DescriptionContent;
+    using DataModel.Interfaces;
 
     /// <summary>
     /// A page that displays an overview of a single group, including a preview of the items
@@ -35,19 +28,19 @@ namespace MyWorldIsComics.Pages.ResourcePages
     /// </summary>
     public sealed partial class VolumePage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary volumePageViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _volumePageViewModel = new ObservableDictionary();
 
         private Volume _volume;
 
-        private RichTextBlock volumeDescription = new RichTextBlock();
+        private readonly RichTextBlock _volumeDescription = new RichTextBlock();
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
         public ObservableDictionary VolumePageViewModel
         {
-            get { return this.volumePageViewModel; }
+            get { return _volumePageViewModel; }
         }
 
         /// <summary>
@@ -56,16 +49,16 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return _navigationHelper; }
         }
 
 
         public VolumePage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
-            this.navigationHelper.SaveState += navigationHelper_SaveState;
+            InitializeComponent();
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -83,25 +76,54 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
+            Volume volume = e.NavigationParameter as Volume;
+
             int id;
-            try
+            if (volume != null)
             {
-                id = int.Parse(e.NavigationParameter as string);
+                id = volume.Id;
+                _volume = volume;
+
+                if (volume.Issues != null)
+                {
+                    _volume.Issues = new ObservableCollection<Issue>(_volume.Issues.OrderByDescending(i => i.IssueNumberInteger));
+                }
+
+                VolumePageViewModel["Volume"] = _volume;
             }
-            catch (ArgumentNullException)
+            else
             {
-                id = (int)e.NavigationParameter;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                }
             }
 
             try
             {
-                await LoadVolume(id);
+                if (SavedData.Volume != null && SavedData.Volume.Id == id && SavedData.Volume.Image != null) { _volume = SavedData.Volume; }
+                else
+                {
+                    _volume = await GetVolume(id);
+                    _volume.Issues = new ObservableCollection<Issue>(_volume.Issues.OrderByDescending(i => i.IssueNumberInteger));
+                }
             }
             catch (HttpRequestException)
             {
                 _volume = new Volume { Name = "An internet connection is required here" };
                 VolumePageViewModel["Volume"] = _volume;
             }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
+
+            VolumePageViewModel["Volume"] = _volume;
+            await LoadVolume();
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
@@ -113,24 +135,14 @@ namespace MyWorldIsComics.Pages.ResourcePages
         }
 
         #region Load Volume
-        private async Task LoadVolume(int id)
+        private async Task LoadVolume()
         {
             try
             {
-                if (SavedData.Volume != null && SavedData.Volume.UniqueId == id) { _volume = SavedData.Volume; }
-                else
-                {
-                    _volume = await GetVolume(id);
-                    _volume.IssueIds.Reverse();
-                }
-
-                VolumePageViewModel["Volume"] = _volume;
-                VolumePageViewModel["Issues"] = _volume.Issues;
-
                 await LoadDescription();
 
-                if (_volume.Issues.Count == 0) { await FetchFirstIssue(); }
-                if (_volume.IssueIds.Count > 1) await FetchRemainingIssues();
+                if (_volume.Issues.Count > 0) { await FetchFirstIssue(); }
+                if (_volume.Issues.Count > 1) await FetchRemainingIssues();
             }
             catch (TaskCanceledException)
             {
@@ -141,8 +153,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            this.CreateRichTextBlock();
-            if (this.volumeDescription.Blocks.Count > 0) this.VolumeStackPanel.Children.Add(this.volumeDescription);
+            CreateRichTextBlock();
+            if (_volumeDescription.Blocks.Count > 0) VolumeStackPanel.Children.Add(_volumeDescription);
         } 
 
         #endregion
@@ -155,54 +167,53 @@ namespace MyWorldIsComics.Pages.ResourcePages
         }
 
         #region Fetch Methods
+
         private async Task FetchFirstIssue()
         {
-            Issue issue = MapQuickIssue(await ComicVineSource.GetQuickIssueAsync(_volume.IssueIds.First()));
-            if (_volume.Issues.Any(i => i.UniqueId == issue.UniqueId)) return;
+            Issue issue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_volume.Issues.First().Id));
+            if (_volume.Issues.Any(i => i.Id == issue.Id)) return;
             _volume.Issues.Add(issue);
-
         }
 
         private async Task FetchRemainingIssues()
         {
-            var firstId = _volume.IssueIds.First();
-            foreach (int issueId in _volume.IssueIds.Where(id => id != firstId).Take(_volume.IssueIds.Count - 1))
+            for (int j = 0; j < _volume.Issues.Count; ++j)
             {
-                Issue issue = MapQuickIssue(await ComicVineSource.GetQuickIssueAsync(issueId));
-                if (_volume.Issues.Any(i => i.UniqueId == issue.UniqueId)) continue;
-                _volume.Issues.Add(issue);
-
-                if (_volume.Issues.Count % 30 != 0) continue;
-                _volume.Issues = new ObservableCollection<Issue>(_volume.Issues.OrderByDescending(i => i.CoverDate));
-                VolumePageViewModel["Issues"] = _volume.Issues;
+                Issue issue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_volume.Issues[j].Id));
+                _volume.Issues[j] = issue;
             }
-            _volume.Issues = new ObservableCollection<Issue>(_volume.Issues.OrderByDescending(i => i.CoverDate));
-            VolumePageViewModel["Issues"] = _volume.Issues;
+            _volume.Issues = new ObservableCollection<Issue>(_volume.Issues.OrderByDescending(i => i.CoverDateDateTime));
+            VolumePageViewModel["Volume"] = _volume;
         } 
+
         #endregion
 
         #region Map Methods
         private Volume MapVolume(string volumeString)
         {
-            return volumeString == ServiceConstants.QueryNotFound ? new Volume { Name = ServiceConstants.QueryNotFound } : new VolumeMapper().MapXmlObject(volumeString);
+            return volumeString == ServiceConstants.QueryNotFound
+                ? new Volume { Name = "Volume Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseVolume>(volumeString).Results;
         }
 
-        private Issue MapQuickIssue(string issueString)
+        private Issue MapIssue(string issueString)
         {
-            return issueString == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issueString);
+            return issueString == ServiceConstants.QueryNotFound
+                ? new Issue { Name = "Issue Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseIssue>(issueString).Results;
         } 
         #endregion
 
         private async Task FormatDescriptionForPage()
         {
-            _volume.Description = await ComicVineSource.FormatDescriptionAsync(_volume);
+            _volume.DescriptionSection = await ComicVineSource.FormatDescriptionAsync(_volume);
         }
         
         #region Create RichTextBlock
 
         private void CreateRichTextBlock()
         {
-            this.CreateSection(_volume.Description);
+            CreateSection(_volume.DescriptionSection);
         }
 
         private void CreateSection(Section sectionToCreate)
@@ -231,7 +242,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                         break;
                 }
 
-                this.volumeDescription.Blocks.Add(header); 
+                _volumeDescription.Blocks.Add(header); 
             }
 
             while (sectionToCreate.ContentQueue.Count > 0)
@@ -241,19 +252,19 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 {
                     case "DescriptionParagraph":
                         DescriptionParagraph para = sectionToCreate.ContentQueue.Dequeue() as DescriptionParagraph;
-                        this.CreateParagraph(para);
+                        CreateParagraph(para);
                         break;
                     case "List":
                         List list = sectionToCreate.ContentQueue.Dequeue() as List;
-                        this.CreateList(list);
+                        CreateList(list);
                         break;
                     case "Quote":
                         Quote quote = sectionToCreate.ContentQueue.Dequeue() as Quote;
-                        this.CreateQuote(quote);
+                        CreateQuote(quote);
                         break;
                     case "Section":
                         Section section = sectionToCreate.ContentQueue.Dequeue() as Section;
-                        this.CreateSection(section);
+                        CreateSection(section);
                         break;
                 }
             }
@@ -265,7 +276,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             Paragraph paragraph = DefaultParagraph();
 
             paragraph = FormatLinks(para, paragraph);
-            this.volumeDescription.Blocks.Add(paragraph);
+            _volumeDescription.Blocks.Add(paragraph);
         }
 
         private void CreateList(List list)
@@ -283,7 +294,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     TextIndent = -25
                 };
                 paragraph = FormatLinks(listItem, paragraph);
-                this.volumeDescription.Blocks.Add(paragraph);
+                _volumeDescription.Blocks.Add(paragraph);
             }
         }
 
@@ -293,7 +304,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
             Paragraph paragraph = new Paragraph { Margin = new Thickness(10), FontWeight = FontWeights.Bold };
             paragraph = FormatLinks(quote, paragraph);
-            this.volumeDescription.Blocks.Add(paragraph);
+            _volumeDescription.Blocks.Add(paragraph);
         }
 
         private static Paragraph DefaultParagraph()
@@ -365,12 +376,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
@@ -390,7 +401,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void IssueView_IssueClick(object sender, ItemClickEventArgs e)
         {
-            Frame.Navigate(typeof(IssuePage), ((Issue)e.ClickedItem).UniqueId);
+            Frame.Navigate(typeof(IssuePage), e.ClickedItem);
         }
     }
 }

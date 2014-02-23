@@ -1,39 +1,28 @@
 ﻿using MyWorldIsComics.Common;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using System.Net.Http;
+using System.Threading.Tasks;
+using MyWorldIsComics.DataModel.DescriptionContent;
+using MyWorldIsComics.DataModel.ResponseSchemas;
+using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Helpers;
+using MyWorldIsComics.Mappers;
+using MyWorldIsComics.Pages.CollectionPages;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
-    using System.Net.Http;
-    using System.Threading.Tasks;
-
-    using Windows.UI.Xaml.Markup;
-
-    using MyWorldIsComics.DataModel.DescriptionContent;
-    using MyWorldIsComics.DataModel.Resources;
-    using MyWorldIsComics.DataSource;
-    using MyWorldIsComics.Helpers;
-    using MyWorldIsComics.Mappers;
-    using MyWorldIsComics.Pages.CollectionPages;
-
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
     public sealed partial class LocationPage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary locationPageViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _locationPageViewModel = new ObservableDictionary();
 
         private Location _location;
 
@@ -44,7 +33,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public ObservableDictionary LocationPageViewModel
         {
-            get { return this.locationPageViewModel; }
+            get { return _locationPageViewModel; }
         }
 
         /// <summary>
@@ -53,18 +42,17 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         public LocationPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
-            this.navigationHelper.SaveState += navigationHelper_SaveState;
+            InitializeComponent();
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
-
-
+        
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
         /// provided when recreating a page from a prior session.
@@ -80,25 +68,47 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
+            Location location = e.NavigationParameter as Location;
+
             int id;
-            try
+            if (location != null)
             {
-                id = int.Parse(e.NavigationParameter as string);
+                id = location.Id;
+                _location = location;
+                PageTitle.Text = _location.Name;
+                LocationPageViewModel["Location"] = _location;
+                ImageHubSection.Visibility = Visibility.Collapsed;
+                BioHubSection.Visibility = Visibility.Visible;
             }
-            catch (ArgumentNullException)
+            else
             {
-                id = (int)e.NavigationParameter;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                } 
             }
 
             try
             {
-                await LoadLocation(id);
+                if (SavedData.Location != null && SavedData.Location.Id == id) { _location = SavedData.Location; }
+                else { _location = await GetLocation(id); }
             }
             catch (HttpRequestException)
             {
                 _location = new Location { Name = "An internet connection is required here" };
                 LocationPageViewModel["Location"] = _location;
             }
+
+            PageTitle.Text = _location.Name;
+
+            LocationPageViewModel["Location"] = _location;
+            ImageHubSection.Visibility = Visibility.Collapsed;
+            BioHubSection.Visibility = Visibility.Visible;
+            await LoadLocation();
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
@@ -111,26 +121,18 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #region Load Location
 
-        private async Task LoadLocation(int id)
+        private async Task LoadLocation()
         {
             try
             {
-                if (SavedData.Location != null && SavedData.Location.UniqueId == id) { _location = SavedData.Location; }
-                else { _location = await GetLocation(id); }
-                PageTitle.Text = _location.Name;
-
-                LocationPageViewModel["Location"] = _location;
-                ImageHubSection.Visibility = Visibility.Collapsed;
-                BioHubSection.Visibility = Visibility.Visible;
-
                 await LoadDescription();
 
-                if (_location.FirstAppearanceIssue == null) { await FetchFirstAppearance(); }
+                if (_location.First_Appeared_In_Issue.Volume == null) { await FetchFirstAppearance(); }
                 HideOrShowSections();
 
-                if (_location.Volumes.Count == 0) { await FetchFirstVolume(); }
+                if (_location.Volume_Credits.Count > 0) { await FetchFirstVolume(); }
                 HideOrShowSections();
-                if (_location.VolumeIds.Count > 1) await FetchRemainingVolumes();
+                if (_location.Volume_Credits.Count > 1) await FetchRemainingVolumes();
             }
             catch (TaskCanceledException)
             {
@@ -141,21 +143,21 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            _locationDescription.UniqueId = _location.UniqueId;
+            _locationDescription.UniqueId = _location.Id;
             CreateDataTemplates();
         }
 
         private void HideOrShowSections()
         {
-            VolumeSection.Visibility = _location.VolumeIds.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            FirstAppearanceSection.Visibility = _location.FirstAppearanceIssue.UniqueId != 0 ? Visibility.Visible : Visibility.Collapsed;
+            VolumeSection.Visibility = _location.Volume_Credits.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            FirstAppearanceSection.Visibility = _location.First_Appeared_In_Issue.Volume != null ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private async Task<Location> GetLocation(int id)
         {
             var locationSearchString = await ComicVineSource.GetLocationAsync(id);
             return MapLocation(locationSearchString);
-        } 
+        }
 
         #endregion
 
@@ -163,31 +165,28 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task FetchFirstAppearance()
         {
-            if (_location.FirstAppearanceId != 0)
+            if (_location.First_Appeared_In_Issue.Id != 0)
             {
-                _location.FirstAppearanceIssue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_location.FirstAppearanceId));
-                _location.FirstAppearanceIssue.Description = await ComicVineSource.FormatDescriptionAsync(_location.FirstAppearanceIssue);
+                _location.First_Appeared_In_Issue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_location.First_Appeared_In_Issue.Id));
+                _location.First_Appeared_In_Issue.DescriptionSection = await ComicVineSource.FormatDescriptionAsync(_location.First_Appeared_In_Issue);
             }
         }
 
         private async Task FetchFirstVolume()
         {
-            foreach (int volumeId in _location.VolumeIds.Take(1))
+            foreach (var v in _location.Volume_Credits.Take(1))
             {
-                Volume volume = MapQuickVolume(await ComicVineSource.GetQuickVolumeAsync(volumeId));
-                if (_location.Volumes.Any(t => t.UniqueId == volume.UniqueId)) continue;
-                _location.Volumes.Add(volume);
+                Volume volume = MapVolume(await ComicVineSource.GetQuickVolumeAsync(v.Id));
+                _location.Volume_Credits[0] = volume;
             }
         }
 
         private async Task FetchRemainingVolumes()
         {
-            var firstId = _location.VolumeIds.First();
-            foreach (int volumeId in _location.VolumeIds.Where(id => id != firstId).Take(_location.VolumeIds.Count - 1))
+            for (int i = 1; i < _location.Volume_Credits.Count; ++i)
             {
-                Volume volume = MapQuickVolume(await ComicVineSource.GetQuickVolumeAsync(volumeId));
-                if (_location.Volumes.Any(t => t.UniqueId == volume.UniqueId)) continue;
-                _location.Volumes.Add(volume);
+                Volume volume = MapVolume(await ComicVineSource.GetQuickVolumeAsync(_location.Volume_Credits[i].Id));
+                _location.Volume_Credits[i] = volume;
             }
         }
 
@@ -197,24 +196,30 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private Location MapLocation(string locationString)
         {
-            return locationString == ServiceConstants.QueryNotFound ? new Location { Name = ServiceConstants.QueryNotFound } : new LocationMapper().MapXmlObject(locationString);
+            return locationString == ServiceConstants.QueryNotFound
+                ? new Location { Name = "Location Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseLocation>(locationString).Results;
         }
 
-        private Volume MapQuickVolume(string quickVolume)
+        private Volume MapVolume(string volumeString)
         {
-            return quickVolume == ServiceConstants.QueryNotFound ? new Volume { Name = "Volume Not Found" } : new VolumeMapper().QuickMapXmlObject(quickVolume);
+            return volumeString == ServiceConstants.QueryNotFound
+                ? new Volume { Name = "Volume Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseVolume>(volumeString).Results;
         }
 
-        private Issue MapIssue(string issue)
+        private Issue MapIssue(string issueString)
         {
-            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
+            return issueString == ServiceConstants.QueryNotFound
+                 ? new Issue { Name = "Issue Not Found" }
+                 : JsonDeserialize.DeserializeJsonString<JsonSingularBaseIssue>(issueString).Results;
         }
 
         #endregion
 
         private async Task FormatDescriptionForPage()
         {
-            _locationDescription = await ComicVineSource.FormatDescriptionAsync(_location.DescriptionString);
+            _locationDescription = await ComicVineSource.FormatDescriptionAsync(_location.Description);
         }
 
         #region DataTemplate Creation
@@ -225,7 +230,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             foreach (Section section in _locationDescription.Sections)
             {
                 Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
-                i++;
+                ++i;
             }
         }
 
@@ -244,12 +249,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
@@ -259,7 +264,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private void VolumeView_VolumeClick(object sender, ItemClickEventArgs e)
         {
             var volume = ((Volume)e.ClickedItem);
-            Frame.Navigate(typeof(VolumePage), volume.UniqueId);
+            Frame.Navigate(typeof(VolumePage), volume);
         }
 
         private async void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
@@ -267,15 +272,15 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (e == null) return;
             if (e.Section.Header == null) return;
             var header = e.Section.Header.ToString();
-            if (header != "Volumes" || header != "First Appearance") await this.FormatDescriptionForPage();
+            if (header != "Volumes" || header != "First Appearance") await FormatDescriptionForPage();
             switch (e.Section.Header.ToString())
             {
                 case "Volumes":
                     Frame.Navigate(typeof(VolumesPage), _location);
                     break;
                 case "First Appearance":
-                    IssuePage.BasicIssue = _location.FirstAppearanceIssue;
-                    Frame.Navigate(typeof(IssuePage), _location.FirstAppearanceIssue);
+                    IssuePage.BasicIssue = _location.First_Appeared_In_Issue;
+                    Frame.Navigate(typeof(IssuePage), _location.First_Appeared_In_Issue);
                     break;
                 default:
                     Section section = _locationDescription.Sections.First(d => d.Title == header);
@@ -307,7 +312,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            Frame.Navigate(typeof(VolumePage), _location.FirstAppearanceIssue.VolumeId);
+            Frame.Navigate(typeof(VolumePage), _location.First_Appeared_In_Issue.Volume);
         }
 
         #endregion

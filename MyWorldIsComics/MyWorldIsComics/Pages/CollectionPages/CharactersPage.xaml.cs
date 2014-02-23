@@ -1,15 +1,8 @@
-﻿// The Group Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234229
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.Common;
-using MyWorldIsComics.DataModel.Resources;
-using MyWorldIsComics.DataSource;
-using MyWorldIsComics.Mappers;
+using MyWorldIsComics.DataModel.ResponseSchemas;
 using MyWorldIsComics.Pages.ResourcePages;
 
 namespace MyWorldIsComics.Pages.CollectionPages
@@ -24,13 +17,11 @@ namespace MyWorldIsComics.Pages.CollectionPages
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
-        private Team team;
-        private string collectionName;
-        private ObservableCollection<Character> collection;
-        private List<int> collectionIds;
+        private Team _team;
+        private string _collectionName;
 
         private static Team SavedTeam;
-        private static string SavedCollectionName;
+        public static string CollectionName;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -69,73 +60,43 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// <see cref="Frame.Navigate(Type, object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
-        private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
-
-            if (SavedTeam != null && SavedCollectionName != null && e.NavigationParameter == null)
+            if (SavedData.Team != null)
             {
-                team = SavedTeam;
-                collectionName = SavedCollectionName;
+                _team = SavedData.Team;
             }
             else
             {
-                var teamFromNav = e.NavigationParameter as Dictionary<string, Team>;
+                var teamFromNav = e.NavigationParameter as Team;
                 if (teamFromNav == null) return;
 
-                foreach (KeyValuePair<string, Team> keyValuePair in teamFromNav.Take(1))
-                {
-                    team = keyValuePair.Value;
-                    collectionName = keyValuePair.Key;
-                } 
+                _team = teamFromNav;
             }
+            DefaultViewModel["Team"] = _team;
 
-            switch (collectionName)
+            switch (CollectionName)
             {
-                case "members":
-                    collection = team.Members;
-                    collectionIds = team.MemberIds;
+                case "Members":
+                    itemsViewSource.Source = _team.Characters;
+                    //DefaultViewModel["Items"] = _team.Characters;
                     break;
-                case "enemies":
-                    collection = team.Enemies;
-                    collectionIds = team.EnemyIds;
+                case "Enemies":
+                    itemsViewSource.Source = _team.Character_Enemies;
+                    //DefaultViewModel["Items"] = _team.Character_Enemies;
                     break;
-                case "friends":
-                    collection = team.Friends;
-                    collectionIds = team.FriendIds;
+                case "Allies":
+                    itemsViewSource.Source = _team.Character_Friends;
+                    //DefaultViewModel["Items"] = _team.Character_Friends;
                     break;
             }
+            pageTitle.Text = CollectionName;
 
-            DefaultViewModel["Team"] = team;
-            pageTitle.Text = char.ToUpper(collectionName[0]) + collectionName.Substring(1);
-            DefaultViewModel["Items"] = collection;
-
-            try
-            {
-                foreach (int characterId in collectionIds.GetRange(collection.Count, collectionIds.Count - collection.Count))
-                {
-                    Character character = GetMappedCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId));
-                    if (collection.Any(m => m.UniqueId == character.UniqueId)) continue;
-                    collection.Add(character);
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                ComicVineSource.ReinstateCts();
-            }
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
-            // Save response content so don't have to fetch from api service again
-            SavedTeam = team;
-            SavedCollectionName = collectionName;
-        }
-
-        private Character GetMappedCharacter(string quickCharacter)
-        {
-            return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);
+            SavedData.Team = _team;
         }
 
         #region NavigationHelper registration
@@ -163,11 +124,10 @@ namespace MyWorldIsComics.Pages.CollectionPages
 
         private void GridView_CharacterClick(object sender, ItemClickEventArgs e)
         {
-            SavedTeam = team;
-            SavedCollectionName = collectionName;
+            SavedData.Team = _team;
 
             var character = ((Character)e.ClickedItem);
-            Frame.Navigate(typeof(CharacterPage), character.UniqueId);
+            Frame.Navigate(typeof(CharacterPage), character.Id);
         }
 
         private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)

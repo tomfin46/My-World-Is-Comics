@@ -80,7 +80,6 @@ namespace MyWorldIsComics.Helpers
         }
         private void NavigateToProtocolPage(Frame pageFrame)
         {
-
             switch (_protocolEventArgs.Uri.Segments[1].Substring(0, 4))
             {
                 case "4005":

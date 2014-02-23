@@ -14,7 +14,7 @@
         <!-- Collection of items displayed by this page -->
         <CollectionViewSource
             x:Name="itemsViewSource"
-            Source="{Binding Issues}"/>
+            Source="{Binding Volume.Issues}"/>
     </Page.Resources>
 
     <!--
@@ -50,15 +50,15 @@
                 <DataTemplate>
                     <Grid Height="270" Width="180" Margin="10">
                         <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
-                            <Image Source="{Binding MainImage}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
+                            <Image Source="{Binding Image.Super_Url}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
                         </Border>
                         <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
-                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Margin="15,0,15,0">
+                            <TextBlock Style="{StaticResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Margin="15,0,15,0" FontFamily="Global User Interface">
                                 <Run Text="Issue"/>
-                                <Run Text="{Binding IssueNumberString}" FontWeight="Bold"/>
+                                <Run Text="{Binding IssueNumberFormattedString}" FontWeight="Bold"/>
                             </TextBlock>
                             <TextBlock Text="{Binding Name}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,0"/>
-                            <TextBlock Text="{Binding CoverDateString}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,10"/>
+                            <TextBlock Text="{Binding CoverDateFormattedString}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,10" FontFamily="Global User Interface"/>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
@@ -68,13 +68,15 @@
                     <StackPanel x:Name="VolumeStackPanel" Width="480" Margin="0,4,14,0">
                         <TextBlock Style="{StaticResource TitleTextBlockStyle}" MaxHeight="60">
                         <Run Text="Published by"/>
-                        <Run Text="{Binding PublisherName}"/>
+                        <Hyperlink NavigateUri="{Binding Publisher.InAppUrl}">
+                            <Run Text="{Binding Publisher.Name}"/>
+                        </Hyperlink>
                         </TextBlock>
                         <TextBlock Margin="0,0,0,20" Style="{StaticResource TitleTextBlockStyle}" MaxHeight="60">
                         <Run Text="Started in"/>
-                        <Run Text="{Binding StartYear}"/>
+                        <Run Text="{Binding Start_Year}"/>
                         </TextBlock>
-                        <Image Source="{Binding MainImage}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                        <Image Source="{Binding Image.Super_Url}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
                     </StackPanel>
                 </ScrollViewer>
             </GridView.Header>

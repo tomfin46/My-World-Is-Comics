@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.Common;
-using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataModel.ResponseSchemas;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Mappers;
 using MyWorldIsComics.Pages.CollectionPages;
@@ -17,11 +18,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
     #region usings
 
     using System.Net.Http;
-
-    using Windows.UI.Xaml.Markup;
-
-    using MyWorldIsComics.DataModel.DescriptionContent;
-    using MyWorldIsComics.Helpers;
+    using DataModel.DescriptionContent;
+    using Helpers;
 
     #endregion
 
@@ -30,8 +28,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
     /// </summary>
     public sealed partial class TeamPage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary teamPageViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _teamPageViewModel = new ObservableDictionary();
 
         private Team _team;
         private Description _teamDescription;
@@ -41,7 +39,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public ObservableDictionary TeamPageViewModel
         {
-            get { return teamPageViewModel; }
+            get { return _teamPageViewModel; }
         }
 
         /// <summary>
@@ -50,15 +48,15 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         public TeamPage()
         {
             InitializeComponent();
-            navigationHelper = new NavigationHelper(this);
-            navigationHelper.LoadState += navigationHelper_LoadState;
-            navigationHelper.SaveState += navigationHelper_SaveState;
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
 
@@ -77,65 +75,83 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
+            Team team = e.NavigationParameter as Team;
+
             int id;
-            try
+            if (team != null)
             {
-                id = int.Parse(e.NavigationParameter as string);
+                id = team.Id;
+                _team = team;
+                PageTitle.Text = _team.Name;
+                TeamPageViewModel["Team"] = _team;
             }
-            catch (ArgumentNullException)
+            else
             {
-                id = (int)e.NavigationParameter;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                }
             }
 
             try
             {
-                await this.LoadTeam(id);
+                if (SavedData.Team != null && SavedData.Team.Id == id) { _team = SavedData.Team; }
+                else { _team = await GetTeam(id); }
             }
             catch (HttpRequestException)
             {
                 _team = new Team { Name = "An internet connection is required here" };
                 TeamPageViewModel["Team"] = _team;
             }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
+
+
+            PageTitle.Text = _team.Name;
+            TeamPageViewModel["Team"] = _team;
+            await LoadTeam();
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
-            // Save response content so don't have to fetch from api service again
             SavedData.Team = _team;
         }
 
         #region Load Team
-        
-        private async Task LoadTeam(int id)
+
+        private async Task LoadTeam()
         {
             try
             {
-                if (SavedData.Team != null && SavedData.Team.UniqueId == id) { _team = SavedData.Team; }
-                else { _team = await GetTeam(id); }
-                PageTitle.Text = _team.Name;
-                
-                TeamPageViewModel["Team"] = _team;
-
                 if (_team.Name != ServiceConstants.QueryNotFound)
                 {
                     ImageHubSection.Visibility = Visibility.Collapsed;
                     StatsHubSection.Visibility = Visibility.Visible;
                     BioHubSection.Visibility = Visibility.Visible;
+                    HideOrShowSections();
 
                     await LoadDescription();
 
-                    if (_team.FirstAppearanceIssue == null) await FetchFirstAppearance();
-                    HideOrShowSections();
+                    if (SavedData.Team == null || SavedData.Team.Id != _team.Id)
+                    {
+                        if (_team.First_Appeared_In_Issue.Volume == null) await FetchFirstAppearance();
+                        HideOrShowSections();
 
-                    await LoadFilters();
-                    
-                    if (_team.MemberIds.Count > 1) await this.FetchRemainingMembers();
-                    HideOrShowSections();
-                    if (_team.EnemyIds.Count > 1) await this.FetchRemainingEnemies();
-                    HideOrShowSections();
-                    if (_team.FriendIds.Count > 1) await this.FetchRemainingFriends();
-                    HideOrShowSections();
+                        await LoadFilters();
+
+                        if (_team.Characters.Count > 1) await FetchRemainingMembers();
+                        HideOrShowSections();
+                        if (_team.Character_Enemies.Count > 1) await FetchRemainingEnemies();
+                        HideOrShowSections();
+                        if (_team.Character_Friends.Count > 1) await FetchRemainingFriends();
+                        HideOrShowSections();
+                    }
                 }
             }
             catch (TaskCanceledException)
@@ -152,51 +168,52 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task LoadFilters()
         {
-            List<string> filters = new List<string> { "disbanded_in_issues", "characters", "character_enemies", "character_friends" };
+            var filters = new List<string> { "Disbanded_In_Issues", "Characters", "Character_Enemies", "Character_Friends" };
             foreach (string filter in filters)
             {
-                var filteredTeamString = await ComicVineSource.GetFilteredTeamAsync(_team.UniqueId, filter);
-                _team = new TeamMapper().MapFilteredXmlObject(_team, filteredTeamString, filter);
+                var filteredTeamString = await ComicVineSource.GetFilteredTeamAsync(_team.Id, filter.ToLowerInvariant());
 
-                if (_team.IssuesDispandedInIds.Count > 0 && _team.IssuesDispandedIn.Count == 0) await this.FetchDisbandIssues();
-                if (_team.MemberIds.Count > 0 && _team.Members.Count == 0) await this.FetchFirstMember();
-                if (_team.EnemyIds.Count > 0 && _team.Enemies.Count == 0) await this.FetchFirstEnemy();
-                if (_team.FriendIds.Count > 0 && _team.Friends.Count == 0) await this.FetchFirstFriend();
+                var filterObj = JsonDeserialize.DeserializeJsonString<JsonSingularBaseTeam>(filteredTeamString);
+
+                var teamType = _team.GetType();
+                var prop = teamType.GetRuntimeProperty(filter);
+                prop.SetValue(_team, prop.GetValue(filterObj.Results));
+
+                if (_team.Disbanded_In_Issues.Count > 0) await FetchDisbandIssues();
+                if (_team.Characters.Count > 0) await FetchFirstMember();
+                if (_team.Character_Enemies.Count > 0) await FetchFirstEnemy();
+                if (_team.Character_Friends.Count > 0) await FetchFirstFriend();
                 HideOrShowSections();
             }
         }
 
-        private Team MapTeam(string teamString)
-        {
-            return teamString == ServiceConstants.QueryNotFound ? new Team { Name = ServiceConstants.QueryNotFound } : new TeamMapper().MapXmlObject(teamString);
-        } 
-
         #endregion
 
         #region Load Description
-        
+
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            _teamDescription.UniqueId = _team.UniqueId;
+            _teamDescription.UniqueId = _team.Id;
             CreateDataTemplates();
         }
 
         private async Task FormatDescriptionForPage()
         {
-            _teamDescription = await ComicVineSource.FormatDescriptionAsync(_team.DescriptionString);
-        } 
+            _teamDescription = await ComicVineSource.FormatDescriptionAsync(_team.Description);
+        }
 
         #endregion
 
         #region Fetch Methods
-        
+
         private async Task FetchFirstAppearance()
         {
-            if (_team.FirstAppearanceId != 0)
+            if (_team.First_Appeared_In_Issue.Id != 0)
             {
-                _team.FirstAppearanceIssue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(_team.FirstAppearanceId));
-                _team.FirstAppearanceIssue.Description = await ComicVineSource.FormatDescriptionAsync(_team.FirstAppearanceIssue);
+                _team.First_Appeared_In_Issue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(_team.First_Appeared_In_Issue.Id));
+                _team.First_Appeared_In_Issue.DescriptionSection = await ComicVineSource.FormatDescriptionAsync(_team.First_Appeared_In_Issue);
+                TeamPageViewModel["Team"] = _team;
             }
         }
 
@@ -204,70 +221,60 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task FetchFirstMember()
         {
-            foreach (var memberId in _team.MemberIds.Take(1).Where(memberId => _team.Members.All(m => m.UniqueId != memberId)))
-            {
-                _team.Members.Add(await FetchCharacter(memberId));
-            }
+            Character character = await FetchCharacter(_team.Characters[0].Id);
+            _team.Characters[0] = character;
         }
 
         private async Task FetchFirstEnemy()
         {
-            foreach (var enemyId in _team.EnemyIds.Take(1).Where(enemyId => _team.Enemies.All(e => e.UniqueId != enemyId)))
-            {
-                _team.Enemies.Add(await FetchCharacter(enemyId));
-            }
+            Character character = await FetchCharacter(_team.Character_Enemies[0].Id);
+            _team.Character_Enemies[0] = character;
         }
 
         private async Task FetchFirstFriend()
         {
-            foreach (var friendId in _team.FriendIds.Take(1).Where(friendId => _team.Friends.All(f => f.UniqueId != friendId)))
-            {
-                _team.Friends.Add(await FetchCharacter(friendId));
-            }
+            Character character = await FetchCharacter(_team.Character_Friends[0].Id);
+            _team.Character_Friends[0] = character;
         }
 
         #endregion
 
         #region Fetch Remaining
+
         private async Task FetchDisbandIssues()
         {
-            foreach (var issueId in _team.IssuesDispandedInIds.Where(issueId => _team.IssuesDispandedIn.All(i => i.UniqueId != issueId)))
+            for (int i = 0; i < _team.Disbanded_In_Issues.Count; ++i)
             {
-                _team.IssuesDispandedIn.Add(GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(issueId)));
-                this.HideOrShowSections();
+                Issue issue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(_team.Disbanded_In_Issues[i].Id));
+                _team.Disbanded_In_Issues[i] = issue;
+                HideOrShowSections();
             }
         }
 
         private async Task FetchRemainingMembers()
         {
-            var firstId = _team.Members.First().UniqueId;
-            foreach (int memberId in _team.MemberIds.Where(id => id != firstId).Take(8))
+            for (int i = 1; i < _team.Characters.Count; ++i)
             {
-                Character character = await FetchCharacter(memberId);
-                if (_team.Members.Any(m => m.UniqueId == character.UniqueId)) continue;
-                _team.Members.Add(character);
+                Character character = await FetchCharacter(_team.Characters[i].Id);
+                _team.Characters[i] = character;
             }
         }
 
         private async Task FetchRemainingEnemies()
         {
-            var firstId = _team.Enemies.First().UniqueId;
-            foreach (int enemyId in _team.EnemyIds.Where(id => id != firstId).Take(8))
+            for (int i = 1; i < _team.Character_Enemies.Count; ++i)
             {
-                Character character = await FetchCharacter(enemyId);
-                if (_team.Enemies.Any(e => e.UniqueId == character.UniqueId)) continue;
-                _team.Enemies.Add(character);
+                Character character = await FetchCharacter(_team.Character_Enemies[i].Id);
+                _team.Character_Enemies[i] = character;
             }
         }
 
         private async Task FetchRemainingFriends()
         {
-            var firstId = _team.Friends.First().UniqueId;
-            foreach (int friendId in _team.FriendIds.Where(id => id != firstId).Take(8))
+            for (int i = 1; i < _team.Character_Friends.Count; ++i)
             {
-                Character character = await FetchCharacter(friendId);
-                if (_team.Friends.Any(f => f.UniqueId == character.UniqueId)) continue;
-                _team.Friends.Add(character);
+                Character character = await FetchCharacter(_team.Character_Friends[i].Id);
+                _team.Character_Friends[i] = character;
             }
         }
 
@@ -282,14 +289,25 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #region Mapping Methods
 
-        private Character GetMappedCharacter(string quickCharacter)
+        private Team MapTeam(string teamString)
         {
-            return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);
+            return teamString == ServiceConstants.QueryNotFound
+                ? new Team { Name = "Team Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseTeam>(teamString).Results;
         }
 
-        private Issue GetMappedIssue(string issue)
+        private Character GetMappedCharacter(string characterString)
         {
-            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
+            return characterString == ServiceConstants.QueryNotFound
+                ? new Character { Name = "Character Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseCharacter>(characterString).Results;
+        }
+
+        private Issue GetMappedIssue(string issueString)
+        {
+            return issueString == ServiceConstants.QueryNotFound
+                ? new Issue { Name = "Issue Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseIssue>(issueString).Results;
         }
 
         #endregion
@@ -302,7 +320,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             foreach (Section section in _teamDescription.Sections)
             {
                 Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
-                i++;
+                ++i;
             }
         }
 
@@ -310,17 +328,17 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void HideOrShowSections()
         {
-            FirstAppearanceSection.Visibility = _team.FirstAppearanceIssue != null ? Visibility.Visible : Visibility.Collapsed;
-            IssuesDispandedInSection.Visibility = _team.IssuesDispandedIn.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            FirstAppearanceSection.Visibility = _team.First_Appeared_In_Issue.Image != null ? Visibility.Visible : Visibility.Collapsed;
+            IssuesDispandedInSection.Visibility = _team.Disbanded_In_Issues.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
 
-            MemberSection.Visibility = _team.Members.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            MemberSection.IsHeaderInteractive = _team.Members.Count > 8;
+            MemberSection.Visibility = _team.Characters.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            MemberSection.IsHeaderInteractive = _team.Characters.Count > 8;
 
-            EnemiesSection.Visibility = _team.Enemies.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            EnemiesSection.IsHeaderInteractive = _team.Enemies.Count > 8;
+            EnemiesSection.Visibility = _team.Character_Enemies.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            EnemiesSection.IsHeaderInteractive = _team.Character_Enemies.Count > 8;
 
-            FriendSection.Visibility = _team.Friends.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            FriendSection.IsHeaderInteractive = _team.Friends.Count > 8;
+            FriendSection.Visibility = _team.Character_Friends.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            FriendSection.IsHeaderInteractive = _team.Character_Friends.Count > 8;
         }
 
         #region NavigationHelper registration
@@ -336,12 +354,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
@@ -354,28 +372,25 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (e.Section.Header == null) return;
             var header = e.Section.Header.ToString();
             if (header != "First Appearance" || header != "Members" || header != "Enemies"
-                || header != "Allies" || header != "Issues Dispanded In") await this.FormatDescriptionForPage();
+                || header != "Allies" || header != "Issues Dispanded In") await FormatDescriptionForPage();
             switch (header)
             {
                 case "First Appearance":
-                    IssuePage.BasicIssue = _team.FirstAppearanceIssue;
-                    Frame.Navigate(typeof(IssuePage), _team.FirstAppearanceIssue);
+                    IssuePage.BasicIssue = _team.First_Appeared_In_Issue;
+                    Frame.Navigate(typeof(IssuePage), _team.First_Appeared_In_Issue);
                     break;
                 case "Members":
-                    Frame.Navigate(typeof(CharactersPage), new Dictionary<String, Team> { { "members", this._team } });
-                    break;
                 case "Enemies":
-                    Frame.Navigate(typeof(CharactersPage), new Dictionary<String, Team> { { "enemies", this._team } });
-                    break;
                 case "Allies":
-                    Frame.Navigate(typeof(CharactersPage), new Dictionary<String, Team> { { "friends", this._team } });
+                    CharactersPage.CollectionName = header;
+                    Frame.Navigate(typeof(CharactersPage), _team);
                     break;
                 case "Issues Dispanded In":
                     // TODO Frame.Navigate(typeof(IssuesPage), _team.IssuesDispandedIn);
                     break;
                 default:
                     Section section = _teamDescription.Sections.First(d => d.Title == e.Section.Header.ToString());
-                    Frame.Navigate(typeof (DescriptionSectionPage), section);
+                    Frame.Navigate(typeof(DescriptionSectionPage), section);
                     break;
             }
         }
@@ -383,7 +398,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private void GridView_CharacterClick(object sender, ItemClickEventArgs e)
         {
             var character = ((Character)e.ClickedItem);
-            Frame.Navigate(typeof(CharacterPage), character.UniqueId);
+            Frame.Navigate(typeof(CharacterPage), character);
         }
 
         private void GridView_IssueClick(object sender, ItemClickEventArgs e)
@@ -392,7 +407,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             IssuePage.BasicIssue = issue;
             Frame.Navigate(typeof(IssuePage), issue);
         }
-        
+
         private void StatsHubSection_Tapped(object sender, TappedRoutedEventArgs e)
         {
             HeaderBorder.Opacity = HeaderBorder.Opacity <= 0 ? 100 : 0;
@@ -403,7 +418,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            Frame.Navigate(typeof(VolumePage), _team.FirstAppearanceIssue.VolumeId);
+            Frame.Navigate(typeof(VolumePage), _team.First_Appeared_In_Issue.Volume);
         }
 
         private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)

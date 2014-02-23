@@ -106,16 +106,27 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="DataModel\DataSourceResponse.cs" />
+    <Compile Include="DataModel\Interfaces\IResponse.cs" />
     <Compile Include="DataModel\RealLifeLocation.cs" />
     <Compile Include="DataModel\ResponseSchemas\Character.cs" />
-    <Compile Include="DataModel\ResponseSchemas\IResponseSchema.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Concept.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Origin.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Person.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Location.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Movie.cs" />
+    <Compile Include="DataModel\ResponseSchemas\ObjectResource.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Power.cs" />
+    <Compile Include="DataModel\ResponseSchemas\ResponseSchema.cs" />
     <Compile Include="DataModel\ResponseSchemas\Issue.cs" />
     <Compile Include="DataModel\ResponseSchemas\Publisher.cs" />
+    <Compile Include="DataModel\ResponseSchemas\StoryArc.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Team.cs" />
+    <Compile Include="DataModel\ResponseSchemas\Volume.cs" />
     <Compile Include="DataModel\Results.cs" />
     <Compile Include="DataSource\MarvelWikiaSource.cs" />
     <Compile Include="Helpers\SearchTools.cs" />
-    <Compile Include="Mappers\MovieMapper.cs" />
-    <Compile Include="Mappers\PublisherMapper.cs" />
+    <Compile Include="Mappers\GenericResourceMapper.cs" />
+    <Compile Include="Mappers\JsonDeserialize.cs" />
     <Compile Include="Mappers\SearchResultsMapper.cs" />
     <Compile Include="Mappers\TrendingCharactersMapper.cs" />
     <Compile Include="Pages\CollectionPages\CharactersPage.xaml.cs">
@@ -130,50 +141,26 @@
     <Compile Include="DataModel\Interfaces\IDescriptionContent.cs" />
     <Compile Include="DataModel\Interfaces\IPerson.cs" />
     <Compile Include="DataModel\Interfaces\IResource.cs" />
-    <Compile Include="DataModel\Resources\Concept.cs" />
-    <Compile Include="DataModel\Resources\Location.cs" />
-    <Compile Include="DataModel\Resources\ObjectResource.cs" />
     <Compile Include="DataSource\ComicBookRoundupSource.cs" />
-    <Compile Include="Mappers\CreatorMapper.cs" />
-    <Compile Include="Mappers\GenericResourceMapper.cs" />
-    <Compile Include="Mappers\IssueMapper.cs" />
-    <Compile Include="Mappers\ConceptMapper.cs" />
-    <Compile Include="Mappers\LocationMapper.cs" />
-    <Compile Include="Mappers\ObjectMapper.cs" />
-    <Compile Include="Mappers\StoryArcMapper.cs" />
-    <Compile Include="Mappers\TeamMapper.cs" />
-    <Compile Include="Mappers\VolumeMapper.cs" />
     <Compile Include="Pages\CollectionPages\VolumesPage.xaml.cs">
       <DependentUpon>VolumesPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\DescriptionSectionPage.xaml.cs">
       <DependentUpon>DescriptionSectionPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\FurtherDescription.xaml.cs">
-      <DependentUpon>FurtherDescription.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Pages\ResourcePages\CharacterPage.xaml.cs">
       <DependentUpon>CharacterPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="DataSource\ServiceConstants.cs" />
-    <Compile Include="DataModel\Resources\Character.cs" />
-    <Compile Include="DataModel\Resources\Volume.cs" />
-    <Compile Include="DataModel\Resources\Creator.cs" />
     <Compile Include="DataModel\DescriptionContent\Description.cs" />
     <Compile Include="DataModel\Enums\Gender.cs" />
     <Compile Include="DataModel\Enums\ImageTypes.cs" />
     <Compile Include="DataModel\Enums\Month.cs" />
     <Compile Include="DataModel\Enums\Resources.cs" />
-    <Compile Include="DataModel\Resources\Issue.cs" />
-    <Compile Include="DataModel\Resources\Movie.cs" />
-    <Compile Include="DataModel\Resources\Publisher.cs" />
-    <Compile Include="DataModel\Resources\StoryArc.cs" />
-    <Compile Include="DataModel\Resources\Team.cs" />
     <Compile Include="DataSource\ComicVineSource.cs" />
     <Compile Include="HubPage.xaml.cs">
       <DependentUpon>HubPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Mappers\CharacterMapper.cs" />
     <Compile Include="Mappers\DescriptionMapper.cs" />
     <Compile Include="Pages\ResourcePages\ConceptPage.xaml.cs">
       <DependentUpon>ConceptPage.xaml</DependentUpon>
@@ -259,10 +246,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\FurtherDescription.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Pages\ResourcePages\CharacterPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -328,6 +311,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\netcore45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DataModel\Resources\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>

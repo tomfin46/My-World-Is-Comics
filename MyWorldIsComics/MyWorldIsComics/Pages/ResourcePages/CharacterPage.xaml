@@ -44,37 +44,37 @@
 
             <HubSection x:Name="ImageHubSection" Width="620" Margin="0,0,20,0" Visibility="Visible" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="Uniform" />
                 </HubSection.Background>
             </HubSection>
 
             <HubSection x:Name="BioHubSection" Width="620" Margin="0,0,20,0" Visibility="Collapsed" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="Uniform" />
                 </HubSection.Background>
 
                 <DataTemplate x:Name="BioHubTemplate">
                     <Grid>
-                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
+                        <Image Source="{Binding Image.Super_Url}" Opacity="0" Stretch="UniformToFill" />
                         <StackPanel x:Name="BioStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Real Name: " />
-                                <Run Text="{Binding RealNameString}" FontWeight="Normal"/>
+                                <Run Text="{Binding RealNameFormattedString}" FontWeight="Normal"/>
                             </TextBlock>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Aliases: " />
-                                <Run Text="{Binding AliasesString}" FontWeight="Normal"/>
+                                <Run Text="{Binding AliasesOneLine}" FontWeight="Normal"/>
                             </TextBlock>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Date of Birth: " />
-                                <Run Text="{Binding BirthString}" FontWeight="Normal"/>
+                                <Run Text="{Binding BirthFormattedString}" FontWeight="Normal"/>
                             </TextBlock>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,10" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Appears in: " />
-                                <Run Text="{Binding IssueAppearancesCount}" FontWeight="Normal"/>
+                                <Run Text="{Binding Count_Of_Issue_Appearances}" FontWeight="Normal"/>
                                 <Run Text=" issues" />
                             </TextBlock>
                         </StackPanel>
@@ -86,7 +86,15 @@
                 <DataTemplate>
                     <Grid>
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Deck}" TextWrapping="Wrap" />
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource TitleTextBlockStyle}" MaxHeight="60" Margin="0,0,0,10" TextWrapping="Wrap" >
+                                    <Run Text="Published by"/>
+                                    <Hyperlink NavigateUri="{Binding Publisher.InAppUrl}">
+                                        <Run Text="{Binding Publisher.Name}"/>
+                                    </Hyperlink>
+                                </TextBlock>
+                                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Deck}" TextWrapping="Wrap" />
+                            </StackPanel>
                         </ScrollViewer>
                     </Grid>
                 </DataTemplate>
@@ -103,28 +111,28 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
+                                    <Image Source="{Binding First_Appeared_In_Issue.Image.Super_Url}" Stretch="Uniform" Grid.Column="0" />
                                     <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
                                         <GridViewItem Margin="-10,-20,-10,-10" Tapped="VolumeName_Tapped" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                            <TextBlock Text="{Binding FirstAppearanceIssue.VolumeName}" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="WrapWholeWords"/>
+                                            <TextBlock Text="{Binding First_Appeared_In_Issue.Volume.Name}" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="WrapWholeWords"/>
                                         </GridViewItem>
                                         <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,0,0,20" TextWrapping="Wrap" FontWeight="Bold">
                                             <Run Text="Issue"/>
-                                            <Run Text="{Binding FirstAppearanceIssue.IssueNumberString}"/>
+                                            <Run Text="{Binding First_Appeared_In_Issue.IssueNumberFormattedString}"/>
                                         </TextBlock>
 
                                         <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding FirstAppearanceIssue.IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding First_Appeared_In_Issue.Name}" Style="{StaticResource BodyTextBlockStyle}"/>
 
                                         <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding FirstAppearanceIssue.CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding First_Appeared_In_Issue.CoverDateFormattedString}" Style="{StaticResource BodyTextBlockStyle}"/>
 
                                         <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding FirstAppearanceIssue.StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding First_Appeared_In_Issue.StoreDateFormattedString}" Style="{StaticResource BodyTextBlockStyle}"/>
                                     </StackPanel>
                                 </Grid>
 
-                                <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionSectionString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                <TextBlock Text="{Binding First_Appeared_In_Issue.DescriptionSectionString}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </Grid>

@@ -1,33 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MyWorldIsComics.DataModel.DescriptionContent;
+using MyWorldIsComics.DataModel.Interfaces;
+using MyWorldIsComics.DataModel.ResponseSchemas;
+using System;
+using System.Text;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Markup;
+using HtmlAgilityPack;
 
 namespace MyWorldIsComics.Mappers
 {
-    #region usings
-
-    using System;
-    using System.Text;
-
-    using Windows.ApplicationModel.Contacts;
-    using Windows.UI.Xaml;
-    using Windows.UI.Xaml.Controls;
-    using Windows.UI.Xaml.Markup;
-
-    using HtmlAgilityPack;
-
-    using MyWorldIsComics.DataModel.Interfaces;
-    using MyWorldIsComics.DataModel.Resources;
-
-    #endregion
-
     internal class DescriptionMapper
     {
-        private readonly Description descriptionToMap;
+        private readonly Description _descriptionToMap;
 
         public DescriptionMapper()
         {
-            this.descriptionToMap = new Description();
+            _descriptionToMap = new Description();
         }
 
         public Description MapDescription(string htmlString)
@@ -36,28 +27,74 @@ namespace MyWorldIsComics.Mappers
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(htmlString);
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
-            foreach (HtmlNode link in collection.Where(link => link.Name == "h2"))
-            {
-                this.descriptionToMap.Sections.Add(this.ProcessSection(link));
-            }
 
             if (collection.Count > 0 && collection.First().Name == "p")
             {
-                this.descriptionToMap.EmptyHeader = this.ProcessSection(collection.First());
+                _descriptionToMap.Sections.Add(new Section
+                {
+                    ContentQueue = new Queue<IDescriptionContent>(),
+                    Type = "p"
+                });
+                _descriptionToMap.Sections[0].ContentQueue.Enqueue(ProcessParagraph(collection.First()));
             }
-            return this.descriptionToMap;
+
+            foreach (HtmlNode link in collection.Where(link => link.Name == "h2"))
+            {
+                _descriptionToMap.Sections.Add(ProcessSection(link));
+            }
+
+            if (_descriptionToMap.Sections.Count == 1 && _descriptionToMap.Sections[0].Type == "p" && collection.Count > 1)
+            {
+                foreach (HtmlNode link in collection.Where(link => link.Name == "h3"))
+                {
+                    _descriptionToMap.Sections.Add(this.ProcessSection(link));
+                }
+
+                if (_descriptionToMap.Sections.Count == 1)
+                {
+                    foreach (HtmlNode link in collection.Where(link => link.Name == "h4"))
+                    {
+                        _descriptionToMap.Sections.Add(this.ProcessSection(link));
+                    }
+                }
+            }
+
+            /*if (collection.Count > 0 && collection.First().Name == "p")
+            {
+                _descriptionToMap.Sections.Add(new Section
+                {
+                    ContentQueue = new Queue<IDescriptionContent>(),
+                    Type = "h2"
+                });
+                _descriptionToMap.Sections[0].ContentQueue.Enqueue(ProcessParagraph(collection.First()));
+
+                foreach (HtmlNode link in collection.Where(link => link.Name == "h3"))
+                {
+                    _descriptionToMap.Sections.Add(this.ProcessSection(link));                    
+                }
+
+                if (_descriptionToMap.Sections.Count == 1)
+                {
+                    foreach (HtmlNode link in collection.Where(link => link.Name == "h4"))
+                    {
+                        _descriptionToMap.Sections.Add(this.ProcessSection(link));
+                    }
+                }
+            }*/
+
+            return _descriptionToMap;
         }
 
         public Section MapDescription(Issue issue)
         {
             HtmlDocument document = new HtmlDocument();
             Section sectionToMap = new Section();
-            document.LoadHtml(issue.DescriptionString);
+            document.LoadHtml(issue.Description);
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
 
             if (collection.Count == 1)
             {
-                sectionToMap = this.ProcessSection(collection.First());
+                sectionToMap = ProcessSection(collection.First());
             }
             else
             {
@@ -89,7 +126,7 @@ namespace MyWorldIsComics.Mappers
                                 HtmlNode nextSibling = link.NextSibling;
                                 while (nextSibling != null && nextSibling.FirstChild.Name != "b")
                                 {
-                                    s.ContentQueue.Enqueue(this.ProcessSection(nextSibling));
+                                    s.ContentQueue.Enqueue(ProcessSection(nextSibling));
                                     nextSibling = nextSibling.NextSibling;
                                 }
                                 sectionToMap.ContentQueue.Enqueue(s);
@@ -110,11 +147,11 @@ namespace MyWorldIsComics.Mappers
         {
             HtmlDocument document = new HtmlDocument();
             Section sectionToMap = new Section();
-            document.LoadHtml(volume.DescriptionString);
+            document.LoadHtml(volume.Description);
             HtmlNodeCollection collection = document.DocumentNode.ChildNodes;
             if (collection.Count == 1)
             {
-                sectionToMap = this.ProcessSection(collection.First());
+                sectionToMap = ProcessSection(collection.First());
             }
             else
             {
@@ -440,7 +477,7 @@ namespace MyWorldIsComics.Mappers
             sb.Append("</Grid>");
 
             sb.Append("<RichTextBlock>");
-            sb.Append(MarkupDescription(issue.Description));
+            sb.Append(MarkupDescription(issue.DescriptionSection));
             sb.Append("</RichTextBlock>");
 
             sb.Append("</StackPanel>");

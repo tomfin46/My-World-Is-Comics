@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
@@ -23,7 +22,7 @@ namespace MyWorldIsComics.DataSource
 
         public static async Task<string> GetTrendingCharactersAsync()
         {
-            Dictionary<string, string> parameters = new Dictionary<string, string> { { "category", "characters" } };
+            Dictionary<string, string> parameters = new Dictionary<string, string> { { "expand", "1" }, { "category", "characters" } };
             return await QueryServiceAsync(marvelWikiaSource.ContructUrl("Articles", "Top", parameters));
         }
 
@@ -52,7 +51,12 @@ namespace MyWorldIsComics.DataSource
         private Uri ContructUrl(string section, string method, Dictionary<string, string> parameters)
         {
             string uri = ServiceConstants.MarvelWikiaBaseUrl + section + "/" + method + "?";
-            uri = parameters.Aggregate(uri, (current, param) => current + (param.Key + "=" + param.Value));
+
+            uri += parameters.First().Key + "=" + parameters.First().Value;
+            if (parameters.Count > 1)
+            {
+                uri = parameters.Where(p => p.Key != parameters.First().Key).Aggregate(uri, (current, parameter) => current + ("&" + parameter.Key + "=" + parameter.Value));
+            }
 
             return new Uri(uri);
         }

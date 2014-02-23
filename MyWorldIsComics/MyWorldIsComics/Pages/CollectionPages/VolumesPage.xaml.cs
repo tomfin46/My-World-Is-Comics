@@ -1,47 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using MyWorldIsComics.Common;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-
-// The Group Detail Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234229
+using MyWorldIsComics.DataModel.ResponseSchemas;
+using MyWorldIsComics.Helpers;
+using MyWorldIsComics.Pages.ResourcePages;
 
 namespace MyWorldIsComics.Pages.CollectionPages
 {
-    using System.Threading.Tasks;
-
-    using MyWorldIsComics.DataModel.Resources;
-    using MyWorldIsComics.DataSource;
-    using MyWorldIsComics.Helpers;
-    using MyWorldIsComics.Mappers;
-    using MyWorldIsComics.Pages.ResourcePages;
-
     /// <summary>
     /// A page that displays an overview of a single group, including a preview of the items
     /// within the group.
     /// </summary>
     public sealed partial class VolumesPage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
-        private Location location;
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _defaultViewModel = new ObservableDictionary();
+        private Location _location;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
-            get { return this.defaultViewModel; }
+            get { return _defaultViewModel; }
         }
 
         /// <summary>
@@ -50,16 +32,16 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return _navigationHelper; }
         }
 
 
         public VolumesPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
-            this.navigationHelper.SaveState += navigationHelper_SaveState;
+            InitializeComponent();
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -73,47 +55,26 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
-        private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            // TODO: Create an appropriate data model for your problem domain to replace the sample data
             if (SavedData.Location != null)
             {
-                this.location = SavedData.Location;
+                _location = SavedData.Location;
             }
             else
             {
                 var locationFromNav = e.NavigationParameter as Location;
                 if (locationFromNav == null) return;
 
-                this.location = locationFromNav;
+                _location = locationFromNav;
             }
 
-            this.DefaultViewModel["Location"] = this.location;
-            this.DefaultViewModel["Items"] = this.location.Volumes;
-
-            try
-            {
-                foreach (int volumeId in this.location.VolumeIds.GetRange(this.location.Volumes.Count, this.location.VolumeIds.Count - this.location.Volumes.Count))
-                {
-                    Volume volume = MapQuickVolume(await ComicVineSource.GetQuickVolumeAsync(volumeId));
-                    if (this.location.Volumes.Any(v => v.UniqueId == volume.UniqueId)) continue;
-                    this.location.Volumes.Add(volume);
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                ComicVineSource.ReinstateCts();
-            }
+            DefaultViewModel["Location"] = _location;
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            SavedData.Location = this.location;
-        }
-
-        private Volume MapQuickVolume(string quickVolume)
-        {
-            return quickVolume == ServiceConstants.QueryNotFound ? new Volume { Name = "Volume Not Found" } : new VolumeMapper().QuickMapXmlObject(quickVolume);
+            SavedData.Location = _location;
         }
 
         #region NavigationHelper registration
@@ -129,12 +90,12 @@ namespace MyWorldIsComics.Pages.CollectionPages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
@@ -146,9 +107,9 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// <param name="e">Event data that describes the item clicked.</param>
         void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            SavedData.Location = this.location;
+            SavedData.Location = _location;
             var volume = ((Volume)e.ClickedItem);
-            Frame.Navigate(typeof(VolumePage), volume.UniqueId);
+            Frame.Navigate(typeof(VolumePage), volume.Id);
         }
 
         private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)

@@ -2,20 +2,13 @@
 using System.Threading.Tasks;
 using MyWorldIsComics.Common;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.DataModel.DescriptionContent;
-using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataModel.ResponseSchemas;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Helpers;
 using MyWorldIsComics.Mappers;
@@ -28,10 +21,10 @@ namespace MyWorldIsComics.Pages.ResourcePages
     /// </summary>
     public sealed partial class CreatorPage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary _creatorPageViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _creatorPageViewModel = new ObservableDictionary();
 
-        private Creator _creator;
+        private Person _creator;
         private Description _creatorDescription;
 
         /// <summary>
@@ -39,7 +32,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public ObservableDictionary CreatorPageViewModel
         {
-            get { return this._creatorPageViewModel; }
+            get { return _creatorPageViewModel; }
         }
 
         /// <summary>
@@ -48,15 +41,15 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         public CreatorPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
-            this.navigationHelper.SaveState += navigationHelper_SaveState;
+            InitializeComponent();
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -74,61 +67,72 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
+            Person creator = e.NavigationParameter as Person;
+
             int id;
-            try
+            if (creator != null)
             {
-                id = int.Parse(e.NavigationParameter as string);
+                id = creator.Id;
+                _creator = creator;
+                PageTitle.Text = _creator.Name;
+                CreatorPageViewModel["Creator"] = _creator;
             }
-            catch (ArgumentNullException)
+            else
             {
-                id = (int)e.NavigationParameter;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                }
             }
 
             try
             {
-                await LoadCreator(id);
-            }
+                if (SavedData.Creator != null && SavedData.Creator.Id == id) { _creator = SavedData.Creator; }
+                else { _creator = await GetCreator(id); }
+                }
             catch (HttpRequestException)
             {
-                _creator = new Creator { Name = "An internet connection is required here" };
+                _creator = new Person { Name = "An internet connection is required here" };
                 CreatorPageViewModel["Creator"] = _creator;
             }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
+
+            PageTitle.Text = _creator.Name;
+            CreatorPageViewModel["Creator"] = _creator;
+            await LoadCreator();
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
-
-            // Save response content so don't have to fetch from api service again
             SavedData.Creator = _creator;
         }
 
         #region Load Creator
 
-        private async Task LoadCreator(int id)
+        private async Task LoadCreator()
         {
             try
             {
-                if (SavedData.Creator != null && SavedData.Creator.UniqueId == id) { _creator = SavedData.Creator; }
-                else { _creator = await GetCreator(id); }
-                PageTitle.Text = _creator.Name;
-
-
-                CreatorPageViewModel["Creator"] = _creator;
-
                 if (_creator.Name != ServiceConstants.QueryNotFound)
                 {
                     ImageHubSection.Visibility = Visibility.Collapsed;
                     BioHubSection.Visibility = Visibility.Visible;
 
                     await LoadDescription();
-                    
-                    if (_creator.CreatedCharacters.Count == 0)
+
+                    if (_creator.Created_Characters.Count > 0)
                     {
                         await FetchFirstCreatedCharacter();
                     }
                     HideOrShowSections();
-                    if (_creator.CreatedCharacterIds.Count > 1) await FetchRemainingCreatedCharacters();
+                    if (_creator.Created_Characters.Count > 1) await FetchRemainingCreatedCharacters();
                 }
             }
             catch (TaskCanceledException)
@@ -140,11 +144,11 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            _creatorDescription.UniqueId = _creator.UniqueId;
+            _creatorDescription.UniqueId = _creator.Id;
             CreateDataTemplates();
         }
 
-        private async Task<Creator> GetCreator(int id)
+        private async Task<Person> GetCreator(int id)
         {
             var creatorString = await ComicVineSource.GetCreatorAsync(id);
             return MapCreator(creatorString);
@@ -152,7 +156,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void HideOrShowSections()
         {
-            CreatedCharacterSection.Visibility = _creator.CreatedCharacters.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            CreatedCharacterSection.Visibility = _creator.Created_Characters.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
@@ -161,44 +165,45 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task FetchFirstCreatedCharacter()
         {
-            foreach (int characterId in _creator.CreatedCharacterIds.Take(1))
+            foreach (var c in _creator.Created_Characters.Take(1))
             {
-                Character character = MapQuickCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId));
-                if (_creator.CreatedCharacters.Any(t => t.UniqueId == character.UniqueId)) continue;
-                _creator.CreatedCharacters.Add(character);
+                Character character = MapCharacter(await ComicVineSource.GetQuickCharacterAsync(c.Id));
+                _creator.Created_Characters[0] = character;
             }
         }
 
         private async Task FetchRemainingCreatedCharacters()
         {
-            var firstId = _creator.CreatedCharacterIds.First();
-            foreach (int characterId in _creator.CreatedCharacterIds.Where(id => id != firstId).Take(_creator.CreatedCharacterIds.Count - 1))
+            for (int i = 1; i < _creator.Created_Characters.Count; ++i)
             {
-                Character character = MapQuickCharacter(await ComicVineSource.GetQuickCharacterAsync(characterId));
-                if (_creator.CreatedCharacters.Any(t => t.UniqueId == character.UniqueId)) continue;
-                _creator.CreatedCharacters.Add(character);
+                Character character = MapCharacter(await ComicVineSource.GetQuickCharacterAsync(_creator.Created_Characters[i].Id));
+                _creator.Created_Characters[i] = character;
             }
         }
-        
+
         #endregion
 
         #region Mapping Methods
 
-        private Creator MapCreator(string creatorString)
+        private Person MapCreator(string creatorString)
         {
-            return creatorString == ServiceConstants.QueryNotFound ? new Creator { Name = ServiceConstants.QueryNotFound } : new CreatorMapper().MapXmlObject(creatorString);
+            return creatorString == ServiceConstants.QueryNotFound
+                ? new Person { Name = "Person Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBasePerson>(creatorString).Results;
         }
 
-        private Character MapQuickCharacter(string quickCharacter)
+        private Character MapCharacter(string characterString)
         {
-            return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);
+            return characterString == ServiceConstants.QueryNotFound
+                ? new Character { Name = "Character Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseCharacter>(characterString).Results;
         }
 
         #endregion
 
         private async Task FormatDescriptionForPage()
         {
-            _creatorDescription = await ComicVineSource.FormatDescriptionAsync(_creator.DescriptionString);
+            _creatorDescription = await ComicVineSource.FormatDescriptionAsync(_creator.Description);
         }
 
         private void CreateDataTemplates()
@@ -207,23 +212,23 @@ namespace MyWorldIsComics.Pages.ResourcePages
             foreach (Section section in _creatorDescription.Sections)
             {
                 Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
-                i++;
+                ++i;
             }
         }
 
         #region Event Handlers
 
-        private void CreatedCharacterView_CharacterClick (object sender, ItemClickEventArgs e)
+        private void CreatedCharacterView_CharacterClick(object sender, ItemClickEventArgs e)
         {
             var character = ((Character)e.ClickedItem);
-            Frame.Navigate(typeof(CharacterPage), character.UniqueId);
+            Frame.Navigate(typeof(CharacterPage), character);
         }
 
         private async void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
         {
             if (e == null) return;
             if (e.Section.Header == null) return;
-            if (e.Section.Header.ToString() != "Created Characters") await this.FormatDescriptionForPage();
+            if (e.Section.Header.ToString() != "Created Characters") await FormatDescriptionForPage();
             switch (e.Section.Header.ToString())
             {
                 case "Created Characters":
@@ -255,7 +260,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (string.IsNullOrEmpty(queryText)) return;
 
             Frame.Navigate(typeof(SearchResultsPage), queryText);
-        } 
+        }
 
         #endregion
 
@@ -272,12 +277,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion

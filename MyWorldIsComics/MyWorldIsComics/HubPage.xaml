@@ -62,22 +62,44 @@
 
             <HubSection x:Name="ImageHubSection" Width="620" Margin="0,0,20,0" Tapped="HeroImage_Tapped" Visibility="Visible" DataContext="{Binding TopCharacter}">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="UniformToFill" />
                 </HubSection.Background>
 
                 <DataTemplate x:Name="BioHubTemplate">
                     <Grid>
-                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
+                        <Image Source="{Binding Image.Super_Url}" Opacity="0" Stretch="UniformToFill" />
                         <StackPanel x:Name="NameStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="150,0,0,50">
                             <Border x:Name="NameBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25">
                                 <TextBlock Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Margin="10"
-                                       TextWrapping="NoWrap" Height="40" VerticalAlignment="Top" FlowDirection="RightToLeft"/>
+                                       TextWrapping="Wrap" VerticalAlignment="Top" FlowDirection="RightToLeft"/>
                             </Border>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
             </HubSection>
 
+            <HubSection x:Name="RandCharHubSection" Width="620" Margin="0,0,20,0" Tapped="RandHeroImage_Tapped" Visibility="Visible" DataContext="{Binding RandomCharacter}">
+                <HubSection.Background>
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="UniformToFill" />
+                </HubSection.Background>
+
+                <DataTemplate x:Name="BioHubTemplate">
+                    <Grid>
+                        <Image Source="{Binding Image.Super_Url}" Opacity="0" Stretch="UniformToFill" />
+                        <StackPanel x:Name="NameStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="150,0,0,50">
+                            <Border x:Name="NameBorder" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Padding="25">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource HeaderTextBlockStyle}" Margin="10"
+                                       TextWrapping="Wrap" VerticalAlignment="Top"/>
+                                    <Button x:Name="RandomCharacterGenerator" Tapped="RandCharGen" Content="New Random Character" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </HubSection>
+
+            
             <HubSection IsHeaderInteractive="False" DataContext="{Binding TrendingCharacters}" Header="Trending Characters" Padding="40,40,40,32">
                 <DataTemplate>
                     <GridView

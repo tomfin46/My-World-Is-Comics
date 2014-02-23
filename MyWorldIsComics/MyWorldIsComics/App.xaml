@@ -18,7 +18,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="150">
-                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                    <Image Source="{Binding Image.Super_Url}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
                 </Border>
                 <StackPanel Grid.Row="1" Margin="0,10,0,0">
                     <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
@@ -32,11 +32,11 @@
         <DataTemplate x:Key="VolumeCoverDataTemplate">
             <Grid Width="200" Height="300" Margin="10">
                 <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
-                    <Image Source="{Binding MainImage}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
+                    <Image Source="{Binding Image.Super_Url}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
                 </Border>
                 <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
                     <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,0"/>
-                    <TextBlock Text="{Binding StartYear}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,10"/>
+                    <TextBlock Text="{Binding Start_Year}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,10"/>
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -44,12 +44,12 @@
         <DataTemplate x:Key="IssueCoverDataTemplate">
             <Grid Width="200" Height="300" Margin="10">
                 <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
-                    <Image Source="{Binding MainImage}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
+                    <Image Source="{Binding Image.Super_Url}" Stretch="Fill" AutomationProperties.Name="{Binding Name}"/>
                 </Border>
                 <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
                     <TextBlock Style="{StaticResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,0">
-                        <Run Text="{Binding VolumeName}"></Run>
-                        <Run Text="{Binding IssueNumberString}"></Run>
+                        <Run Text="{Binding Volume.Name}" FontFamily="Global User Interface"></Run>
+                        <Run Text="{Binding IssueNumberFormattedString}"></Run>
                     </TextBlock>
                     <TextBlock Text="{Binding Name}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="WrapWholeWords" Height="40" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Margin="15,0,15,5"/>
                 </StackPanel>
@@ -63,21 +63,21 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="250">
-                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                    <Image Source="{Binding Image.Super_Url}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
                 </Border>
                 <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
                     <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Margin="0,0,20,0" TextWrapping="Wrap">
-                        <Run Text="{Binding VolumeName}"></Run>
-                        <Run Text="{Binding IssueNumberString}"></Run>
+                        <Run Text="{Binding Volume.Name}"></Run>
+                        <Run Text="{Binding IssueNumberFormattedString}"></Run>
                     </TextBlock>
                     <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
-                    <TextBlock Text="{Binding IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource BodyTextBlockStyle}"/>
 
                     <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                    <TextBlock Text="{Binding CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <TextBlock Text="{Binding CoverDateFormattedString}" Style="{StaticResource BodyTextBlockStyle}"/>
 
                     <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                    <TextBlock Text="{Binding StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <TextBlock Text="{Binding StoreDateFormattedString}" Style="{StaticResource BodyTextBlockStyle}"/>
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -89,7 +89,7 @@
                     <ColumnDefinition Width="200"/>
                 </Grid.ColumnDefinitions>
                 <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="50">
-                    <Image Source="{Binding AvatarImage}" Stretch="Uniform" AutomationProperties.Name="{Binding Name}" Height="50" Width="50"/>
+                    <Image Source="{Binding Image.Icon_Url}" Stretch="Uniform" AutomationProperties.Name="{Binding Name}" Height="50" Width="50"/>
                 </Border>
                 <StackPanel Grid.Column="1" Margin="10,0,0,0">
                     <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
@@ -105,7 +105,7 @@
                     <ColumnDefinition Width="200"/>
                 </Grid.ColumnDefinitions>
                 <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Height="50">
-                    <Image Source="{Binding AvatarImage}" Stretch="Uniform" AutomationProperties.Name="{Binding Name}" Height="50" Width="50"/>
+                    <Image Source="{Binding Image.Icon_Url}" Stretch="Uniform" AutomationProperties.Name="{Binding Name}" Height="50" Width="50"/>
                 </Border>
                 <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap" Grid.Column="1" Margin="10,0,0,0"/>
             </Grid>
@@ -114,12 +114,32 @@
         <DataTemplate x:Key="SearchResultItemTemplate">
             <Grid HorizontalAlignment="Left" Width="250" Height="250">
                 <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
-                    <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                    <Image Source="{Binding Image.Super_Url}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
                 </Border>
                 <StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
+                    <TextBlock Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" Height="Auto" Margin="15,0,15,0" TextWrapping="WrapWholeWords">
+                        <Run Text="{Binding Volume.Name}" />
+                        <Run Text="{Binding IssueNumberFormattedString}" />
+                    </TextBlock>
                     <TextBlock Text="{Binding Name}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="20" Margin="15,0,15,0"/>
-                    <TextBlock Text="{Binding PublisherName}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="20" TextWrapping="WrapWholeWords" Margin="30,0,15,0"/>
-                    <TextBlock Text="{Binding Deck}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" Height="50" TextWrapping="WrapWholeWords" Margin="15,0,15,10"/>
+                    <TextBlock Text="{Binding Publisher.Name}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="20" TextWrapping="WrapWholeWords" Margin="30,0,15,0"/>
+                    <TextBlock Text="{Binding Deck}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" Height="40" TextWrapping="WrapWholeWords" Margin="15,0,15,10"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="CollectionGridViewItemTemplate">
+            <Grid Height="110" Width="480" Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Width="110" Height="110">
+                    <Image Source="{Binding Image.Super_Url}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="10,0,0,0">
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
+                    <TextBlock Text="{Binding Deck}" Style="{StaticResource BodyTextBlockStyle}" MaxHeight="60"/>
                 </StackPanel>
             </Grid>
         </DataTemplate>

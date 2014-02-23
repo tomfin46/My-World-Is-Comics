@@ -1,40 +1,32 @@
 ﻿using MyWorldIsComics.Common;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using System.Net.Http;
+using System.Threading.Tasks;
+using MyWorldIsComics.DataModel.DescriptionContent;
+using MyWorldIsComics.DataModel.ResponseSchemas;
+using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Helpers;
+using MyWorldIsComics.Mappers;
+using MyWorldIsComics.Pages.CollectionPages;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
-    using System.Net.Http;
-    using System.Threading.Tasks;
 
-    using MyWorldIsComics.DataModel.DescriptionContent;
-    using MyWorldIsComics.DataModel.Resources;
-    using MyWorldIsComics.DataSource;
-    using MyWorldIsComics.Helpers;
-    using MyWorldIsComics.Mappers;
-    using MyWorldIsComics.Pages.CollectionPages;
 
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
     public sealed partial class ConceptPage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary conceptPageViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _conceptPageViewModel = new ObservableDictionary();
 
         private Concept _concept;
-
         private Description _conceptDescription;
 
         /// <summary>
@@ -42,7 +34,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public ObservableDictionary ConceptPageViewModel
         {
-            get { return this.conceptPageViewModel; }
+            get { return _conceptPageViewModel; }
         }
 
         /// <summary>
@@ -51,16 +43,16 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         public ConceptPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
+            InitializeComponent();
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
-
 
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
@@ -77,40 +69,65 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
+            Concept concept = e.NavigationParameter as Concept;
+
             int id;
-            try
+            if (concept != null)
             {
-                id = int.Parse(e.NavigationParameter as string);
+                id = concept.Id;
+                _concept = concept;
+                PageTitle.Text = _concept.Name;
+                ConceptPageViewModel["Concept"] = _concept;
             }
-            catch (ArgumentNullException)
+            else
             {
-                id = (int)e.NavigationParameter;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                }
             }
 
             try
             {
-                await LoadConcept(id);
+                if (SavedData.Concept != null && SavedData.Concept.Id == id) { _concept = SavedData.Concept; }
+                else { _concept = await GetConcept(id); }
             }
             catch (HttpRequestException)
             {
                 _concept = new Concept { Name = "An internet connection is required here" };
                 ConceptPageViewModel["Concept"] = _concept;
             }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
+
+            PageTitle.Text = _concept.Name;
+            ConceptPageViewModel["Concept"] = _concept;
+            await LoadConcept();
         }
 
-        #region Load Character
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            SavedData.Concept = _concept;
+        }
 
-        private async Task LoadConcept(int id)
+        #region Load Concept
+        
+        private async Task<Concept> GetConcept(int id)
+        {
+            var conceptString = await ComicVineSource.GetConceptAsync(id);
+            return MapConcept(conceptString);
+        }
+
+        private async Task LoadConcept()
         {
             try
             {
-                if (SavedData.Concept != null && SavedData.Concept.UniqueId == id) { _concept = SavedData.Concept; }
-                else { _concept = await this.GetConcept(id); }
-                PageTitle.Text = _concept.Name;
-
-
-                ConceptPageViewModel["Concept"] = _concept;
-
                 if (_concept.Name != ServiceConstants.QueryNotFound)
                 {
                     ImageHubSection.Visibility = Visibility.Collapsed;
@@ -118,7 +135,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
                     await LoadDescription();
 
-                    if (_concept.FirstAppearanceIssue == null)
+                    if (_concept.First_Appeared_In_Issue.Volume == null)
                     {
                         await FetchFirstAppearance();
                     }
@@ -131,16 +148,20 @@ namespace MyWorldIsComics.Pages.ResourcePages
             }
         }
 
+        #endregion
+
+        #region Description Mapping
+
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            _conceptDescription.UniqueId = _concept.UniqueId;
+            _conceptDescription.UniqueId = _concept.Id;
             CreateDataTemplates();
         }
 
         private async Task FormatDescriptionForPage()
         {
-            _conceptDescription = await ComicVineSource.FormatDescriptionAsync(_concept.DescriptionString);
+            _conceptDescription = await ComicVineSource.FormatDescriptionAsync(_concept.Description);
         }
 
         private void CreateDataTemplates()
@@ -149,31 +170,25 @@ namespace MyWorldIsComics.Pages.ResourcePages
             foreach (Section section in _conceptDescription.Sections)
             {
                 Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
-                i++;
+                ++i;
             }
         }
-
-        private async Task<Concept> GetConcept(int id)
-        {
-            var conceptString = await ComicVineSource.GetConceptAsync(id);
-            return this.MapConcept(conceptString);
-        }
+      
+        #endregion
 
         private void HideOrShowSections()
         {
-            FirstAppearanceSection.Visibility = _concept.FirstAppearanceIssue != null ? Visibility.Visible : Visibility.Collapsed;
+            FirstAppearanceSection.Visibility = _concept.First_Appeared_In_Issue.Volume != null ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        #endregion
-
         #region Fetch methods
-        
+
         private async Task FetchFirstAppearance()
         {
-            if (_concept.FirstAppearanceId != 0)
+            if (_concept.First_Appeared_In_Issue.Id != 0)
             {
-                _concept.FirstAppearanceIssue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_concept.FirstAppearanceId));
-                _concept.FirstAppearanceIssue.Description = await ComicVineSource.FormatDescriptionAsync(_concept.FirstAppearanceIssue);
+                _concept.First_Appeared_In_Issue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_concept.First_Appeared_In_Issue.Id));
+                _concept.First_Appeared_In_Issue.DescriptionSection = await ComicVineSource.FormatDescriptionAsync(_concept.First_Appeared_In_Issue);
             }
         }
 
@@ -183,12 +198,16 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private Concept MapConcept(string conceptString)
         {
-            return conceptString == ServiceConstants.QueryNotFound ? new Concept { Name = ServiceConstants.QueryNotFound } : new ConceptMapper().MapXmlObject(conceptString);
+            return conceptString == ServiceConstants.QueryNotFound
+                ? new Concept { Name = "Concept Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseConcept>(conceptString).Results;
         }
-        
-        private Issue MapIssue(string issue)
+
+        private Issue MapIssue(string issueString)
         {
-            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
+            return issueString == ServiceConstants.QueryNotFound
+                ? new Issue { Name = "Issue Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseIssue>(issueString).Results;
         }
 
         #endregion
@@ -206,12 +225,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
@@ -220,15 +239,15 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (e == null) return;
             if (e.Section.Header == null) return;
-            if (e.Section.Header.ToString() != "Teams" || e.Section.Header.ToString() != "First Appearance") await this.FormatDescriptionForPage();
+            if (e.Section.Header.ToString() != "Teams" || e.Section.Header.ToString() != "First Appearance") await FormatDescriptionForPage();
             switch (e.Section.Header.ToString())
             {
                 case "Teams":
                     Frame.Navigate(typeof(TeamsPage), _concept);
                     break;
                 case "First Appearance":
-                    IssuePage.BasicIssue = _concept.FirstAppearanceIssue;
-                    Frame.Navigate(typeof(IssuePage), _concept.FirstAppearanceIssue);
+                    IssuePage.BasicIssue = _concept.First_Appeared_In_Issue;
+                    Frame.Navigate(typeof(IssuePage), _concept.First_Appeared_In_Issue);
                     break;
                 default:
                     Section section = _conceptDescription.Sections.First(d => d.Title == e.Section.Header.ToString());
@@ -260,7 +279,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            Frame.Navigate(typeof(VolumePage), _concept.FirstAppearanceIssue.VolumeId);
+            Frame.Navigate(typeof(VolumePage), _concept.First_Appeared_In_Issue.Volume.Id);
         }
     }
 }

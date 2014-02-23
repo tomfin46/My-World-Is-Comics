@@ -8,7 +8,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.Common;
 using MyWorldIsComics.DataModel.DescriptionContent;
-using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataModel.ResponseSchemas;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Helpers;
 using MyWorldIsComics.Mappers;
@@ -66,48 +66,65 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
+            Character character = e.NavigationParameter as Character;
+
             int id;
-            try
+            if (character != null)
             {
-                id = int.Parse(e.NavigationParameter as string);
+                id = character.Id;
+                _character = character;
+                PageTitle.Text = _character.Name;
+                CharacterPageViewModel["Character"] = _character;
             }
-            catch (ArgumentNullException)
+            else
             {
-                id = (int)e.NavigationParameter;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                }
             }
 
             try
             {
-                await LoadCharacter(id);
+                if (SavedData.Character != null && SavedData.Character.Id == id) { _character = SavedData.Character; }
+                else { _character = await GetCharacter(id); }
             }
             catch (HttpRequestException)
             {
                 _character = new Character { Name = "An internet connection is required here" };
                 CharacterPageViewModel["Character"] = _character;
             }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
+
+            PageTitle.Text = _character.Name;
+            CharacterPageViewModel["Character"] = _character;
+            await LoadCharacter();
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
-
-            // Save response content so don't have to fetch from api service again
             SavedData.Character = _character;
         }
 
         #region Load Character
 
-        private async Task LoadCharacter(int id)
+        private async Task<Character> GetCharacter(int id)
+        {
+            var characterSearchString = await ComicVineSource.GetCharacterAsync(id);
+            return MapCharacter(characterSearchString);
+        }
+
+        private async Task LoadCharacter()
         {
             try
             {
-                if (SavedData.Character != null && SavedData.Character.UniqueId == id) { _character = SavedData.Character; }
-                else { _character = await GetCharacter(id); }
-                PageTitle.Text = _character.Name;
-
-
-                CharacterPageViewModel["Character"] = _character;
-
                 if (_character.Name != ServiceConstants.QueryNotFound)
                 {
                     ImageHubSection.Visibility = Visibility.Collapsed;
@@ -115,18 +132,18 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
                     await LoadDescription();
 
-                    if (_character.FirstAppearanceIssue == null)
+                    if (_character.First_Appeared_In_Issue.Volume == null)
                     {
                         await FetchFirstAppearance();
                     }
                     HideOrShowSections();
 
-                    if (_character.Teams.Count == 0)
+                    if (_character.Teams.Count > 0)
                     {
-                        await FetchFirstTeam();
+                        await FetchFirstTeamDetails();
                     }
                     HideOrShowSections();
-                    if (_character.TeamIds.Count > 1) await FetchRemainingTeams();
+                    if (_character.Teams.Count > 1) await FetchRemainingTeamsDetails();
                 }
             }
             catch (TaskCanceledException)
@@ -138,53 +155,45 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            _characterDescription.UniqueId = _character.UniqueId;
+            _characterDescription.UniqueId = _character.Id;
             CreateDataTemplates();
-        }
-
-        private async Task<Character> GetCharacter(int id)
-        {
-            var characterSearchString = await ComicVineSource.GetCharacterAsync(id);
-            return MapCharacter(characterSearchString);
         }
 
         private void HideOrShowSections()
         {
-            TeamSection.Visibility = _character.TeamIds.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            FirstAppearanceSection.Visibility = _character.FirstAppearanceIssue != null ? Visibility.Visible : Visibility.Collapsed;
+            TeamSection.Visibility = _character.Teams.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            FirstAppearanceSection.Visibility = _character.First_Appeared_In_Issue.Image != null ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
 
         #region Fetch methods
 
-        private async Task FetchFirstTeam()
+        private async Task FetchFirstTeamDetails()
         {
-            foreach (int teamId in _character.TeamIds.Take(1))
+            foreach (var t in _character.Teams.Take(1))
             {
-                Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId));
-                if (_character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
-                _character.Teams.Add(team);
+                Team team = MapTeam(await ComicVineSource.GetQuickTeamAsync(t.Id));
+                _character.Teams.RemoveAt(0);
+                _character.Teams.Insert(0, team);
             }
         }
 
-        private async Task FetchRemainingTeams()
+        private async Task FetchRemainingTeamsDetails()
         {
-            var firstId = _character.TeamIds.First();
-            foreach (int teamId in _character.TeamIds.Where(id => id != firstId).Take(_character.TeamIds.Count - 1))
+            for (int i = 1; i < _character.Teams.Count; ++i)
             {
-                Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId));
-                if (_character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
-                _character.Teams.Add(team);
+                Team team = MapTeam(await ComicVineSource.GetQuickTeamAsync(_character.Teams[i].Id));
+                _character.Teams[i] = team;
             }
         }
 
         private async Task FetchFirstAppearance()
         {
-            if (_character.FirstAppearanceId != 0)
+            if (_character.First_Appeared_In_Issue.Id != 0)
             {
-                _character.FirstAppearanceIssue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_character.FirstAppearanceId));
-                _character.FirstAppearanceIssue.Description = await ComicVineSource.FormatDescriptionAsync(_character.FirstAppearanceIssue);
+                _character.First_Appeared_In_Issue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_character.First_Appeared_In_Issue.Id));
+                _character.First_Appeared_In_Issue.DescriptionSection = await ComicVineSource.FormatDescriptionAsync(_character.First_Appeared_In_Issue);
             }
         }
 
@@ -194,24 +203,30 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private Character MapCharacter(string characterString)
         {
-            return characterString == ServiceConstants.QueryNotFound ? new Character { Name = ServiceConstants.QueryNotFound } : new CharacterMapper().MapCharacterXmlObject(characterString);
+            return characterString == ServiceConstants.QueryNotFound
+                ? new Character { Name = "Character Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseCharacter>(characterString).Results;
         }
 
-        private Team MapQuickTeam(string quickTeam)
+        private Team MapTeam(string teamString)
         {
-            return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
+            return teamString == ServiceConstants.QueryNotFound
+                ? new Team { Name = "Team Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseTeam>(teamString).Results;
         }
 
-        private Issue MapIssue(string issue)
+        private Issue MapIssue(string issueString)
         {
-            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
+            return issueString == ServiceConstants.QueryNotFound
+                ? new Issue { Name = "Issue Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseIssue>(issueString).Results;
         }
 
         #endregion
 
         private async Task FormatDescriptionForPage()
         {
-            _characterDescription = await ComicVineSource.FormatDescriptionAsync(_character.DescriptionString);
+            _characterDescription = await ComicVineSource.FormatDescriptionAsync(_character.Description);
         }
 
         private void CreateDataTemplates()
@@ -220,7 +235,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             foreach (Section section in _characterDescription.Sections)
             {
                 Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
-                i++;
+                ++i;
             }
         }
 
@@ -252,7 +267,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private void TeamView_TeamClick(object sender, ItemClickEventArgs e)
         {
             var team = ((Team)e.ClickedItem);
-            Frame.Navigate(typeof(TeamPage), team.UniqueId);
+            Frame.Navigate(typeof(TeamPage), team.Id);
         }
 
         private async void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
@@ -266,8 +281,8 @@ namespace MyWorldIsComics.Pages.ResourcePages
                     Frame.Navigate(typeof(TeamsPage), _character);
                     break;
                 case "First Appearance":
-                    IssuePage.BasicIssue = _character.FirstAppearanceIssue;
-                    Frame.Navigate(typeof(IssuePage), _character.FirstAppearanceIssue);
+                    IssuePage.BasicIssue = _character.First_Appeared_In_Issue;
+                    Frame.Navigate(typeof(IssuePage), _character.First_Appeared_In_Issue);
                     break;
                 default:
                     Section section = _characterDescription.Sections.First(d => d.Title == e.Section.Header.ToString());
@@ -299,7 +314,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            Frame.Navigate(typeof(VolumePage), _character.FirstAppearanceIssue.VolumeId);
+            Frame.Navigate(typeof(VolumePage), _character.First_Appeared_In_Issue.Volume.Id);
         }
 
         #endregion

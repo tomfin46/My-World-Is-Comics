@@ -1,6 +1,4 @@
-﻿using MyWorldIsComics.DataModel.DescriptionContent;
-
-namespace MyWorldIsComics.DataModel.Interfaces
+﻿namespace MyWorldIsComics.DataModel.Interfaces
 {
     using System;
 

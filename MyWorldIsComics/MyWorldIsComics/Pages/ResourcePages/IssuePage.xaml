@@ -17,7 +17,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Image Source="{Binding MainImage}" Stretch="Uniform" HorizontalAlignment="Left" Grid.Column="0"/>
+                <Image Source="{Binding Image.Super_Url}" Stretch="Uniform" HorizontalAlignment="Left" Grid.Column="0"/>
 
                 <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Hidden" Margin="20,0,0,0">
                     <Grid>
@@ -47,20 +47,19 @@
 
                         <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Column="0" Grid.Row="0">
                                     <Run Text="Cover Date: " FontWeight="Bold"/>
-                                    <Run Text="{Binding CoverDateString}"/>
+                                    <Run Text="{Binding CoverDateFormattedString}"/>
                         </TextBlock>
                         <TextBlock Style="{StaticResource TitleTextBlockStyle}" Grid.Column="1" Grid.Row="0">
                                     <Run Text="Cover Date: " FontWeight="Bold"/>
-                                    <Run Text="{Binding StoreDateString}"/>
+                                    <Run Text="{Binding StoreDateFormattedString}"/>
                         </TextBlock>
 
                         <TextBlock Style="{StaticResource BodyTextBlockStyle}" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding DescriptionSectionString}"/>
 
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Text="Creators" Margin="0,20"/>
+                        <TextBlock x:Name="HeaderCreators" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Text="Creators" Margin="0,20"/>
 
                         <GridView Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2"
-                                x:Name="creatorGridView"
-                                ItemsSource="{Binding Creators}"
+                                  ItemsSource="{Binding PersonCredits}"
                                 Margin="-9,-14,0,0"
                                 AutomationProperties.AutomationId="ItemGridView"
                                 AutomationProperties.Name="Items In Group"
@@ -76,11 +75,11 @@
                             </GridView.ItemsPanel>
                         </GridView>
 
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Text="Characters" Margin="0,20"/>
+                        <TextBlock x:Name="HeaderCharacters"  Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Text="Characters" Margin="0,20"/>
 
                         <GridView Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2"
                                 x:Name="characterGridView"
-                                ItemsSource="{Binding Characters}"
+                                ItemsSource="{Binding Character_Credits}"
                                 Margin="-9,-14,0,0"
                                 AutomationProperties.AutomationId="ItemGridView"
                                 AutomationProperties.Name="Items In Group"
@@ -96,11 +95,11 @@
                             </GridView.ItemsPanel>
                         </GridView>
 
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Text="Teams" Margin="0,20"/>
+                        <TextBlock x:Name="HeaderTeams" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" Text="Teams" Margin="0,20"/>
 
                         <GridView Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="2"
                                 x:Name="TeamsGridView"
-                                ItemsSource="{Binding Teams}"
+                                ItemsSource="{Binding Team_Credits}"
                                 Margin="-9,-14,0,0"
                                 AutomationProperties.AutomationId="ItemGridView"
                                 AutomationProperties.Name="Items In Group"
@@ -116,11 +115,11 @@
                             </GridView.ItemsPanel>
                         </GridView>
 
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="9" Grid.ColumnSpan="2" Text="Locations" Margin="0,20"/>
+                        <TextBlock x:Name="HeaderLocations" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="9" Grid.ColumnSpan="2" Text="Locations" Margin="0,20"/>
 
                         <GridView Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="2"
                                 x:Name="LocationsGridView"
-                                ItemsSource="{Binding Locations}"
+                                ItemsSource="{Binding Location_Credits}"
                                 Margin="-9,-14,0,0"
                                 AutomationProperties.AutomationId="ItemGridView"
                                 AutomationProperties.Name="Items In Group"
@@ -136,11 +135,11 @@
                             </GridView.ItemsPanel>
                         </GridView>
 
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="11" Grid.ColumnSpan="2" Text="Concepts" Margin="0,20"/>
+                        <TextBlock x:Name="HeaderConcepts" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="11" Grid.ColumnSpan="2" Text="Concepts" Margin="0,20"/>
 
                         <GridView Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="2"
                                 x:Name="ConceptsGridView"
-                                ItemsSource="{Binding Concepts}"
+                                ItemsSource="{Binding Concept_Credits}"
                                 Margin="-9,-14,0,0"
                                 AutomationProperties.AutomationId="ItemGridView"
                                 AutomationProperties.Name="Items In Group"
@@ -156,11 +155,11 @@
                             </GridView.ItemsPanel>
                         </GridView>
 
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" Text="Objects" Margin="0,20"/>
+                        <TextBlock x:Name="HeaderObjects" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="13" Grid.ColumnSpan="2" Text="Objects" Margin="0,20"/>
 
                         <GridView Grid.Column="0" Grid.Row="14" Grid.ColumnSpan="2"
                                 x:Name="ObjectsGridView"
-                                ItemsSource="{Binding Objects}"
+                                ItemsSource="{Binding Object_Credits}"
                                 Margin="-9,-14,0,0"
                                 AutomationProperties.AutomationId="ItemGridView"
                                 AutomationProperties.Name="Items In Group"
@@ -176,11 +175,11 @@
                             </GridView.ItemsPanel>
                         </GridView>
 
-                        <TextBlock Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="15" Grid.ColumnSpan="2" Text="Story Arcs" Margin="0,20"/>
+                        <TextBlock x:Name="HeaderStoryArcs" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="0" Grid.Row="15" Grid.ColumnSpan="2" Text="Story Arcs" Margin="0,20"/>
 
                         <GridView Grid.Column="0" Grid.Row="16" Grid.ColumnSpan="2"
                                 x:Name="StoryArcsGridView"
-                                ItemsSource="{Binding StoryArcs}"
+                                ItemsSource="{Binding Story_Arc_Credits}"
                                 Margin="-9,-14,0,0"
                                 AutomationProperties.AutomationId="ItemGridView"
                                 AutomationProperties.Name="Items In Group"
@@ -200,7 +199,7 @@
             </Grid>
         </DataTemplate>
     </Page.Resources>
-    
+
     <!--
         This grid acts as a root panel for the page that defines two rows:
         * Row 0 contains the back button and page title
@@ -231,12 +230,12 @@
                         AutomationProperties.AutomationId="BackButton"
                         AutomationProperties.ItemType="Navigation Button"/>
             <GridViewItem x:Name="VolumnName" Grid.Column="1" Margin="-10,-10,20,30" Tapped="VolumeName_Tapped" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-                <TextBlock Text="{Binding VolumeName}" Style="{StaticResource HeaderTextBlockStyle}"
+                <TextBlock Text="{Binding Volume.Name}" Style="{StaticResource HeaderTextBlockStyle}"
                            IsHitTestVisible="false" TextWrapping="NoWrap" Padding="10"/>
             </GridViewItem>
             <TextBlock x:Name="IssueNumberTitle" Style="{StaticResource SubheaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="40,0,0,0">
-                <Run Text="{Binding IssueNumberString}" Foreground="{ThemeResource AppBarSeparatorForegroundThemeBrush}" FontWeight="Bold"/>
+                <Run Text="{Binding IssueNumberFormattedString}" Foreground="{ThemeResource AppBarSeparatorForegroundThemeBrush}" FontWeight="Bold"/>
                 <Run Text="{Binding Name}"/>
             </TextBlock>
             <SearchBox Grid.Column="2" x:Name="SearchBoxSuggestions" Height="35"  FocusOnKeyboardInput="True" Margin="-120,0,80,0" QuerySubmitted="SearchBoxEventsQuerySubmitted" SuggestionsRequested="SearchBoxEventsSuggestionsRequested" HorizontalContentAlignment="Stretch"/>

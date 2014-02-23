@@ -1,14 +1,9 @@
-﻿// The Section Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234229
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.Common;
-using MyWorldIsComics.DataModel.Resources;
-using MyWorldIsComics.DataSource;
+using MyWorldIsComics.DataModel.ResponseSchemas;
 using MyWorldIsComics.Helpers;
-using MyWorldIsComics.Mappers;
 using MyWorldIsComics.Pages.ResourcePages;
 
 namespace MyWorldIsComics.Pages.CollectionPages
@@ -19,9 +14,9 @@ namespace MyWorldIsComics.Pages.CollectionPages
     /// </summary>
     public sealed partial class TeamsPage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
-        private Character character;
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _defaultViewModel = new ObservableDictionary();
+        private Character _character;
 
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
@@ -29,7 +24,7 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         /// <summary>
@@ -37,16 +32,16 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
-            get { return this.defaultViewModel; }
+            get { return _defaultViewModel; }
         }
 
 
         public TeamsPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
-            this.navigationHelper.SaveState += navigationHelper_SaveState;
+            InitializeComponent();
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -60,48 +55,26 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
         /// a dictionary of state preserved by this page during an earlier
         /// session.  The state will be null the first time a page is visited.</param>
-        private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            // TODO: Create an appropriate data model for your problem domain to replace the sample data
             if (SavedData.Character != null)
             {
-                this.character = SavedData.Character;
+                _character = SavedData.Character;
             }
             else
             {
                 var characterFromNav = e.NavigationParameter as Character;
                 if (characterFromNav == null) return;
 
-                this.character = characterFromNav;
+                _character = characterFromNav;
             }
 
-            this.DefaultViewModel["Character"] = character;
-            this.DefaultViewModel["Items"] = character.Teams;
-
-            try
-            {
-                foreach (int teamId in character.TeamIds.GetRange(character.Teams.Count, character.TeamIds.Count - character.Teams.Count))
-                {
-                    Team team = MapQuickTeam(await ComicVineSource.GetQuickTeamAsync(teamId));
-                    if (character.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
-                    character.Teams.Add(team);
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                ComicVineSource.ReinstateCts();
-            }
+            DefaultViewModel["Character"] = _character;
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            SavedData.Character = this.character;
-        }
-        
-
-        private Team MapQuickTeam(string quickTeam)
-        {
-            return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
+            SavedData.Character = _character;
         }
 
         /// <summary>
@@ -111,9 +84,9 @@ namespace MyWorldIsComics.Pages.CollectionPages
         /// <param name="e">Event data that describes the item clicked.</param>
         void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            SavedData.Character = this.character;
+            SavedData.Character = _character;
             var team = ((Team)e.ClickedItem);
-            Frame.Navigate(typeof(TeamPage), team);
+            Frame.Navigate(typeof(TeamPage), team.Id);
         }
 
         #region NavigationHelper registration
@@ -129,12 +102,12 @@ namespace MyWorldIsComics.Pages.CollectionPages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion

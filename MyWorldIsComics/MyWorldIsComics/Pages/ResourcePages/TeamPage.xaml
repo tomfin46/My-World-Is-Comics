@@ -44,22 +44,22 @@
 
             <HubSection x:Name="ImageHubSection" Width="620" Margin="0,0,20,0" Visibility="Visible" Tapped="StatsHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" AlignmentX="Left" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="Uniform" AlignmentX="Left" />
                 </HubSection.Background>
             </HubSection>
 
             <HubSection x:Name="StatsHubSection" Width="620" Margin="0,0,20,0" Visibility="Collapsed" Tapped="StatsHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" AlignmentX="Left" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="Uniform" AlignmentX="Left" />
                 </HubSection.Background>
 
                 <DataTemplate x:Name="StatsTemplate">
                     <Grid>
-                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
+                        <Image Source="{Binding Image.Super_Url}" Opacity="0" Stretch="UniformToFill" />
                         <StackPanel x:Name="StatsStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Aliases: " />
-                                <Run Text="{Binding AliasesString}" FontWeight="Normal"/>
+                                <Run Text="{Binding AliasesOneLine}" FontWeight="Normal"/>
                             </TextBlock>
                         </StackPanel>
                     </Grid>
@@ -76,7 +76,7 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed">
+            <HubSection x:Name="FirstAppearanceSection" Width="520" Header="First Appearance" IsHeaderInteractive="True" Visibility="Collapsed" Padding="10,40,10,44">
                 <DataTemplate>
                     <Grid>
                         <ScrollViewer VerticalScrollBarVisibility="Hidden">
@@ -87,39 +87,39 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Image Source="{Binding FirstAppearanceIssue.MainImage}" Stretch="Uniform" Grid.Column="0" />
+                                    <Image Source="{Binding First_Appeared_In_Issue.Image.Super_Url}" Stretch="Uniform" Grid.Column="0" />
                                     <StackPanel Grid.Column="1" Orientation="Vertical" Margin="20,20,0,0">
                                         <GridViewItem Margin="-10,-20,-10,-10" Tapped="VolumeName_Tapped" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                            <TextBlock Text="{Binding FirstAppearanceIssue.VolumeName}" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding First_Appeared_In_Issue.Volume.Name}" Style="{StaticResource SubheaderTextBlockStyle}" TextWrapping="Wrap"/>
                                         </GridViewItem>
                                         <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,0,0,20" TextWrapping="Wrap" FontWeight="Bold">
                                             <Run Text="Issue"/>
-                                            <Run Text="{Binding FirstAppearanceIssue.IssueNumberString}"/>
+                                            <Run Text="{Binding First_Appeared_In_Issue.IssueNumberFormattedString}"/>
                                         </TextBlock>
                                         <TextBlock Text="Title:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding FirstAppearanceIssue.IssueTitle}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding First_Appeared_In_Issue.Name}" Style="{StaticResource BodyTextBlockStyle}"/>
 
                                         <TextBlock Text="Cover Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding FirstAppearanceIssue.CoverDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding First_Appeared_In_Issue.CoverDateFormattedString}" Style="{StaticResource BodyTextBlockStyle}"/>
 
                                         <TextBlock Text="Store Date:" Style="{StaticResource TitleTextBlockStyle}"/>
-                                        <TextBlock Text="{Binding FirstAppearanceIssue.StoreDateString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{Binding First_Appeared_In_Issue.StoreDateFormattedString}" Style="{StaticResource BodyTextBlockStyle}"/>
                                     </StackPanel>
                                 </Grid>
 
-                                <TextBlock Text="{Binding FirstAppearanceIssue.DescriptionSectionString}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                <TextBlock Text="{Binding First_Appeared_In_Issue.DescriptionSectionString}" Style="{StaticResource BodyTextBlockStyle}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </Grid>
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="IssuesDispandedInSection" Header="Issues Dispanded In" Padding="40,40,40,32" IsHeaderInteractive="True" Visibility="Collapsed">
+            <HubSection x:Name="IssuesDispandedInSection" Header="Issues Dispanded In" Padding="10,40,10,32" IsHeaderInteractive="False" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView
                         x:Name="friendGridView"
-                        ItemsSource="{Binding IssuesDispandedIn}"
+                        ItemsSource="{Binding Disbanded_In_Issues}"
                         Margin="-9,-14,0,0"
                         AutomationProperties.AutomationId="ItemGridView"
                         AutomationProperties.Name="Items In Group"
@@ -138,12 +138,12 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="MemberSection" Header="Members" Padding="40,40,40,32" IsHeaderInteractive="False" Visibility="Collapsed">
+            <HubSection x:Name="MemberSection" Header="Members" Padding="10,40,30,32" IsHeaderInteractive="False" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView
                         x:Name="memberGridView"
-                        ItemsSource="{Binding Members}"
+                        ItemsSource="{Binding Characters}"
                         Margin="-9,-14,0,0"
                         AutomationProperties.AutomationId="ItemGridView"
                         AutomationProperties.Name="Items In Group"
@@ -162,12 +162,12 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="EnemiesSection" Header="Enemies" Padding="40,40,40,32" IsHeaderInteractive="False" Visibility="Collapsed">
+            <HubSection x:Name="EnemiesSection" Header="Enemies" Padding="10,40,30,32" IsHeaderInteractive="False" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView
                         x:Name="enemyGridView"
-                        ItemsSource="{Binding Enemies}"
+                        ItemsSource="{Binding Character_Enemies}"
                         Margin="-9,-14,0,0"
                         AutomationProperties.AutomationId="ItemGridView"
                         AutomationProperties.Name="Items In Group"
@@ -186,12 +186,12 @@
                 </DataTemplate>
             </HubSection>
 
-            <HubSection x:Name="FriendSection" Header="Allies" Padding="40,40,40,32" IsHeaderInteractive="False" Visibility="Collapsed">
+            <HubSection x:Name="FriendSection" Header="Allies" Padding="10,40,30,32" IsHeaderInteractive="False" Visibility="Collapsed">
                 <DataTemplate>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView
                         x:Name="friendGridView"
-                        ItemsSource="{Binding Friends}"
+                        ItemsSource="{Binding Character_Friends}"
                         Margin="-9,-14,0,0"
                         AutomationProperties.AutomationId="ItemGridView"
                         AutomationProperties.Name="Items In Group"

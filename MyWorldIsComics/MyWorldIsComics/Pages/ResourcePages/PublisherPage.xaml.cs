@@ -1,41 +1,29 @@
 ﻿using MyWorldIsComics.Common;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using System.Net.Http;
+using System.Threading.Tasks;
+using MyWorldIsComics.DataModel.DescriptionContent;
+using MyWorldIsComics.DataModel.ResponseSchemas;
+using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Helpers;
+using MyWorldIsComics.Mappers;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
-    using System.Net.Http;
-    using System.Threading.Tasks;
-
-    using Windows.UI.Xaml.Markup;
-
-    using MyWorldIsComics.DataModel.DescriptionContent;
-    using MyWorldIsComics.DataModel.Resources;
-    using MyWorldIsComics.DataSource;
-    using MyWorldIsComics.Helpers;
-    using MyWorldIsComics.Mappers;
-
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
     public sealed partial class PublisherPage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary publisherPageViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _publisherPageViewModel = new ObservableDictionary();
 
         private Publisher _publisher;
-
         private Description _publisherDescription;
 
         /// <summary>
@@ -43,7 +31,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public ObservableDictionary PublisherPageViewModel
         {
-            get { return this.publisherPageViewModel; }
+            get { return _publisherPageViewModel; }
         }
 
         /// <summary>
@@ -52,17 +40,16 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         public PublisherPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
-            this.navigationHelper.SaveState += navigationHelper_SaveState;
+            InitializeComponent();
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
-
 
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
@@ -79,27 +66,45 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
+            Publisher publisher = e.NavigationParameter as Publisher;
+
             int id;
-            try
+            if (publisher != null)
             {
-                id = int.Parse(e.NavigationParameter as string);
+                id = publisher.Id;
+                _publisher = publisher;
+                PageTitle.Text = _publisher.Name;
+                PublisherPageViewModel["Publisher"] = _publisher;
             }
-            catch (ArgumentNullException)
+            else
             {
-                id = (int)e.NavigationParameter;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                }
             }
 
             try
             {
-                await LoadPublisher(id);
+                if (SavedData.Publisher != null && SavedData.Publisher.Id == id) { _publisher = SavedData.Publisher; }
+                else { _publisher = await GetPublisher(id); }
+
             }
             catch (HttpRequestException)
             {
                 _publisher = new Publisher { Name = "An internet connection is required here" };
                 PublisherPageViewModel["Publisher"] = _publisher;
             }
+
+            PublisherPageViewModel["Publisher"] = _publisher;
+            PageTitle.Text = _publisher.Name;
+            await LoadPublisher();
         }
-        
+
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
@@ -110,16 +115,10 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #region Load Publisher
 
-        private async Task LoadPublisher(int id)
+        private async Task LoadPublisher()
         {
             try
             {
-                if (SavedData.Publisher != null && SavedData.Publisher.UniqueId == id) { _publisher = SavedData.Publisher; }
-                else { _publisher = await this.GetPublisher(id); }
-
-                PublisherPageViewModel["Publisher"] = _publisher;
-                PageTitle.Text = _publisher.Name;
-
                 if (_publisher.Name != ServiceConstants.QueryNotFound)
                 {
                     ImageHubSection.Visibility = Visibility.Collapsed;
@@ -137,30 +136,32 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            _publisherDescription.UniqueId = _publisher.UniqueId;
+            _publisherDescription.UniqueId = _publisher.Id;
             CreateDataTemplates();
         }
 
         private async Task<Publisher> GetPublisher(int id)
         {
             var publisherSearchString = await ComicVineSource.GetPublisherAsync(id);
-            return this.MapPublisher(publisherSearchString);
+            return MapPublisher(publisherSearchString);
         }
-        
+
         #endregion
 
         #region Mapping Methods
 
         private Publisher MapPublisher(string publisherString)
         {
-            return publisherString == ServiceConstants.QueryNotFound ? new Publisher { Name = ServiceConstants.QueryNotFound } : new PublisherMapper().MapXmlObject(publisherString);
+            return publisherString == ServiceConstants.QueryNotFound
+                ? new Publisher { Name = "Publisher Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBasePublisher>(publisherString).Results;
         }
-    
+
         #endregion
 
         private async Task FormatDescriptionForPage()
         {
-            _publisherDescription = await ComicVineSource.FormatDescriptionAsync(_publisher.DescriptionString);
+            _publisherDescription = await ComicVineSource.FormatDescriptionAsync(_publisher.Description);
         }
 
         #region DataTemplate Creation
@@ -171,10 +172,10 @@ namespace MyWorldIsComics.Pages.ResourcePages
             foreach (Section section in _publisherDescription.Sections)
             {
                 Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
-                i++;
+                ++i;
             }
         }
-        
+
         #endregion
 
         #region NavigationHelper registration
@@ -190,12 +191,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
@@ -206,7 +207,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (e == null) return;
             if (e.Section.Header == null) return;
-            await this.FormatDescriptionForPage();
+            await FormatDescriptionForPage();
             switch (e.Section.Header.ToString())
             {
                 default:
@@ -234,9 +235,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (string.IsNullOrEmpty(queryText)) return;
 
             Frame.Navigate(typeof(SearchResultsPage), queryText);
-        } 
+        }
 
         #endregion
-        
+
     }
 }

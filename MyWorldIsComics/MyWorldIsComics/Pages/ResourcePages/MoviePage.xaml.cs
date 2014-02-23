@@ -1,40 +1,34 @@
-﻿using MyWorldIsComics.Common;
+﻿using System.Reflection;
+using MyWorldIsComics.Common;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using System.Net.Http;
+using System.Threading.Tasks;
+using MyWorldIsComics.DataModel.DescriptionContent;
+using MyWorldIsComics.DataModel.ResponseSchemas;
+using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Helpers;
+using MyWorldIsComics.Mappers;
+using MyWorldIsComics.Pages.CollectionPages;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
-    using System.Net.Http;
-    using System.Threading.Tasks;
 
-    using MyWorldIsComics.DataModel.DescriptionContent;
-    using MyWorldIsComics.DataModel.Resources;
-    using MyWorldIsComics.DataSource;
-    using MyWorldIsComics.Helpers;
-    using MyWorldIsComics.Mappers;
-    using MyWorldIsComics.Pages.CollectionPages;
 
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
     public sealed partial class MoviePage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary moviePageViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _moviePageViewModel = new ObservableDictionary();
 
         private Movie _movie;
-
         private Description _movieDescription;
 
         /// <summary>
@@ -42,7 +36,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public ObservableDictionary MoviePageViewModel
         {
-            get { return this.moviePageViewModel; }
+            get { return _moviePageViewModel; }
         }
 
         /// <summary>
@@ -51,17 +45,16 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         public MoviePage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
-            this.navigationHelper.SaveState += navigationHelper_SaveState;
+            InitializeComponent();
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
-
 
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
@@ -78,47 +71,55 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
+            Movie movie = e.NavigationParameter as Movie;
+
             int id;
-            try
+            if (movie != null)
             {
-                id = int.Parse(e.NavigationParameter as string);
+                id = movie.Id;
+                _movie = movie;
+                PageTitle.Text = _movie.Name;
+                MoviePageViewModel["Movie"] = _movie;
             }
-            catch (ArgumentNullException)
+            else
             {
-                id = (int)e.NavigationParameter;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                } 
             }
 
             try
             {
-                await LoadMovie(id);
+                if (SavedData.Movie != null && SavedData.Movie.Id == id) { _movie = SavedData.Movie; }
+                else { _movie = await GetMovie(id); }
             }
             catch (HttpRequestException)
             {
                 _movie = new Movie { Name = "An internet connection is required here" };
                 MoviePageViewModel["Movie"] = _movie;
             }
+
+            PageTitle.Text = _movie.Name;
+            MoviePageViewModel["Movie"] = _movie;
+            await LoadMovie();
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
-
-            // Save response content so don't have to fetch from api service again
             SavedData.Movie = _movie;
         }
 
         #region Load Movie
 
-        private async Task LoadMovie(int id)
+        private async Task LoadMovie()
         {
             try
             {
-                if (SavedData.Movie != null && SavedData.Movie.UniqueId == id) { _movie = SavedData.Movie; }
-                else { _movie = await this.GetMovie(id); }
-                PageTitle.Text = _movie.Name;
-
-                MoviePageViewModel["Movie"] = _movie;
-
                 if (_movie.Name != ServiceConstants.QueryNotFound)
                 {
                     ImageHubSection.Visibility = Visibility.Collapsed;
@@ -128,15 +129,15 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
                     await LoadFilters();
 
-                    if (_movie.CharacterIds.Count > 1) await this.FetchRemainingCharacters();
+                    if (_movie.Characters.Count > 1) await FetchRemainingCharacters();
                     HideOrShowSections();
-                    if (_movie.ConceptIds.Count > 1) await this.FetchRemainingConcepts();
+                    if (_movie.Concepts.Count > 1) await FetchRemainingConcepts();
                     HideOrShowSections();
-                    if (_movie.LocationIds.Count > 1) await this.FetchRemainingLocations();
+                    if (_movie.Locations.Count > 1) await FetchRemainingLocations();
                     HideOrShowSections();
-                    if (_movie.TeamIds.Count > 1) await this.FetchRemainingTeams();
+                    if (_movie.Teams.Count > 1) await FetchRemainingTeams();
                     HideOrShowSections();
-                    if (_movie.WriterIds.Count > 1) await this.FetchRemainingWriters();
+                    if (_movie.Writers.Count > 1) await FetchRemainingWriters();
                     HideOrShowSections();
                 }
             }
@@ -149,36 +150,43 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            _movieDescription.UniqueId = _movie.UniqueId;
+            _movieDescription.UniqueId = _movie.Id;
             CreateDataTemplates();
         }
 
         private async Task<Movie> GetMovie(int id)
         {
             var movieSearchString = await ComicVineSource.GetMovieAsync(id);
-            return this.MapMovie(movieSearchString);
+            return MapMovie(movieSearchString);
         }
 
         private async Task LoadFilters()
         {
-            List<string> filters = new List<string> { "characters", "concepts", "locations", "producers", "teams", "writers" };
+            List<string> filters = new List<string> { "Characters", "Concepts", "Locations", "Teams", "Writers" };
+
             foreach (string filter in filters)
             {
-                var filteredMovieString = await ComicVineSource.GetFilteredMovieAsync(_movie.UniqueId, filter);
-                _movie = new MovieMapper().MapFilteredXmlObject(_movie, filteredMovieString, filter);
+                var filteredMovieString = await ComicVineSource.GetFilteredMovieAsync(_movie.Id, filter.ToLowerInvariant());
+                var filterObj = JsonDeserialize.DeserializeJsonString<JsonSingularBaseMovie>(filteredMovieString);
 
-                if (_movie.CharacterIds.Count > 0 && _movie.Characters.Count == 0) await this.FetchFirstCharacter();
-                if (_movie.ConceptIds.Count > 0 && _movie.Concepts.Count == 0) await this.FetchFirstConcept();
-                if (_movie.LocationIds.Count > 0 && _movie.Locations.Count == 0) await this.FetchFirstLocation();
-                if (_movie.TeamIds.Count > 0 && _movie.Teams.Count == 0) await this.FetchFirstTeam();
-                if (_movie.WriterIds.Count > 0 && _movie.Writers.Count == 0) await this.FetchFirstWriter();
+                var movieType = _movie.GetType();
+                var prop = movieType.GetRuntimeProperty(filter);
+                prop.SetValue(_movie, prop.GetValue(filterObj.Results));
+
+                if (_movie.Characters.Count > 0) await FetchFirstCharacter();
+                if (_movie.Concepts.Count > 0) await FetchFirstConcept();
+                if (_movie.Locations.Count > 0) await FetchFirstLocation();
+                if (_movie.Teams.Count > 0) await FetchFirstTeam();
+                if (_movie.Writers.Count > 0) await FetchFirstWriter();
                 HideOrShowSections();
             }
         }
 
         private Movie MapMovie(string movieString)
         {
-            return movieString == ServiceConstants.QueryNotFound ? new Movie { Name = ServiceConstants.QueryNotFound } : new MovieMapper().MapXmlObject(movieString);
+            return movieString == ServiceConstants.QueryNotFound
+                ? new Movie { Name = "Movie Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseMovie>(movieString).Results;
         }
 
         private void HideOrShowSections()
@@ -214,7 +222,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             return GetMappedTeam(await ComicVineSource.GetQuickTeamAsync(teamId));
         }
 
-        private async Task<Creator> FetchWriter(int writerId)
+        private async Task<Person> FetchWriter(int writerId)
         {
             return GetMappedWriter(await ComicVineSource.GetQuickCreatorAsync(writerId));
         }
@@ -223,139 +231,129 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task FetchFirstCharacter()
         {
-            foreach (var characterId in _movie.CharacterIds.Take(1).Where(characterId => _movie.Characters.All(c => c.UniqueId != characterId)))
-            {
-                _movie.Characters.Add(await FetchCharacter(characterId));
-            }
+            Character character = await FetchCharacter(_movie.Characters[0].Id);
+            _movie.Characters[0] = character;
         }
 
         private async Task FetchFirstConcept()
         {
-            foreach (var conceptId in _movie.ConceptIds.Take(1).Where(conceptId => _movie.Concepts.All(c => c.UniqueId != conceptId)))
-            {
-                _movie.Concepts.Add(await FetchConcept(conceptId));
-            }
+            Concept concept = await FetchConcept(_movie.Concepts[0].Id);
+            _movie.Concepts[0] = concept;
         }
 
         private async Task FetchFirstLocation()
         {
-            foreach (var locationId in _movie.LocationIds.Take(1).Where(locationId => _movie.Locations.All(l => l.UniqueId != locationId)))
-            {
-                _movie.Locations.Add(await FetchLocation(locationId));
-            }
+            Location location = await FetchLocation(_movie.Locations[0].Id);
+            _movie.Locations[0] = location;
         }
 
         private async Task FetchFirstTeam()
         {
-            foreach (var teamId in _movie.TeamIds.Take(1).Where(teamId => _movie.Teams.All(t => t.UniqueId != teamId)))
-            {
-                _movie.Teams.Add(await FetchTeam(teamId));
-            }
+            Team team = await FetchTeam(_movie.Teams[0].Id);
+            _movie.Teams[0] = team;
         }
 
         private async Task FetchFirstWriter()
         {
-            foreach (var writerId in _movie.WriterIds.Take(1).Where(writerId => _movie.Writers.All(w => w.UniqueId != writerId)))
-            {
-                _movie.Writers.Add(await FetchWriter(writerId));
-            }
+            Person writer = await FetchWriter(_movie.Writers[0].Id);
+            _movie.Writers[0] = writer;
         }
 
         #endregion
 
         #region Fetch Remaining
-       
+
         private async Task FetchRemainingCharacters()
         {
-            var firstId = _movie.Characters.First().UniqueId;
-            foreach (int characterId in _movie.CharacterIds.Where(id => id != firstId))
+            for (int i = 1; i < _movie.Characters.Count; ++i)
             {
-                Character character = await FetchCharacter(characterId);
-                if (_movie.Characters.Any(c => c.UniqueId == character.UniqueId)) continue;
-                _movie.Characters.Add(character);
+                Character character = await FetchCharacter(_movie.Characters[i].Id);
+                _movie.Characters[i] = character;
             }
         }
 
         private async Task FetchRemainingConcepts()
         {
-            var firstId = _movie.Concepts.First().UniqueId;
-            foreach (int conceptId in _movie.ConceptIds.Where(id => id != firstId))
+            for (int i = 1; i < _movie.Concepts.Count; ++i)
             {
-                Concept concept = await FetchConcept(conceptId);
-                if (_movie.Concepts.Any(c => c.UniqueId == concept.UniqueId)) continue; 
-                _movie.Concepts.Add(concept);
+                Concept concept = await FetchConcept(_movie.Concepts[i].Id);
+                _movie.Concepts[i] = concept;
             }
         }
 
         private async Task FetchRemainingLocations()
         {
-            var firstId = _movie.Locations.First().UniqueId;
-            foreach (int locationId in _movie.LocationIds.Where(id => id != firstId))
+            for (int i = 1; i < _movie.Locations.Count; ++i)
             {
-                Location location = await FetchLocation(locationId);
-                if (_movie.Locations.Any(l => l.UniqueId == location.UniqueId)) continue;
-                _movie.Locations.Add(location);
+                Location location = await FetchLocation(_movie.Locations[i].Id);
+                _movie.Locations[i] = location;
             }
         }
 
         private async Task FetchRemainingTeams()
         {
-            var firstId = _movie.Teams.First().UniqueId;
-            foreach (int teamId in _movie.TeamIds.Where(id => id != firstId))
+            for (int i = 1; i < _movie.Teams.Count; ++i)
             {
-                Team team = await FetchTeam(teamId);
-                if (_movie.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
-                _movie.Teams.Add(team);
+                Team team = await FetchTeam(_movie.Teams[i].Id);
+                _movie.Teams[i] = team;
             }
         }
 
         private async Task FetchRemainingWriters()
         {
-            var firstId = _movie.Writers.First().UniqueId;
-            foreach (int teamId in _movie.WriterIds.Where(id => id != firstId))
+            for (int i = 1; i < _movie.Writers.Count; ++i)
             {
-                Creator writer = await FetchWriter(teamId);
-                if (_movie.Writers.Any(w => w.UniqueId == writer.UniqueId)) continue;
-                _movie.Writers.Add(writer);
+                Person writer = await FetchWriter(_movie.Writers[i].Id);
+                _movie.Writers[i] = writer;
             }
         }
-        
-        #endregion 
+
+        #endregion
 
         #endregion
 
         #region Mapping Methods
 
-        private Character GetMappedCharacter(string quickCharacter)
+        private Character GetMappedCharacter(string characterString)
         {
-            return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);
+            return characterString == ServiceConstants.QueryNotFound
+                ? new Character { Name = "Character Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseCharacter>(characterString).Results;
         }
 
-        private Concept GetMappedConcept(string quickConcept)
+        private Concept GetMappedConcept(string conceptString)
         {
-            return quickConcept == ServiceConstants.QueryNotFound ? new Concept { Name = "Concept Not Found" } : new ConceptMapper().QuickMapXmlObject(quickConcept);
+            return conceptString == ServiceConstants.QueryNotFound
+                ? new Concept { Name = "Concept Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseConcept>(conceptString).Results;
         }
 
-        private Location GetMappedLocation(string quickLocation)
+        private Location GetMappedLocation(string locationString)
         {
-            return quickLocation == ServiceConstants.QueryNotFound ? new Location { Name = "Location Not Found" } : new LocationMapper().QuickMapXmlObject(quickLocation);
+            return locationString == ServiceConstants.QueryNotFound
+                 ? new Location { Name = "Location Not Found" }
+                 : JsonDeserialize.DeserializeJsonString<JsonSingularBaseLocation>(locationString).Results;
         }
 
-        private Team GetMappedTeam(string quickTeam)
+        private Team GetMappedTeam(string teamString)
         {
-            return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
+            return teamString == ServiceConstants.QueryNotFound
+                      ? new Team { Name = "Team Not Found" }
+                      : JsonDeserialize.DeserializeJsonString<JsonSingularBaseTeam>(teamString).Results;
         }
 
-        private Creator GetMappedWriter(string quickWriter)
+        private Person GetMappedWriter(string writerString)
         {
-            return quickWriter == ServiceConstants.QueryNotFound ? new Creator { Name = "Writer Not Found" } : new CreatorMapper().QuickMapXmlObject(quickWriter);
+            return writerString == ServiceConstants.QueryNotFound
+                      ? new Person { Name = "Writer Not Found" }
+                      : JsonDeserialize.DeserializeJsonString<JsonSingularBasePerson>(writerString).Results;
         }
 
         #endregion
 
         private async Task FormatDescriptionForPage()
         {
-            _movieDescription = await ComicVineSource.FormatDescriptionAsync(_movie.DescriptionString);
+            _movieDescription = await ComicVineSource.FormatDescriptionAsync(_movie.Description);
         }
 
         private void CreateDataTemplates()
@@ -364,7 +362,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             foreach (Section section in _movieDescription.Sections)
             {
                 Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
-                i++;
+                ++i;
             }
         }
 
@@ -373,31 +371,31 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private void CharacterView_CharacterClick(object sender, ItemClickEventArgs e)
         {
             var character = ((Character)e.ClickedItem);
-            Frame.Navigate(typeof(CharacterPage), character.UniqueId);
+            Frame.Navigate(typeof(CharacterPage), character);
         }
 
         private void ConceptView_ConceptClick(object sender, ItemClickEventArgs e)
         {
             var concept = ((Concept)e.ClickedItem);
-            Frame.Navigate(typeof(ConceptPage), concept.UniqueId);
+            Frame.Navigate(typeof(ConceptPage), concept);
         }
 
         private void LocationView_LocationClick(object sender, ItemClickEventArgs e)
         {
             var location = ((Location)e.ClickedItem);
-            Frame.Navigate(typeof(LocationPage), location.UniqueId);
+            Frame.Navigate(typeof(LocationPage), location);
         }
 
         private void TeamView_TeamClick(object sender, ItemClickEventArgs e)
         {
             var team = ((Team)e.ClickedItem);
-            Frame.Navigate(typeof(TeamPage), team.UniqueId);
+            Frame.Navigate(typeof(TeamPage), team);
         }
 
         private void WriterView_WriterClick(object sender, ItemClickEventArgs e)
         {
-            var writer = ((Creator)e.ClickedItem);
-            Frame.Navigate(typeof(CreatorPage), writer.UniqueId);
+            var writer = ((Person)e.ClickedItem);
+            Frame.Navigate(typeof(CreatorPage), writer);
         }
 
         private async void HubSection_HeaderClick(object sender, HubSectionHeaderClickEventArgs e)
@@ -405,17 +403,17 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (e == null) return;
             if (e.Section.Header == null) return;
             var header = e.Section.Header.ToString();
-            if (header != "Characters" || header != "Concepts" || header != "Locations" || header != "Teams") await this.FormatDescriptionForPage();
+            if (header != "Characters" || header != "Concepts" || header != "Locations" || header != "Teams") await FormatDescriptionForPage();
             switch (header)
             {
                 case "Characters":
                     Frame.Navigate(typeof(CharactersPage), _movie);
                     break;
                 case "Concepts":
-                    //Frame.Navigate(typeof(ConceptsPage), _movie);
+                    //TODO: Frame.Navigate(typeof(ConceptsPage), _movie);
                     break;
                 case "Locations":
-                    //Frame.Navigate(typeof(LocationsPage), _movie);
+                    //TODO: Frame.Navigate(typeof(LocationsPage), _movie);
                     break;
                 case "Teams":
                     Frame.Navigate(typeof(TeamsPage), _movie);
@@ -463,12 +461,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion

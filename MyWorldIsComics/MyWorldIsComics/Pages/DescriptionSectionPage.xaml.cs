@@ -1,48 +1,36 @@
 ﻿using Windows.UI.Xaml.Documents;
 using MyWorldIsComics.Common;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.DataModel.DescriptionContent;
+using Windows.UI.Text;
+using Windows.UI.Xaml.Media.Imaging;
+using MyWorldIsComics.DataModel.Interfaces;
+using MyWorldIsComics.Helpers;
 
 namespace MyWorldIsComics.Pages
 {
-    using System.ServiceModel.Security;
-
-    using Windows.UI.Text;
-    using Windows.UI.Xaml.Media.Imaging;
-
-    using MyWorldIsComics.DataModel.Interfaces;
-    using MyWorldIsComics.Helpers;
-
     /// <summary>
     /// A basic page that provides characteristics common to most applications.
     /// </summary>
     public sealed partial class DescriptionSectionPage : Page
     {
 
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _defaultViewModel = new ObservableDictionary();
         private Section _descSection;
-        private RichTextBlock richTextBlock = new RichTextBlock();
+        private readonly RichTextBlock _richTextBlock = new RichTextBlock();
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
-            get { return defaultViewModel; }
+            get { return _defaultViewModel; }
         }
 
         /// <summary>
@@ -51,16 +39,16 @@ namespace MyWorldIsComics.Pages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return navigationHelper; }
+            get { return _navigationHelper; }
         }
 
 
         public DescriptionSectionPage()
         {
             InitializeComponent();
-            navigationHelper = new NavigationHelper(this);
-            navigationHelper.LoadState += navigationHelper_LoadState;
-            navigationHelper.SaveState += navigationHelper_SaveState;
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -78,16 +66,16 @@ namespace MyWorldIsComics.Pages
         {
             if (SavedData.DescriptionSection != null && SavedData.DescriptionSection.Title == pageTitle.Text) { _descSection = SavedData.DescriptionSection; }
             else { _descSection = e.NavigationParameter as Section; }
-            
+
             if (_descSection == null) return;
             pageTitle.Text = _descSection.Title;
 
             PopulateRichTextBlock();
-            RichTextBlockOverflow richTextBlockOverflow1 = new RichTextBlockOverflow {Margin = new Thickness(20)};
-            richTextBlock.Margin = new Thickness(20);
-            richTextBlock.OverflowContentTarget = richTextBlockOverflow1;
+            RichTextBlockOverflow richTextBlockOverflow1 = new RichTextBlockOverflow { Margin = new Thickness(20) };
+            _richTextBlock.Margin = new Thickness(20);
+            _richTextBlock.OverflowContentTarget = richTextBlockOverflow1;
 
-            DescriptionGrid.Children.Add(richTextBlock);
+            DescriptionGrid.Children.Add(_richTextBlock);
             Grid.SetColumn(richTextBlockOverflow1, 0);
             DescriptionGrid.Children.Add(richTextBlockOverflow1);
             Grid.SetColumn(richTextBlockOverflow1, 1);
@@ -119,23 +107,23 @@ namespace MyWorldIsComics.Pages
                 {
                     case "DescriptionParagraph":
                         DescriptionParagraph para = _descSection.ContentQueue.Dequeue() as DescriptionParagraph;
-                        this.CreateParagraph(para);
+                        CreateParagraph(para);
                         break;
                     case "Figure":
                         Figure paraFig = _descSection.ContentQueue.Dequeue() as Figure;
-                        this.CreateFigure(paraFig, DefaultParagraph());
+                        CreateFigure(paraFig, DefaultParagraph());
                         break;
                     case "List":
                         List list = _descSection.ContentQueue.Dequeue() as List;
-                        this.CreateList(list);
+                        CreateList(list);
                         break;
                     case "Quote":
                         Quote quote = _descSection.ContentQueue.Dequeue() as Quote;
-                        this.CreateQuote(quote);
+                        CreateQuote(quote);
                         break;
                     case "Section":
                         Section section = _descSection.ContentQueue.Dequeue() as Section;
-                        this.CreateSection(section);
+                        CreateSection(section);
                         break;
                 }
             }
@@ -164,7 +152,7 @@ namespace MyWorldIsComics.Pages
                     break;
             }
 
-            this.richTextBlock.Blocks.Add(header);
+            _richTextBlock.Blocks.Add(header);
 
             while (sectionToCreate.ContentQueue.Count > 0)
             {
@@ -173,23 +161,23 @@ namespace MyWorldIsComics.Pages
                 {
                     case "DescriptionParagraph":
                         DescriptionParagraph para = sectionToCreate.ContentQueue.Dequeue() as DescriptionParagraph;
-                        this.CreateParagraph(para);
+                        CreateParagraph(para);
                         break;
                     case "Figure":
                         Figure figure = sectionToCreate.ContentQueue.Dequeue() as Figure;
-                        this.CreateFigure(figure, DefaultParagraph());
+                        CreateFigure(figure, DefaultParagraph());
                         break;
                     case "List":
                         List list = sectionToCreate.ContentQueue.Dequeue() as List;
-                        this.CreateList(list);
+                        CreateList(list);
                         break;
                     case "Quote":
                         Quote quote = sectionToCreate.ContentQueue.Dequeue() as Quote;
-                        this.CreateQuote(quote);
+                        CreateQuote(quote);
                         break;
                     case "Section":
                         Section section = sectionToCreate.ContentQueue.Dequeue() as Section;
-                        this.CreateSection(section);
+                        CreateSection(section);
                         break;
                 }
             }
@@ -205,9 +193,9 @@ namespace MyWorldIsComics.Pages
             if (_descSection.ContentQueue.Count > 0 && _descSection.ContentQueue.Peek().GetType() == typeof(Figure))
             {
                 Figure paraFig = _descSection.ContentQueue.Dequeue() as Figure;
-                this.CreateFigure(paraFig, paragraph);
+                CreateFigure(paraFig, paragraph);
             }
-            else { this.richTextBlock.Blocks.Add(paragraph); }
+            else { _richTextBlock.Blocks.Add(paragraph); }
         }
 
         private void CreateFigure(Figure figure, Paragraph paragraph)
@@ -228,16 +216,16 @@ namespace MyWorldIsComics.Pages
                 InlineUIContainer inlineUiContainer = new InlineUIContainer { Child = figImage };
                 paragraph.Inlines.Add(inlineUiContainer);
                 paragraph.TextAlignment = TextAlignment.Center;
-                
-                this.richTextBlock.Blocks.Add(paragraph);
-                this.richTextBlock.Blocks.Add(figCaption);
+
+                _richTextBlock.Blocks.Add(paragraph);
+                _richTextBlock.Blocks.Add(figCaption);
             }
             else
             {
                 InlineUIContainer inlineUiContainer = new InlineUIContainer { Child = figImage };
                 paragraph.Inlines.Add(inlineUiContainer);
 
-                this.richTextBlock.Blocks.Add(paragraph);
+                _richTextBlock.Blocks.Add(paragraph);
             }
         }
 
@@ -256,7 +244,7 @@ namespace MyWorldIsComics.Pages
                                           TextIndent = -25
                                       };
                 paragraph = FormatLinks(listItem, paragraph);
-                this.richTextBlock.Blocks.Add(paragraph);
+                _richTextBlock.Blocks.Add(paragraph);
             }
         }
 
@@ -266,7 +254,7 @@ namespace MyWorldIsComics.Pages
 
             Paragraph paragraph = new Paragraph { Margin = new Thickness(10), FontWeight = FontWeights.Bold };
             paragraph = FormatLinks(quote, paragraph);
-            this.richTextBlock.Blocks.Add(paragraph);
+            _richTextBlock.Blocks.Add(paragraph);
         }
 
         #endregion
@@ -343,21 +331,21 @@ namespace MyWorldIsComics.Pages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
 
         private void Grid_LayoutUpdated(object sender, object e)
         {
-            while ((this.DescriptionGrid.Children.Last() as RichTextBlockOverflow) != null && ((RichTextBlockOverflow)this.DescriptionGrid.Children.Last()).HasOverflowContent)
+            while ((DescriptionGrid.Children.Last() as RichTextBlockOverflow) != null && ((RichTextBlockOverflow)DescriptionGrid.Children.Last()).HasOverflowContent)
             {
-                RichTextBlockOverflow lastTextBlockOverflow = this.DescriptionGrid.Children.Last() as RichTextBlockOverflow;
+                RichTextBlockOverflow lastTextBlockOverflow = DescriptionGrid.Children.Last() as RichTextBlockOverflow;
                 if (lastTextBlockOverflow == null) return;
 
                 int columnCount = DescriptionGrid.ColumnDefinitions.Count;
@@ -367,7 +355,7 @@ namespace MyWorldIsComics.Pages
                 RichTextBlockOverflow richTextBlockOverflow = new RichTextBlockOverflow { Margin = new Thickness(20) };
                 lastTextBlockOverflow.OverflowContentTarget = richTextBlockOverflow;
 
-                DescriptionGrid.Children.RemoveAt(columnCount-1);
+                DescriptionGrid.Children.RemoveAt(columnCount - 1);
                 DescriptionGrid.Children.Add(lastTextBlockOverflow);
                 DescriptionGrid.Children.Add(richTextBlockOverflow);
                 Grid.SetColumn(richTextBlockOverflow, columnCount);

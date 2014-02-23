@@ -1,37 +1,27 @@
 ﻿using MyWorldIsComics.Common;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using System.Net.Http;
+using System.Threading.Tasks;
+using MyWorldIsComics.DataModel.DescriptionContent;
+using MyWorldIsComics.DataModel.ResponseSchemas;
+using MyWorldIsComics.DataSource;
+using MyWorldIsComics.Helpers;
+using MyWorldIsComics.Mappers;
 
 namespace MyWorldIsComics.Pages.ResourcePages
 {
-    using System.Net.Http;
-    using System.Threading.Tasks;
-
-    using MyWorldIsComics.DataModel.DescriptionContent;
-    using MyWorldIsComics.DataModel.Resources;
-    using MyWorldIsComics.DataSource;
-    using MyWorldIsComics.Helpers;
-    using MyWorldIsComics.Mappers;
-    using MyWorldIsComics.Pages.CollectionPages;
-
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
     public sealed partial class ObjectPage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary objectPageViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _objectPageViewModel = new ObservableDictionary();
 
         private ObjectResource _object;
         private Description _objectDescription;
@@ -41,7 +31,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public ObservableDictionary ObjectPageViewModel
         {
-            get { return this.objectPageViewModel; }
+            get { return _objectPageViewModel; }
         }
 
         /// <summary>
@@ -50,15 +40,15 @@ namespace MyWorldIsComics.Pages.ResourcePages
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return this.navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         public ObjectPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
-            this.navigationHelper.SaveState += navigationHelper_SaveState;
+            InitializeComponent();
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
 
@@ -77,47 +67,56 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
+
+            ObjectResource obj = e.NavigationParameter as ObjectResource;
+
             int id;
-            try
+            if (obj != null)
             {
-                id = int.Parse(e.NavigationParameter as string);
+                id = obj.Id;
+                _object = obj;
+                PageTitle.Text = _object.Name;
+                ObjectPageViewModel["Object"] = _object;
             }
-            catch (ArgumentNullException)
+            else
             {
-                id = (int)e.NavigationParameter;
+                try
+                {
+                    id = int.Parse(e.NavigationParameter as string);
+                }
+                catch (ArgumentNullException)
+                {
+                    id = (int)e.NavigationParameter;
+                } 
             }
 
             try
             {
-                await this.LoadObject(id);
+                if (SavedData.Object != null && SavedData.Object.Id == id) { _object = SavedData.Object; }
+                else { _object = await GetObject(id); }
+                
             }
             catch (HttpRequestException)
             {
                 _object = new ObjectResource { Name = "An internet connection is required here" };
                 ObjectPageViewModel["Object"] = _object;
             }
+
+            PageTitle.Text = _object.Name;
+            ObjectPageViewModel["Object"] = _object;
+            await LoadObject();
         }
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
-
-            // Save response content so don't have to fetch from api service again
             SavedData.Object = _object;
         }
 
         #region Load Object
 
-        private async Task LoadObject(int id)
+        private async Task LoadObject()
         {
             try
             {
-                if (SavedData.Object != null && SavedData.Object.UniqueId == id) { _object = SavedData.Object; }
-                else { _object = await this.GetObject(id); }
-                PageTitle.Text = _object.Name;
-
-
-                ObjectPageViewModel["Object"] = _object;
-
                 if (_object.Name != ServiceConstants.QueryNotFound)
                 {
                     ImageHubSection.Visibility = Visibility.Collapsed;
@@ -125,7 +124,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
                     await LoadDescription();
 
-                    if (_object.FirstAppearanceIssue == null)
+                    if (_object.First_Appeared_In_Issue.Volume == null)
                     {
                         await FetchFirstAppearance();
                     }
@@ -141,31 +140,31 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private async Task LoadDescription()
         {
             await FormatDescriptionForPage();
-            _objectDescription.UniqueId = _object.UniqueId;
+            _objectDescription.UniqueId = _object.Id;
             CreateDataTemplates();
         }
 
         private async Task<ObjectResource> GetObject(int id)
         {
             var objectString = await ComicVineSource.GetObjectAsync(id);
-            return this.MapObject(objectString);
+            return MapObject(objectString);
         }
 
         private void HideOrShowSections()
         {
-            FirstAppearanceSection.Visibility = _object.FirstAppearanceIssue != null ? Visibility.Visible : Visibility.Collapsed;
+            FirstAppearanceSection.Visibility = _object.First_Appeared_In_Issue.Volume != null ? Visibility.Visible : Visibility.Collapsed;
         }
 
         #endregion
 
         #region Fetch methods
-        
+
         private async Task FetchFirstAppearance()
         {
-            if (_object.FirstAppearanceId != 0)
+            if (_object.First_Appeared_In_Issue.Id != 0)
             {
-                _object.FirstAppearanceIssue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_object.FirstAppearanceId));
-                _object.FirstAppearanceIssue.Description = await ComicVineSource.FormatDescriptionAsync(_object.FirstAppearanceIssue);
+                _object.First_Appeared_In_Issue = MapIssue(await ComicVineSource.GetQuickIssueAsync(_object.First_Appeared_In_Issue.Id));
+                _object.First_Appeared_In_Issue.DescriptionSection = await ComicVineSource.FormatDescriptionAsync(_object.First_Appeared_In_Issue);
             }
         }
 
@@ -175,19 +174,23 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private ObjectResource MapObject(string objectString)
         {
-            return objectString == ServiceConstants.QueryNotFound ? new ObjectResource { Name = ServiceConstants.QueryNotFound } : new ObjectMapper().MapXmlObject(objectString);
+            return objectString == ServiceConstants.QueryNotFound
+                ? new ObjectResource { Name = "Object Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseObjectResource>(objectString).Results;
         }
 
-       private Issue MapIssue(string issue)
+        private Issue MapIssue(string issueString)
         {
-            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
+            return issueString == ServiceConstants.QueryNotFound
+                        ? new Issue { Name = "Issue Not Found" }
+                        : JsonDeserialize.DeserializeJsonString<JsonSingularBaseIssue>(issueString).Results;
         }
 
         #endregion
 
         private async Task FormatDescriptionForPage()
         {
-            _objectDescription = await ComicVineSource.FormatDescriptionAsync(_object.DescriptionString);
+            _objectDescription = await ComicVineSource.FormatDescriptionAsync(_object.Description);
         }
 
         private void CreateDataTemplates()
@@ -196,7 +199,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             foreach (Section section in _objectDescription.Sections)
             {
                 Hub.Sections.Insert(i, DescriptionMapper.CreateDataTemplate(section));
-                i++;
+                ++i;
             }
         }
 
@@ -206,12 +209,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (e == null) return;
             if (e.Section.Header == null) return;
-            if (e.Section.Header.ToString() != "First Appearance") await this.FormatDescriptionForPage();
+            if (e.Section.Header.ToString() != "First Appearance") await FormatDescriptionForPage();
             switch (e.Section.Header.ToString())
             {
                 case "First Appearance":
-                    IssuePage.BasicIssue = _object.FirstAppearanceIssue;
-                    Frame.Navigate(typeof(IssuePage), _object.FirstAppearanceIssue);
+                    IssuePage.BasicIssue = _object.First_Appeared_In_Issue;
+                    Frame.Navigate(typeof(IssuePage), _object.First_Appeared_In_Issue);
                     break;
                 default:
                     Section section = _objectDescription.Sections.First(d => d.Title == e.Section.Header.ToString());
@@ -243,7 +246,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            Frame.Navigate(typeof(VolumePage), _object.FirstAppearanceIssue.VolumeId);
+            Frame.Navigate(typeof(VolumePage), _object.First_Appeared_In_Issue.Volume);
         }
 
         #endregion
@@ -261,12 +264,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion

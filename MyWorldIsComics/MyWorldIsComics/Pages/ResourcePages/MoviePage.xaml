@@ -46,18 +46,18 @@
 
             <HubSection x:Name="ImageHubSection" Width="620" Margin="0,0,20,0" Visibility="Visible" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="UniformToFill" />
                 </HubSection.Background>
             </HubSection>
 
             <HubSection x:Name="BioHubSection" Width="620" Margin="0,0,20,0" Visibility="Collapsed" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="UniformToFill" />
                 </HubSection.Background>
 
                 <DataTemplate x:Name="BioHubTemplate">
                     <Grid>
-                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
+                        <Image Source="{Binding Image.Super_Url}" Opacity="0" Stretch="UniformToFill" />
                         <StackPanel x:Name="BioStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Rating: " />
@@ -72,17 +72,17 @@
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Budget: " />
-                                <Run Text="{Binding BudgetString}" FontWeight="Normal"/>
+                                <Run Text="{Binding BudgetFormattedString}" FontWeight="Normal" FontFamily="Global User Interface"/>
                             </TextBlock>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Box Office Revenue: " />
-                                <Run Text="{Binding BoxOfficeRevenueString}" FontWeight="Normal"/>
+                                <Run Text="{Binding BoxOfficeRevenueFormattedString}" FontWeight="Normal"/>
                             </TextBlock>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Total Gross Revenue: " />
-                                <Run Text="{Binding TotalRevenueString}" FontWeight="Normal"/>
+                                <Run Text="{Binding TotalRevenueFormattedString}" FontWeight="Normal" FontFamily="Global User Interface"/>
                             </TextBlock>
                         </StackPanel>
                     </Grid>

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using Windows.Storage;
 using Windows.UI.Xaml.Controls;
@@ -46,7 +44,7 @@ namespace MyWorldIsComics.Helpers
 
             var pages = totalResults/100;
 
-            for (int i = 0; i < pages+1; i++)
+            for (int i = 0; i < pages+1; ++i)
             {
                 IEnumerable<string> results = MapSuggestionCharacters(await ComicVineSource.GetSuggestionList(DataModel.Enums.Resources.ResourcesEnum.Volumes, i * 100));
                 foreach (string result in results.Where(result => !names.Contains(result)))

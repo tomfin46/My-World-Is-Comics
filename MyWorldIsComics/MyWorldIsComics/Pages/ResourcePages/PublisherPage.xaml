@@ -54,18 +54,18 @@
 
             <HubSection x:Name="ImageHubSection" Width="520" Margin="0,0,20,0" Visibility="Visible" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="Uniform" />
                 </HubSection.Background>
             </HubSection>
 
             <HubSection x:Name="BioHubSection" Width="520" Margin="0,0,20,0" Visibility="Collapsed" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="Uniform" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="Uniform" />
                 </HubSection.Background>
 
                 <DataTemplate x:Name="BioHubTemplate">
                     <Grid>
-                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
+                        <Image Source="{Binding Image.Super_Url}" Opacity="0" Stretch="UniformToFill" />
                         
                     </Grid>
                 </DataTemplate>
@@ -79,22 +79,22 @@
                                 <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,10" Text="{Binding Deck}" TextWrapping="Wrap" />
                                 <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap">
                                 <Run Text="Aliases: " />
-                                <Run Text="{Binding AliasesString}" FontWeight="Normal"/>
+                                <Run Text="{Binding AliasesOneLine}" FontWeight="Normal"/>
                                 </TextBlock>
 
                                 <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap">
                                 <Run Text="Address: " />
-                                <Run Text="{Binding Location.Address}" FontWeight="Normal"/>
+                                <Run Text="{Binding Location_Address}" FontWeight="Normal"/>
                                 </TextBlock>
 
                                 <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap">
                                 <Run Text="City: " />
-                                <Run Text="{Binding Location.City}" FontWeight="Normal"/>
+                                <Run Text="{Binding Location_City}" FontWeight="Normal"/>
                                 </TextBlock>
 
                                 <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10" TextWrapping="Wrap">
                                 <Run Text="State: " />
-                                <Run Text="{Binding Location.State}" FontWeight="Normal"/>
+                                <Run Text="{Binding Location_State}" FontWeight="Normal"/>
                                 </TextBlock>
                             </StackPanel>
                         </ScrollViewer>

@@ -1,45 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using MyWorldIsComics.Common;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.DataModel;
 using MyWorldIsComics.DataModel.Interfaces;
-using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataModel.ResponseSchemas;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Mappers;
 using MyWorldIsComics.Pages.ResourcePages;
 
 namespace MyWorldIsComics.Pages
 {
-    using MyWorldIsComics.Helpers;
+    using Helpers;
 
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
     public sealed partial class SearchResultsPage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _defaultViewModel = new ObservableDictionary();
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
-            get { return this.defaultViewModel; }
+            get { return _defaultViewModel; }
         }
 
         /// <summary>
@@ -50,15 +41,15 @@ namespace MyWorldIsComics.Pages
         {
             get
             {
-                return this.navigationHelper;
+                return _navigationHelper;
             }
         }
 
         public SearchResultsPage()
         {
-            this.InitializeComponent();
-            this.navigationHelper = new NavigationHelper(this);
-            this.navigationHelper.LoadState += navigationHelper_LoadState;
+            InitializeComponent();
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
         }
 
         /// <summary>
@@ -98,7 +89,7 @@ namespace MyWorldIsComics.Pages
                 }
                 else
                 {
-                    DefaultViewModel["SearchResults"] = new ObservableCollection<Results> { new Results { Name = "No results", ResultsList = new ObservableCollection<IResource> { new ObjectResource { Name = "Please search again." } } } };
+                    DefaultViewModel["SearchResults"] = new ObservableCollection<Results> { new Results { Name = "No results", ResultsList = new ObservableCollection<IResponse> { new ResponseSchema { Name = "Please search again." } } } };
                 }
             }
             catch (TaskCanceledException)
@@ -120,63 +111,63 @@ namespace MyWorldIsComics.Pages
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
 
         private void Item_Clicked(object sender, ItemClickEventArgs e)
         {
-            int id = ((IResource) e.ClickedItem).UniqueId;
+            int id = ((IResponse)e.ClickedItem).Id;
             if (e.ClickedItem as Character != null)
             {
-                Frame.Navigate(typeof (CharacterPage), id);
+                Frame.Navigate(typeof(CharacterPage), e.ClickedItem as Character);
             }
             else if (e.ClickedItem as Concept != null)
             {
-                Frame.Navigate(typeof(ConceptPage), id);
+                Frame.Navigate(typeof(ConceptPage), e.ClickedItem as Concept);
             }
-            else if (e.ClickedItem as Creator != null)
+            else if (e.ClickedItem as Person != null)
             {
-                Frame.Navigate(typeof(CreatorPage), id);
+                Frame.Navigate(typeof(CreatorPage), e.ClickedItem as Person);
             }
             else if (e.ClickedItem as Issue != null)
             {
-                IssuePage.BasicIssue = new Issue {UniqueId = id};
-                Frame.Navigate(typeof(IssuePage), id);
+                IssuePage.BasicIssue = e.ClickedItem as Issue;
+                Frame.Navigate(typeof(IssuePage), e.ClickedItem as Issue);
             }
             else if (e.ClickedItem as Location != null)
             {
-                Frame.Navigate(typeof(LocationPage), id);
+                Frame.Navigate(typeof(LocationPage), e.ClickedItem as Location);
             }
             else if (e.ClickedItem as Movie != null)
             {
-                Frame.Navigate(typeof(MoviePage), id);
+                Frame.Navigate(typeof(MoviePage), e.ClickedItem as Movie);
             }
             else if (e.ClickedItem as ObjectResource != null)
             {
-                Frame.Navigate(typeof(ObjectPage), id);
+                Frame.Navigate(typeof(ObjectPage), e.ClickedItem as ObjectResource);
             }
             else if (e.ClickedItem as Publisher != null)
             {
-                Frame.Navigate(typeof(PublisherPage), id);
+                Frame.Navigate(typeof(PublisherPage), e.ClickedItem as Publisher);
             }
             else if (e.ClickedItem as StoryArc != null)
             {
-                Frame.Navigate(typeof(StoryArcPage), id);
+                Frame.Navigate(typeof(StoryArcPage), e.ClickedItem as StoryArc);
             }
             else if (e.ClickedItem as Team != null)
             {
-                Frame.Navigate(typeof(TeamPage), id);
+                Frame.Navigate(typeof(TeamPage), e.ClickedItem as Team);
             }
             else if (e.ClickedItem as Volume != null)
             {
-                Frame.Navigate(typeof(VolumePage), id);
+                Frame.Navigate(typeof(VolumePage), e.ClickedItem as Volume);
             }
         }
 

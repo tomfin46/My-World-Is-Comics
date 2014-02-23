@@ -46,27 +46,27 @@
 
             <HubSection x:Name="ImageHubSection" Width="620" Margin="0,0,20,0" Visibility="Visible" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="UniformToFill" />
                 </HubSection.Background>
             </HubSection>
 
             <HubSection x:Name="BioHubSection" Width="620" Margin="0,0,20,0" Visibility="Collapsed" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding MainImage}" Stretch="UniformToFill" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="UniformToFill" />
                 </HubSection.Background>
 
                 <DataTemplate x:Name="BioHubTemplate">
                     <Grid>
-                        <Image Source="{Binding MainImage}" Opacity="0" Stretch="UniformToFill" />
+                        <Image Source="{Binding Image.Super_Url}" Opacity="0" Stretch="UniformToFill" />
                         <StackPanel x:Name="BioStack" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="150,0,0,50">
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Date of Birth: " />
-                                <Run Text="{Binding BirthString}" FontWeight="Normal"/>
+                                <Run Text="{Binding BirthFormattedString}" FontWeight="Normal" FontFamily="Global User Interface"/>
                             </TextBlock>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
                                 <Run Text="Date of Death: " />
-                                <Run Text="{Binding DeathString}" FontWeight="Normal"/>
+                                <Run Text="{Binding DeathFormattedString}" FontWeight="Normal" FontFamily="Global User Interface"/>
                             </TextBlock>
 
                             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Margin="10,10,10,0" TextWrapping="Wrap" FlowDirection="RightToLeft">
@@ -83,7 +83,7 @@
                                 <Paragraph>
                                     <Run Text="Website: " />
                                     <Hyperlink NavigateUri="{Binding Website}">
-                                        <Run Text="{Binding Website.AbsoluteUri}" FontWeight="Normal"/>
+                                        <Run Text="{Binding Website}" FontWeight="Normal" FontFamily="Global User Interface"/>
                                     </Hyperlink>
                                     <Run Text="i" FontSize="0.01"/>
                                 </Paragraph>
@@ -108,7 +108,7 @@
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <GridView
                         x:Name="createdCharacterGridView"
-                        ItemsSource="{Binding CreatedCharacters}"
+                        ItemsSource="{Binding Created_Characters}"
                         Margin="-9,-14,0,0"
                         AutomationProperties.AutomationId="ItemGridView"
                         AutomationProperties.Name="Items In Group"
@@ -116,7 +116,7 @@
                         SelectionMode="None"
                         IsSwipeEnabled="false"
                         IsItemClickEnabled="True"
-                        ItemClick="CreatedCharacterView_CharacterClick">
+                        ItemClick="CreatedCharacterView_CharacterClick" FontFamily="Global User Interface">
                             <GridView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"></WrapGrid>

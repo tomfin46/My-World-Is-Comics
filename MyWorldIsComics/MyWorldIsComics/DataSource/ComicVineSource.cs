@@ -1,26 +1,29 @@
-﻿namespace MyWorldIsComics.DataSource
-{
-    #region usings
+﻿using MyWorldIsComics.DataModel.ResponseSchemas;
 
+namespace MyWorldIsComics.DataSource
+{
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using DataModel.Resources;
     using System.Net.Http;
-    using DataModel;
     using DataModel.Enums;
     using Mappers;
 
-    using MyWorldIsComics.DataModel.DescriptionContent;
+    using DataModel.DescriptionContent;
 
-    #endregion
 
     class ComicVineSource
     {
         private static readonly ComicVineSource comicVineSource = new ComicVineSource();
         private static HttpClient client;
         private static CancellationTokenSource cts;
+
+        private static Dictionary<string, int> characterExceptions = new Dictionary<string, int>
+        {
+            { "Hulk", 2267 }, { "Thor", 2268 }, { "Angela", 11761 }, { "Death", 42501 }, { "Stephen Strange", 1456 }, { "Toxin", 6733 },
+            {"Natalia Romanova", 3200}, {"Thane", 92620}, {"Taneleer Tivan", 13987}, {"Trevor Slattery", 3530}, {"Skye", -1}
+        };
 
         public ComicVineSource()
         {
@@ -30,11 +33,25 @@
 
         public static async Task<string> ExecuteSearchAsync(string query)
         {
-            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query, new List<string> { "deck", "id", "image", "name", "publisher" }));
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query, new List<string> { "deck", "id", "image", "issue_number", "name", "publisher", "volume" }));
+        }
+
+        public static async Task<string> ExecuteCharacterFilterLimitOneAsync(string query)
+        {
+            if (characterExceptions.ContainsKey(query))
+            {
+                return await GetQuickCharacterAsync(characterExceptions[query]);
+            }
+
+            var uri = comicVineSource.ContructUrl(Resources.ResourcesEnum.Characters, query, new List<string> { "deck", "id", "image", "name", "publisher" });
+            uri = new Uri(uri.AbsoluteUri.Replace("limit=25", "limit=1"));
+            uri = new Uri(uri.AbsoluteUri.Replace("offset=", "filter=name:"));
+            return await QueryServiceAsync(uri);
         }
 
         public static async Task<string> ExecuteSearchLimitOneAsync(string query)
         {
+
             var uri = comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query, new List<string> { "deck", "id", "image", "name", "publisher" });
             uri = new Uri(uri.AbsoluteUri.Replace("limit=25", "limit=1"));
             return await QueryServiceAsync(uri);
@@ -44,6 +61,11 @@
         {
             var uri = comicVineSource.ContructUrl(Resources.ResourcesEnum.Characters, new List<string> {"deck", "id", "image", "name", "publisher"}, "date_last_updated", "asc", 15);
             return await QueryServiceAsync(uri);
+        }
+
+        public static async Task<string> GetOffsetCharacterIds(int offset)
+        {
+            return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Characters, offset.ToString(), "id"));
         }
 
         #region Get Suggestion Lists
@@ -59,8 +81,8 @@
 
         public static async Task<string> GetCharacterAsync(int characterId)
         {
-            List<string> filters = new List<string> { "aliases", "birth", "count_of_issue_appearances", "deck", "description", "first_appeared_in_issue", 
-                "id", "image", "name", "real_name", "teams" };
+            List<string> filters = new List<string> { "aliases", "birth", "count_of_issue_appearances", "deck", "description", "first_appeared_in_issue",
+                "id", "image", "name", "publisher", "real_name", "teams" };
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, characterId.ToString(), filters));
         }
 
@@ -155,7 +177,7 @@
 
         public static async Task<string> GetQuickCharacterAsync(int characterId)
         {
-            List<string> filters = new List<string> { "deck", "id", "image", "name" };
+            List<string> filters = new List<string> { "deck", "id", "image", "name", "publisher" };
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Character, characterId.ToString(), filters));
         }
 
@@ -217,11 +239,19 @@
         }
         public static async Task<Section> FormatDescriptionAsync(Issue issue)
         {
-            return await Task.Run(() => new DescriptionMapper().MapDescription(issue));
+            if (issue.Description != null)
+            {
+                return await Task.Run(() => new DescriptionMapper().MapDescription(issue)); 
+            }
+            return new Section();
         }
         public static async Task<Section> FormatDescriptionAsync(Volume volume)
         {
-            return await Task.Run(() => new DescriptionMapper().MapDescription(volume));
+            if (volume.Description != null)
+            {
+                return await Task.Run(() => new DescriptionMapper().MapDescription(volume)); 
+            }
+            return new Section();
         }
 
         #endregion
@@ -277,21 +307,21 @@
         private Uri ContructUrl(Resources.ResourcesEnum resourcesEnum, string query, string filter)
         {
             string uri = this.ContructUrl(resourcesEnum, query).AbsoluteUri;
-            uri += "&field_list=" + filter;
+            uri += "&field_list=" + filter.ToLowerInvariant();
             return new Uri(uri);
         }
 
         private Uri ContructUrl(Resources.ResourcesEnum resourcesEnum, string query, IEnumerable<string> filters)
         {
             string uri = this.ContructUrl(resourcesEnum, query).AbsoluteUri;
-            uri += "&field_list=" + string.Join(",", filters);
+            uri += "&field_list=" + string.Join(",", filters).ToLowerInvariant();
             return new Uri(uri);
         }
 
         private Uri ContructUrl(Resources.ResourcesEnum resourcesEnum, string volumeId, string issueId, IEnumerable<string> filters)
         {
             string uri = this.ContructUrl(resourcesEnum, volumeId).AbsoluteUri;
-            uri += "&field_list=" + string.Join(",", filters);
+            uri += "&field_list=" + string.Join(",", filters).ToLowerInvariant();
             uri += "&filter=volume:" + volumeId + ",issue_number:" + issueId;
             return new Uri(uri);
         }
@@ -299,10 +329,9 @@
         private Uri ContructUrl(Resources.ResourcesEnum resourcesEnum, IEnumerable<string> filters, string sortField, string sortDirection, int resultLimit)
         {
             string uri = this.ContructUrl(resourcesEnum, resultLimit.ToString()).AbsoluteUri;
-            uri += "&field_list=" + string.Join(",", filters);
+            uri += "&field_list=" + string.Join(",", filters).ToLowerInvariant();
             uri += "&sort=" + sortField + ":" + sortDirection;
             uri = uri.Replace("offset=", "limit=");
-            uri = uri.Replace("format=xml", "format=json");
             return new Uri(uri);
         }
 
@@ -326,5 +355,7 @@
         }
 
         #endregion
+
+        
     }
 }

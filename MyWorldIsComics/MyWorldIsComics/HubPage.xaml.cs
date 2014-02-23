@@ -1,92 +1,36 @@
-﻿using System.Net.Http;
+﻿using System.Collections.ObjectModel;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Input;
+using MyWorldIsComics.Common;
+using MyWorldIsComics.DataModel;
+using MyWorldIsComics.DataModel.Interfaces;
+using MyWorldIsComics.DataModel.ResponseSchemas;
+using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Helpers;
+using MyWorldIsComics.Mappers;
 using MyWorldIsComics.Pages;
-using MyWorldIsComics.Pages.CollectionPages;
 using MyWorldIsComics.Pages.ResourcePages;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 using Newtonsoft.Json;
 
 namespace MyWorldIsComics
 {
-    #region usings
-
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Xml;
-
-    using Windows.Storage;
-    using Windows.UI.Xaml.Controls;
-    using Windows.UI.Xaml.Navigation;
-    using Common;
-    using Data;
-
-    using MyWorldIsComics.DataSource;
-    using MyWorldIsComics.DataModel;
-    using MyWorldIsComics.DataModel.Resources;
-    using MyWorldIsComics.DataModel.Interfaces;
-    using MyWorldIsComics.Mappers;
-
-    #endregion
-
-    class JsonResponse
-    {
-        public string Error { get; set; }
-        public int Limit { get; set; }
-        public int Offset { get; set; }
-        public int Number_Of_Page_Results { get; set; }
-        public int Number_Of_Total_Results { get; set; }
-        public int Status_Code { get; set; }
-        public List<CharacterTest> Results { get; set; }
-        public string Version { get; set; }
-    }
-
-    class CharacterTest
-    {
-        public string Deck { get; set; }
-        public int Id { get; set; }
-        public Images Image { get; set; }
-        public string Name { get; set; }
-        public PublisherTest Publisher { get; set; }
-    }
-
-    class Images
-    {
-        public string Icon_Url { get; set; }
-        public string Medium_Url { get; set; }
-        public string Screen_Url { get; set; }
-        public string Small_Url { get; set; }
-        public string Super_Url { get; set; }
-        public string Thumb_Url { get; set; }
-        public string Tiny_Url { get; set; }
-
-    }
-
-    class PublisherTest
-    {
-        public string Api_Detail_Url { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
-
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
     public sealed partial class HubPage : Page
     {
-        private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private readonly NavigationHelper _navigationHelper;
+        private readonly ObservableDictionary _defaultViewModel = new ObservableDictionary();
 
         private Results _trendingCharacters;
         private Character _topCharacter;
-
-        private List<string> suggestionsList = new List<string>();
-        private Dictionary<int, string> suggestionsDictionary = new Dictionary<int, string>();
-
+        private int _randLimit;
 
         /// <summary>
         /// NavigationHelper is used on each page to aid in navigation and 
@@ -94,7 +38,7 @@ namespace MyWorldIsComics
         /// </summary>
         public NavigationHelper NavigationHelper
         {
-            get { return navigationHelper; }
+            get { return _navigationHelper; }
         }
 
         /// <summary>
@@ -102,15 +46,15 @@ namespace MyWorldIsComics
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
-            get { return defaultViewModel; }
+            get { return _defaultViewModel; }
         }
 
         public HubPage()
         {
             InitializeComponent();
-            navigationHelper = new NavigationHelper(this);
-            navigationHelper.LoadState += navigationHelper_LoadState;
-            navigationHelper.SaveState += navigationHelper_SaveState;
+            _navigationHelper = new NavigationHelper(this);
+            _navigationHelper.LoadState += navigationHelper_LoadState;
+            _navigationHelper.SaveState += navigationHelper_SaveState;
         }
 
         /// <summary>
@@ -133,23 +77,26 @@ namespace MyWorldIsComics
 
             try
             {
+                await CalcCharacterLimit();
                 await LoadTrendingCharacters();
             }
             catch (HttpRequestException)
             {
                 pageTitle.Text = "An internet connection is required here";
             }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
 
         }
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            // Save response content so don't have to fetch from api service again
-            Results results = DefaultViewModel["TrendingCharacters"] as Results;
-            if (results == null) return;
-
-            results.ResultsList.Insert(0, DefaultViewModel["TopCharacter"] as Character);
-            SavedData.TrendingCharacters = results;
+            _trendingCharacters.ResultsList.Insert(0, DefaultViewModel["RandomCharacter"] as Character);
+            _trendingCharacters.ResultsList.Insert(0, DefaultViewModel["TopCharacter"] as Character);
+            
+            SavedData.TrendingCharacters = _trendingCharacters;
         }
 
         private async Task LoadTrendingCharacters()
@@ -158,15 +105,22 @@ namespace MyWorldIsComics
             {
                 _topCharacter = SavedData.TrendingCharacters.ResultsList.First() as Character;
                 DefaultViewModel["TopCharacter"] = _topCharacter;
-
                 SavedData.TrendingCharacters.ResultsList.RemoveAt(0);
+
+                if (SavedData.TrendingCharacters.ResultsList.Count > 1)
+                {
+                    var character = SavedData.TrendingCharacters.ResultsList.First() as Character;
+                    DefaultViewModel["RandomCharacter"] = character;
+                    SavedData.TrendingCharacters.ResultsList.RemoveAt(0);
+                }
+
                 _trendingCharacters = SavedData.TrendingCharacters;
                 DefaultViewModel["TrendingCharacters"] = _trendingCharacters;
             }
 
             else
             {
-                _trendingCharacters = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResource>() };
+                _trendingCharacters = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResponse>() };
                 DefaultViewModel["TrendingCharacters"] = _trendingCharacters;
 
                 //var response = ServiceConstants.QueryNotFound;
@@ -179,55 +133,22 @@ namespace MyWorldIsComics
                     int firstCharacter = await SetTopCharacter(tcm);
                     DefaultViewModel["TopCharacter"] = _topCharacter;
 
+                    DefaultViewModel["RandomCharacter"] = await GetRandomCharacter();
                     await FillTrendingCharacters(tcm, firstCharacter);
                 }
                 else
                 {
-                    response = await ComicVineSource.GetLatestUpdatedCharacters();
-                    var jsonResponse = JsonConvert.DeserializeObject<JsonResponse>(response);
+                    response = await ComicVineSource.GetCharacterAsync(90035);
+                    var jsonResponse = JsonDeserialize.DeserializeJsonString<JsonSingularBaseCharacter>(response);
+
+                    //response = await ComicVineSource.GetLatestUpdatedCharacters();
+                    //var jsonResponse = JsonDeserialize.DeserializeJsonString<JsonMultipleBaseCharacter>(response);
                     var characters = jsonResponse.Results;
 
-                    var topChar = characters.First();
-                    _topCharacter = new Character()
-                    {
-                        UniqueId = topChar.Id,
-                        Name = topChar.Name,
-                        Deck = topChar.Deck,
-                    };
-                    if (topChar.Image != null)
-                    {
-                        _topCharacter.MainImage = new Uri(topChar.Image.Super_Url);
-                    }
-                    if (topChar.Publisher != null)
-                    {
-                        _topCharacter.PublisherName = topChar.Publisher.Name;
-                        _topCharacter.PublisherId = topChar.Publisher.Id;
-                    }
+                    _topCharacter = characters/*.First()*/;
                     DefaultViewModel["TopCharacter"] = _topCharacter;
-                    characters.RemoveAt(0);
 
-                    _trendingCharacters = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResource>() };
-                    DefaultViewModel["TrendingCharacters"] = _trendingCharacters;
-
-                    foreach (CharacterTest characterTest in characters)
-                    {
-                        var character = new Character
-                        {
-                            UniqueId = characterTest.Id,
-                            Name = characterTest.Name,
-                            Deck = characterTest.Deck,
-                        };
-                        if (characterTest.Image != null)
-                        {
-                            character.MainImage = new Uri(characterTest.Image.Super_Url);
-                        }
-                        if (characterTest.Publisher != null)
-                        {
-                            character.PublisherName = characterTest.Publisher.Name;
-                            character.PublisherId = characterTest.Publisher.Id;
-                        }
-                        _trendingCharacters.ResultsList.Add(character);
-                    }
+                    DefaultViewModel["RandomCharacter"] = await GetRandomCharacter();
                 }
 
             }
@@ -256,7 +177,7 @@ namespace MyWorldIsComics
 
         private async Task FillTrendingCharacters(TrendingCharactersMapper tcm, int firstCharacter)
         {
-            int loopLimit = firstCharacter + 13;
+            int loopLimit = firstCharacter + 23;
             for (int i = firstCharacter + 1; i < loopLimit; ++i)
             {
                 var trendChar = await GetTrendingCharacter(tcm, i);
@@ -273,12 +194,61 @@ namespace MyWorldIsComics
 
         private async Task<Character> GetTrendingCharacter(TrendingCharactersMapper tcm, int index)
         {
-            var title = tcm.GetResponseTitle(index);
-            title = title.Substring(0, title.IndexOf('('));
-            var results = await ComicVineSource.ExecuteSearchLimitOneAsync(title);
-            var character = new CharacterMapper().MapTrendingCharactersXmlObject(results);
+            var charName = tcm.ExtractCurrentAlias(index);
+            if (charName == ServiceConstants.AliasNotFound)
+            {
+                charName = tcm.GetResponseTitle(index);
+                charName = charName.Substring(0, charName.IndexOf(" (", System.StringComparison.Ordinal));
+            }
 
-            return character.Name == null ? null : character;
+            var results = await ComicVineSource.ExecuteCharacterFilterLimitOneAsync(charName);
+            return MapTrendingCharacter(results);
+        }
+
+        private Character MapTrendingCharacter(string characterString)
+        {
+            try
+            {
+                var json = JsonDeserialize.DeserializeJsonString<JsonMultipleBaseCharacter>(characterString);
+                return json.Number_Of_Total_Results > 0 ? json.Results[0] : null;
+            }
+            catch (JsonSerializationException)
+            {
+                return characterString == ServiceConstants.QueryNotFound
+                    ? new Character {Name = "Character Not Found"}
+                    : JsonDeserialize.DeserializeJsonString<JsonSingularBaseCharacter>(characterString).Results;
+            }
+            catch (JsonReaderException)
+            {
+                return null;
+            }
+        }
+
+        private async Task CalcCharacterLimit()
+        {
+            var response = await ComicVineSource.GetOffsetCharacterIds(0);
+            var jsonResponse = JsonDeserialize.DeserializeJsonString<JsonMultipleBaseCharacter>(response);
+            response = await ComicVineSource.GetOffsetCharacterIds(jsonResponse.Number_Of_Total_Results - 1);
+            jsonResponse = JsonDeserialize.DeserializeJsonString<JsonMultipleBaseCharacter>(response);
+
+            _randLimit = jsonResponse.Results.First().Id + 1;
+        }
+
+        private async Task<Character> GetRandomCharacter()
+        {
+            string response;
+            Random rand = new Random();
+            Character character;
+            do
+            {
+                var randId = rand.Next(_randLimit);
+                response = await ComicVineSource.GetCharacterAsync(randId);
+            } while (response == ServiceConstants.QueryNotFound);
+
+            var charResponse = JsonDeserialize.DeserializeJsonString<JsonSingularBaseCharacter>(response);
+            character = charResponse.Results;
+
+            return character;
         }
 
         /// <summary>
@@ -302,8 +272,8 @@ namespace MyWorldIsComics
         {
             // Navigate to the appropriate destination page, configuring the new page
             // by passing required information as a navigation parameter
-            var itemId = ((Character)e.ClickedItem).UniqueId;
-            Frame.Navigate(typeof(CharacterPage), itemId);
+            var character = ((Character)e.ClickedItem);
+            Frame.Navigate(typeof(CharacterPage), character);
         }
         #region NavigationHelper registration
 
@@ -318,21 +288,32 @@ namespace MyWorldIsComics
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedTo(e);
+            _navigationHelper.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            navigationHelper.OnNavigatedFrom(e);
+            _navigationHelper.OnNavigatedFrom(e);
         }
 
         #endregion
 
         private void HeroImage_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            var topChar = DefaultViewModel["TopCharacter"] as Character;
-            var itemId = topChar.UniqueId;
-            Frame.Navigate(typeof(CharacterPage), itemId);
+            Frame.Navigate(typeof(CharacterPage), DefaultViewModel["TopCharacter"] as Character);
+        }
+
+        private void RandHeroImage_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var textBlock = e.OriginalSource as TextBlock;
+            if (textBlock != null && textBlock.Text == "New Random Character")
+            {
+                RandCharGen(sender, e);
+            }
+            else
+            {
+                Frame.Navigate(typeof(CharacterPage), DefaultViewModel["RandomCharacter"] as Character); 
+            }
         }
 
         private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)
@@ -345,6 +326,11 @@ namespace MyWorldIsComics
             var queryText = args.QueryText;
             if (string.IsNullOrEmpty(queryText)) return;
             Frame.Navigate(typeof(SearchResultsPage), queryText);
+        }
+
+        private async void RandCharGen(object sender, TappedRoutedEventArgs e)
+        {
+            DefaultViewModel["RandomCharacter"] = await GetRandomCharacter();
         }
     }
 }

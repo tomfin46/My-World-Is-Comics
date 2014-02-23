@@ -15,14 +15,9 @@
         <!-- Collection of items displayed by this page -->
         <CollectionViewSource
             x:Name="ItemsViewSource"
-            Source="{Binding Items}"/>
+            Source="{Binding Character.Teams}"/>
     </Page.Resources>
 
-    <!--
-        This grid acts as a root panel for the page that defines two rows:
-        * Row 0 contains the back button and page title
-        * Row 1 contains the rest of the page layout
-    -->
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" DataContext="{Binding Character}">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
@@ -43,32 +38,15 @@
             Grid.RowSpan="2"
             Padding="120,126,120,50"
             ItemsSource="{Binding Source={StaticResource ItemsViewSource}}"
+            ItemTemplate="{StaticResource CollectionGridViewItemTemplate}"
             SelectionMode="None"
             IsSwipeEnabled="false"
             IsItemClickEnabled="True"
             ItemClick="ItemView_ItemClick">
-            <GridView.ItemTemplate>
-                <DataTemplate>
-                    <Grid Height="110" Width="480" Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}" Width="110" Height="110">
-                            <Image Source="{Binding MainImage}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="10,0,0,0">
-                            <TextBlock Text="{Binding Name}" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap"/>
-                            <TextBlock Text="{Binding Deck}" Style="{StaticResource BodyTextBlockStyle}" MaxHeight="60"/>
-                        </StackPanel>
-                    </Grid>
-                </DataTemplate>
-            </GridView.ItemTemplate>
-
             <GridView.Header>
                 <StackPanel Width="480" Margin="0,4,14,0">
                     <TextBlock Text="{Binding Name}" Margin="0,0,0,20" Style="{StaticResource SubheaderTextBlockStyle}" MaxHeight="60"/>
-                    <Image Source="{Binding MainImage}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
+                    <Image Source="{Binding Image.Super_Url}" Height="400" Margin="0,0,0,20" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>
                     <ScrollViewer VerticalScrollBarVisibility="Hidden">
                         <TextBlock Text="{Binding Deck}" Margin="0,0,0,0" Style="{StaticResource BodyTextBlockStyle}"/>
                     </ScrollViewer>

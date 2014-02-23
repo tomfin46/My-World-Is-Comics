@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using MyWorldIsComics.Common;
-using MyWorldIsComics.DataModel.Resources;
+using MyWorldIsComics.DataModel.ResponseSchemas;
 using MyWorldIsComics.DataSource;
 using MyWorldIsComics.Mappers;
 
@@ -27,22 +27,20 @@ namespace MyWorldIsComics.Pages.ResourcePages
         private readonly ObservableDictionary _issuePageViewModel = new ObservableDictionary();
 
         public static Issue BasicIssue;
-        private static Issue FilteredIssue;
 
-        private Issue _basicIssueForPage;
-        private Issue _filteredIssueForPage;
+        private Issue _issue;
         private Issue _nextIssue = new Issue();
         private Issue _previousIssue = new Issue();
 
         readonly List<string> _filters = new List<string>
                 {
-                    "person_credits",
-                    "character_credits",
-                    "team_credits",
-                    "location_credits",
-                    "concept_credits",
-                    "object_credits",
-                    "story_arc_credits"
+                    "Person_Credits",
+                    "Character_Credits",
+                    "Team_Credits",
+                    "Location_Credits",
+                    "Concept_Credits",
+                    "Object_Credits",
+                    "Story_Arc_Credits"
                 };
 
         /// <summary>
@@ -87,9 +85,19 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
             Issue issue = e.NavigationParameter as Issue;
 
-            if (issue == null)
+            int id;
+            if (issue != null)
             {
-                int id;
+                id = issue.Id;
+                _issue = issue;
+            }
+            else if (BasicIssue != null)
+            {
+                id = BasicIssue.Id;
+                _issue = BasicIssue;
+            }
+            else
+            {
                 try
                 {
                     id = int.Parse(e.NavigationParameter as string);
@@ -98,34 +106,33 @@ namespace MyWorldIsComics.Pages.ResourcePages
                 {
                     id = (int)e.NavigationParameter;
                 }
-
-                BasicIssue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(id));
-                BasicIssue.Description = await ComicVineSource.FormatDescriptionAsync(BasicIssue);
             }
-
-            if (BasicIssue != null)
-            {
-                _basicIssueForPage = BasicIssue;
-                _filteredIssueForPage = _basicIssueForPage;
-                IssuePageViewModel["Issue"] = _basicIssueForPage;
-            }
-            else
-            {
-                _basicIssueForPage = issue;
-                _filteredIssueForPage = _basicIssueForPage;
-                IssuePageViewModel["Issue"] = _basicIssueForPage;
-            }
-
             try
             {
-                await FetchBasicNextIssueResource();
-                await FetchBasicPreviousIssueResource();
+                _issue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(id));
+                _issue.DescriptionSection = await ComicVineSource.FormatDescriptionAsync(_issue);
+
+                IssuePageViewModel["Issue"] = _issue;
+                
+                if (_issue.Volume != null)
+                {
+                    Volume currentVol = JsonDeserialize.DeserializeJsonString<JsonSingularBaseVolume>(
+                    await ComicVineSource.GetFilteredVolumeAsync(_issue.Volume.Id, new List<string> { "first_issue", "issues", "last_issue" })).Results;
+                    await FetchBasicNextIssueResource(currentVol);
+                    await FetchBasicPreviousIssueResource(currentVol);
+                }
+                else
+                {
+                    _issue.Name = "Issue Not Found";
+                    _nextIssue.Name = "Issue Not Found";
+                    _previousIssue.Name = "Issue Not Found";
+                }
 
                 InitialiseFlipView();
 
-                await LoadIssue();
-                await LoadNextIssue();
-                await LoadPreviousIssue();
+                if (_issue.Name != "Issue Not Found" && _issue.Name != ServiceConstants.QueryNotFound) { await LoadIssue(); }
+                if (_nextIssue.Name != "Issue Not Found" && _nextIssue.Name != ServiceConstants.QueryNotFound) { await LoadNextIssue(); }
+                if (_previousIssue.Name != "Issue Not Found" && _previousIssue.Name != ServiceConstants.QueryNotFound) { await LoadPreviousIssue(); }
             }
             catch (TaskCanceledException)
             {
@@ -144,8 +151,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
         {
             if (Frame.CurrentSourcePageType.Name == "HubPage") { return; }
             // Save response content so don't have to fetch from api service again
-            BasicIssue = _filteredIssueForPage;
-            FilteredIssue = _filteredIssueForPage;
+            BasicIssue = _issue;
         }
 
         private void InitialiseFlipView()
@@ -154,12 +160,12 @@ namespace MyWorldIsComics.Pages.ResourcePages
             if (issuesFlipView.Items != null)
             {
                 if (_previousIssue.Name != ServiceConstants.QueryNotFound) issuesFlipView.Items.Add(_previousIssue);
-                issuesFlipView.Items.Add(_basicIssueForPage);
+                issuesFlipView.Items.Add(_issue);
                 if (_nextIssue.Name != ServiceConstants.QueryNotFound) issuesFlipView.Items.Add(_nextIssue);
             }
 
             issuesFlipView.ItemTemplate = Resources["IssueTemplate"] as DataTemplate;
-            issuesFlipView.SelectedItem = _basicIssueForPage;
+            issuesFlipView.SelectedItem = _issue;
             issuesFlipView.SelectionChanged += IssueImagesFlipView_SelectionChanged;
 
             ContentRegion.Children.Insert(0, issuesFlipView);
@@ -169,91 +175,228 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task LoadIssue()
         {
-            await FetchFilteredIssueResource(_filters);
+            if (_issue.Name != ServiceConstants.QueryNotFound)
+            {
+                await FetchFilteredIssueResource(_issue);
 
-            if (_filteredIssueForPage.Creators.Count != _filteredIssueForPage.PersonIds.Count) await FetchPeople(_filteredIssueForPage);
-            if (_filteredIssueForPage.Characters.Count != _filteredIssueForPage.CharacterIds.Count) await FetchCharacters(_filteredIssueForPage);
-            if (_filteredIssueForPage.Teams.Count != _filteredIssueForPage.TeamIds.Count) await FetchTeams(_filteredIssueForPage);
-            if (_filteredIssueForPage.Locations.Count != _filteredIssueForPage.LocationIds.Count) await FetchLocations(_filteredIssueForPage);
-            if (_filteredIssueForPage.Concepts.Count != _filteredIssueForPage.ConceptIds.Count) await FetchConcepts(_filteredIssueForPage);
-            if (_filteredIssueForPage.Objects.Count != _filteredIssueForPage.ObjectIds.Count) await FetchObjects(_filteredIssueForPage);
-            if (_filteredIssueForPage.StoryArcs.Count != _filteredIssueForPage.StoryArcIds.Count) await FetchStoryArcs(_filteredIssueForPage);
+                if (_issue.Person_Credits.Count > 0) await FetchPeople(_issue);
+                if (_issue.Character_Credits.Count > 0) await FetchCharacters(_issue);
+                if (_issue.Team_Credits.Count > 0) await FetchTeams(_issue);
+                if (_issue.Location_Credits.Count > 0) await FetchLocations(_issue);
+                if (_issue.Concept_Credits.Count > 0) await FetchConcepts(_issue);
+                if (_issue.Object_Credits.Count > 0) await FetchObjects(_issue);
+                if (_issue.Story_Arc_Credits.Count > 0) await FetchStoryArcs(_issue);
+            }
         }
 
         private async Task LoadNextIssue()
         {
-            await FetchNextIssueResource(_filters);
+            if (_nextIssue.Name != ServiceConstants.QueryNotFound)
+            {
+                await FetchFilteredIssueResource(_nextIssue);
 
-            if (_nextIssue.Creators.Count != _nextIssue.PersonIds.Count) await FetchPeople(_nextIssue);
-            if (_nextIssue.Characters.Count != _nextIssue.CharacterIds.Count) await FetchCharacters(_nextIssue);
-            if (_nextIssue.Teams.Count != _nextIssue.TeamIds.Count) await FetchTeams(_nextIssue);
-            if (_nextIssue.Locations.Count != _nextIssue.LocationIds.Count) await FetchLocations(_nextIssue);
-            if (_nextIssue.Concepts.Count != _nextIssue.ConceptIds.Count) await FetchConcepts(_nextIssue);
-            if (_nextIssue.Objects.Count != _nextIssue.ObjectIds.Count) await FetchObjects(_nextIssue);
-            if (_nextIssue.StoryArcs.Count != _nextIssue.StoryArcIds.Count) await FetchStoryArcs(_nextIssue);
+                if (_nextIssue.Person_Credits.Count > 0) await FetchPeople(_nextIssue);
+                if (_nextIssue.Character_Credits.Count > 0) await FetchCharacters(_nextIssue);
+                if (_nextIssue.Team_Credits.Count > 0) await FetchTeams(_nextIssue);
+                if (_nextIssue.Location_Credits.Count > 0) await FetchLocations(_nextIssue);
+                if (_nextIssue.Concept_Credits.Count > 0) await FetchConcepts(_nextIssue);
+                if (_nextIssue.Object_Credits.Count > 0) await FetchObjects(_nextIssue);
+                if (_nextIssue.Story_Arc_Credits.Count > 0) await FetchStoryArcs(_nextIssue);
+            }
         }
 
         private async Task LoadPreviousIssue()
         {
-            await FetchPreviousIssueResource(_filters);
+            if (_previousIssue.Name != ServiceConstants.QueryNotFound)
+            {
+                await FetchFilteredIssueResource(_previousIssue);
 
-            if (_previousIssue.Creators.Count != _previousIssue.PersonIds.Count) await FetchPeople(_previousIssue);
-            if (_previousIssue.Characters.Count != _previousIssue.CharacterIds.Count) await FetchCharacters(_previousIssue);
-            if (_previousIssue.Teams.Count != _previousIssue.TeamIds.Count) await FetchTeams(_previousIssue);
-            if (_previousIssue.Locations.Count != _previousIssue.LocationIds.Count) await FetchLocations(_previousIssue);
-            if (_previousIssue.Concepts.Count != _previousIssue.ConceptIds.Count) await FetchConcepts(_previousIssue);
-            if (_previousIssue.Objects.Count != _previousIssue.ObjectIds.Count) await FetchObjects(_previousIssue);
-            if (_previousIssue.StoryArcs.Count != _previousIssue.StoryArcIds.Count) await FetchStoryArcs(_previousIssue);
+                if (_previousIssue.Person_Credits.Count > 0) await FetchPeople(_previousIssue);
+                if (_previousIssue.Character_Credits.Count > 0) await FetchCharacters(_previousIssue);
+                if (_previousIssue.Team_Credits.Count > 0) await FetchTeams(_previousIssue);
+                if (_previousIssue.Location_Credits.Count > 0) await FetchLocations(_previousIssue);
+                if (_previousIssue.Concept_Credits.Count > 0) await FetchConcepts(_previousIssue);
+                if (_previousIssue.Object_Credits.Count > 0) await FetchObjects(_previousIssue);
+                if (_previousIssue.Story_Arc_Credits.Count > 0) await FetchStoryArcs(_previousIssue);
+            }
         }
 
         #endregion
 
         #region Fetch Resources
 
-        private async Task FetchBasicNextIssueResource()
+        private async Task FetchBasicNextIssueResource(Volume currentVol)
         {
-            string issueNumber = VolumeMapper.FetchNextIssueNumber(
-                await ComicVineSource.GetFilteredVolumeAsync(_basicIssueForPage.VolumeId, new List<string> {"issues"}), 
-                    _basicIssueForPage.IssueNumber == -1 ? _basicIssueForPage.IssueNumberNonInt : _basicIssueForPage.IssueNumber.ToString());
-
-            _nextIssue = GetMappedIssue(await ComicVineSource.GetSpecificIssueAsync(_basicIssueForPage.VolumeId, issueNumber));
-            _nextIssue.Description = await ComicVineSource.FormatDescriptionAsync(_nextIssue);
-        }
-
-        private async Task FetchNextIssueResource(List<string> filters)
-        {
-            string filteredIssueString = await ComicVineSource.GetFilteredIssueAsync(_nextIssue.UniqueId, filters);
-            foreach (string filter in filters)
+            if (_issue.Issue_Number == currentVol.First_Issue.Issue_Number)
             {
-                _nextIssue = GetMappedIssueFromFilter(_nextIssue, filteredIssueString, filter);
+                if (currentVol.Issues.Count > 1)
+                {
+                    await MapNextIssue(currentVol.Issues[1]);
+                }
+                else
+                {
+                    _nextIssue = new Issue
+                    {
+                        Name = ServiceConstants.QueryNotFound
+                    };
+                }
+            }
+            else if (_issue.Issue_Number == currentVol.Last_Issue.Issue_Number)
+            {
+                _nextIssue = new Issue
+                {
+                    Name = ServiceConstants.QueryNotFound
+                };
+            }
+            else
+            {
+                for (int i = 0; i < currentVol.Issues.Count; ++i)
+                {
+                    if (currentVol.Issues[i].Issue_Number == _issue.Issue_Number)
+                    {
+                        await MapNextIssue(currentVol.Issues[i + 1]);
+                    }
+                }
             }
         }
 
-        private async Task FetchBasicPreviousIssueResource()
+        private async Task MapNextIssue(Issue issue)
         {
-            string issueNumber = VolumeMapper.FetchPreviousIssueNumber(
-                await ComicVineSource.GetFilteredVolumeAsync(_basicIssueForPage.VolumeId, new List<string> { "issues" }),
-                    _basicIssueForPage.IssueNumber == -1 ? _basicIssueForPage.IssueNumberNonInt : _basicIssueForPage.IssueNumber.ToString());
-
-            _previousIssue = GetMappedIssue(await ComicVineSource.GetSpecificIssueAsync(_basicIssueForPage.VolumeId, issueNumber));
-            _previousIssue.Description = await ComicVineSource.FormatDescriptionAsync(_previousIssue);
+            _nextIssue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(issue.Id));
+            _nextIssue.DescriptionSection = await ComicVineSource.FormatDescriptionAsync(_nextIssue);
         }
 
-        private async Task FetchPreviousIssueResource(List<string> filters)
+        private async Task FetchBasicPreviousIssueResource(Volume currentVol)
         {
-            string filteredIssueString = await ComicVineSource.GetFilteredIssueAsync(_previousIssue.UniqueId, filters);
-            foreach (string filter in filters)
+            if (_issue.Issue_Number == currentVol.First_Issue.Issue_Number)
             {
-                _previousIssue = GetMappedIssueFromFilter(_previousIssue, filteredIssueString, filter);
+                _previousIssue = new Issue
+                {
+                    Name = ServiceConstants.QueryNotFound
+                };
+            }
+            else if (_issue.Issue_Number == currentVol.Last_Issue.Issue_Number)
+            {
+                if (currentVol.Last_Issue.Id != currentVol.First_Issue.Id)
+                {
+                    await MapPrevIssue(currentVol.Issues[currentVol.Issues.Count - 1]);
+                }
+                else
+                {
+                    _previousIssue = new Issue
+                    {
+                        Name = ServiceConstants.QueryNotFound
+                    };
+                }
+            }
+            else
+            {
+                for (int i = 0; i < currentVol.Issues.Count; ++i)
+                {
+                    if (currentVol.Issues[i].Issue_Number == _issue.Issue_Number)
+                    {
+                        await MapPrevIssue(currentVol.Issues[i - 1]);
+                    }
+                }
             }
         }
 
-        private async Task FetchFilteredIssueResource(List<string> filters)
+        private async Task MapPrevIssue(Issue issue)
         {
-            string filteredIssueString = await ComicVineSource.GetFilteredIssueAsync(_basicIssueForPage.UniqueId, filters);
-            foreach (string filter in filters)
+            _previousIssue = GetMappedIssue(await ComicVineSource.GetQuickIssueAsync(issue.Id));
+            _previousIssue.DescriptionSection = await ComicVineSource.FormatDescriptionAsync(_previousIssue);
+        }
+
+        private async Task FetchFilteredIssueResource(Issue issue)
+        {
+            string filteredIssueString = await ComicVineSource.GetFilteredIssueAsync(issue.Id, _filters);
+            var filterObj = JsonDeserialize.DeserializeJsonString<JsonSingularBaseIssue>(filteredIssueString);
+
+            foreach (var filter in _filters)
             {
-                _filteredIssueForPage = GetMappedIssueFromFilter(_basicIssueForPage, filteredIssueString, filter);
+                var issueType = issue.GetType();
+                var issueProp = issueType.GetRuntimeProperty(filter);
+
+                switch (filter)
+                {
+                    case "Person_Credits":
+                        var personResults = issueProp.GetValue(filterObj.Results) as ObservableCollection<Person>;
+                        if (personResults == null) continue;
+
+                        foreach (var result in personResults)
+                        {
+                            Person person = result;
+                            if (issue.Person_Credits.Any(p => p.Id == person.Id)) continue;
+                            issue.Person_Credits.Add(person);
+                        }
+                        break;
+                    case "Character_Credits":
+                        var characterResults = issueProp.GetValue(filterObj.Results) as ObservableCollection<Character>;
+                        if (characterResults == null) continue;
+
+                        foreach (var result in characterResults)
+                        {
+                            Character character = result;
+                            if (issue.Character_Credits.Any(c => c.Id == character.Id)) continue;
+                            issue.Character_Credits.Add(character);
+                        }
+                        break;
+                    case "Team_Credits":
+                        var teamResults = issueProp.GetValue(filterObj.Results) as ObservableCollection<Team>;
+                        if (teamResults == null) continue;
+
+                        foreach (var result in teamResults)
+                        {
+                            Team team = result;
+                            if (issue.Team_Credits.Any(t => t.Id == team.Id)) continue;
+                            issue.Team_Credits.Add(team);
+                        }
+                        break;
+                    case "Location_Credits":
+                        var locationResults = issueProp.GetValue(filterObj.Results) as ObservableCollection<Location>;
+                        if (locationResults == null) continue;
+
+                        foreach (var result in locationResults)
+                        {
+                            Location location = result;
+                            if (issue.Location_Credits.Any(l => l.Id == location.Id)) continue;
+                            issue.Location_Credits.Add(location);
+                        }
+                        break;
+                    case "Concept_Credits":
+                        var conceptResults = issueProp.GetValue(filterObj.Results) as ObservableCollection<Concept>;
+                        if (conceptResults == null) continue;
+
+                        foreach (var result in conceptResults)
+                        {
+                            Concept concept = result;
+                            if (issue.Concept_Credits.Any(c => c.Id == concept.Id)) continue;
+                            issue.Concept_Credits.Add(concept);
+                        }
+                        break;
+                    case "Object_Credits":
+                        var objectResults = issueProp.GetValue(filterObj.Results) as ObservableCollection<ObjectResource>;
+                        if (objectResults == null) continue;
+
+                        foreach (var result in objectResults)
+                        {
+                            ObjectResource objectRes = result;
+                            if (issue.Object_Credits.Any(o => o.Id == objectRes.Id)) continue;
+                            issue.Object_Credits.Add(objectRes);
+                        }
+                        break;
+                    case "Story_Arc_Credits":
+                        var storyArcResults = issueProp.GetValue(filterObj.Results) as ObservableCollection<StoryArc>;
+                        if (storyArcResults == null) continue;
+
+                        foreach (var result in storyArcResults)
+                        {
+                            StoryArc storyArc = result;
+                            if (issue.Story_Arc_Credits.Any(s => s.Id == storyArc.Id)) continue;
+                            issue.Story_Arc_Credits.Add(storyArc);
+                        }
+                        break;
+                }
             }
         }
 
@@ -263,71 +406,101 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private async Task FetchPeople(Issue issue)
         {
-            foreach (var person in issue.PersonIds)
+            for (int i = 0; i < issue.Person_Credits.Count; ++i)
             {
-                Creator creator = await FetchPerson(person);
-                if (issue.Creators.Any(c => c.UniqueId == creator.UniqueId)) continue;
-                issue.Creators.Add(creator);
+                Person creator = issue.Person_Credits[i];
+                if (issue.Person_Credits[i].Image == null)
+                {
+                    creator = await FetchPerson(issue.Person_Credits[i].Id);
+                    creator.Role = issue.Person_Credits[i].Role;
+                }
+
+                issue.Person_Credits.RemoveAt(i);
+                issue.Person_Credits.Insert(i, creator);
             }
         }
 
         private async Task FetchCharacters(Issue issue)
         {
-            foreach (var characterId in issue.CharacterIds)
+            for (int i = 0; i < issue.Character_Credits.Count; ++i)
             {
-                Character character = await FetchCharacter(characterId);
-                if (issue.Characters.Any(c => c.UniqueId == character.UniqueId)) continue;
-                issue.Characters.Add(character);
+                Character character = issue.Character_Credits[i];
+                if (issue.Character_Credits[i].Image == null)
+                {
+                    character = await FetchCharacter(issue.Character_Credits[i].Id);
+                }
+                issue.Character_Credits.RemoveAt(i);
+                issue.Character_Credits.Insert(i, character);
             }
         }
 
         private async Task FetchTeams(Issue issue)
         {
-            foreach (int teamId in issue.TeamIds)
+            for (int i = 0; i < issue.Team_Credits.Count; ++i)
             {
-                Team team = await FetchTeam(teamId);
-                if (issue.Teams.Any(t => t.UniqueId == team.UniqueId)) continue;
-                issue.Teams.Add(team);
+                Team team = issue.Team_Credits[i];
+                if (issue.Team_Credits[i].Image == null)
+                {
+                    team = await FetchTeam(issue.Team_Credits[i].Id);
+                }
+                issue.Team_Credits.RemoveAt(i);
+                issue.Team_Credits.Insert(i, team);
             }
         }
 
         private async Task FetchLocations(Issue issue)
         {
-            foreach (int locationId in issue.LocationIds)
+            for (int i = 0; i < issue.Location_Credits.Count; ++i)
             {
-                Location location = await FetchLocation(locationId);
-                if (issue.Locations.Any(l => l.UniqueId == location.UniqueId)) continue;
-                issue.Locations.Add(location);
+                Location location = issue.Location_Credits[i];
+                if (issue.Location_Credits[i].Image == null)
+                {
+                    location = await FetchLocation(issue.Location_Credits[i].Id);
+                }
+                issue.Location_Credits.RemoveAt(i);
+                issue.Location_Credits.Insert(i, location);
             }
         }
 
         private async Task FetchConcepts(Issue issue)
         {
-            foreach (int conceptId in issue.ConceptIds)
+            for (int i = 0; i < issue.Concept_Credits.Count; ++i)
             {
-                Concept concept = await FetchConcept(conceptId);
-                if (issue.Concepts.Any(c => c.UniqueId == concept.UniqueId)) continue;
-                issue.Concepts.Add(concept);
+                Concept concept = issue.Concept_Credits[i];
+                if (issue.Concept_Credits[i].Image == null)
+                {
+                    concept = await FetchConcept(issue.Concept_Credits[i].Id);
+                }
+                issue.Concept_Credits.RemoveAt(i);
+                issue.Concept_Credits.Insert(i, concept);
             }
         }
 
         private async Task FetchObjects(Issue issue)
         {
-            foreach (int objectId in issue.ObjectIds)
+            for (int i = 0; i < issue.Object_Credits.Count; ++i)
             {
-                ObjectResource mappedObject = await FetchObject(objectId);
-                if (issue.Objects.Any(o => o.UniqueId == mappedObject.UniqueId)) continue;
-                issue.Objects.Add(mappedObject);
+                ObjectResource objectResource = issue.Object_Credits[i];
+                if (issue.Object_Credits[i].Image == null)
+                {
+                    objectResource = await FetchObject(issue.Object_Credits[i].Id);
+                }
+                issue.Object_Credits.RemoveAt(i);
+                issue.Object_Credits.Insert(i, objectResource);
             }
         }
 
         private async Task FetchStoryArcs(Issue issue)
         {
-            foreach (int storyArcId in issue.StoryArcIds)
+            for (int i = 0; i < issue.Story_Arc_Credits.Count; ++i)
             {
-                StoryArc storyArc = await FetchStoryArc(storyArcId);
-                if (issue.StoryArcs.Any(sA => sA.UniqueId == storyArc.UniqueId)) continue;
-                issue.StoryArcs.Add(storyArc);
+                StoryArc storyArc = issue.Story_Arc_Credits[i];
+                if (issue.Story_Arc_Credits[i].Image == null)
+                {
+                    storyArc = await FetchStoryArc(issue.Story_Arc_Credits[i].Id);
+                }
+                issue.Story_Arc_Credits.RemoveAt(i);
+                issue.Story_Arc_Credits.Insert(i, storyArc);
             }
         }
 
@@ -335,11 +508,9 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #region General Singular Fetch Methods
 
-        private async Task<Creator> FetchPerson(KeyValuePair<int, string> person)
+        private async Task<Person> FetchPerson(int personId)
         {
-            Creator creator = GetMappedCreator(await ComicVineSource.GetQuickCreatorAsync(person.Key));
-            creator.Role = person.Value;
-            return creator;
+            return GetMappedCreator(await ComicVineSource.GetQuickCreatorAsync(personId));
         }
 
         private async Task<Character> FetchCharacter(int characterId)
@@ -376,49 +547,60 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         #region Get Mapping Methods
 
-        private Issue GetMappedIssueFromFilter(Issue issue, string filteredIssueString, string filter)
+        private Issue GetMappedIssue(string issueString)
         {
-            return filteredIssueString == ServiceConstants.QueryNotFound ? new Issue() : new IssueMapper().MapFilteredXmlObject(issue, filteredIssueString, filter);
+            return issueString == ServiceConstants.QueryNotFound
+                ? new Issue { Name = "Issue Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseIssue>(issueString).Results;
         }
 
-        private Issue GetMappedIssue(string issue)
+        private Person GetMappedCreator(string creatorString)
         {
-            return issue == ServiceConstants.QueryNotFound ? new Issue { Name = "Issue Not Found" } : new IssueMapper().QuickMapXmlObject(issue);
+            return creatorString == ServiceConstants.QueryNotFound
+                ? new Person { Name = "Creator Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBasePerson>(creatorString).Results;
         }
 
-        private Creator GetMappedCreator(string quickCreator)
+        private Character GetMappedCharacter(string characterString)
         {
-            return quickCreator == ServiceConstants.QueryNotFound ? new Creator { Name = "Creator Not Found" } : new CreatorMapper().QuickMapXmlObject(quickCreator);
+            return characterString == ServiceConstants.QueryNotFound
+                ? new Character { Name = "Character Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseCharacter>(characterString).Results;
         }
 
-        private Character GetMappedCharacter(string quickCharacter)
+        private Team GetMappedTeam(string teamString)
         {
-            return quickCharacter == ServiceConstants.QueryNotFound ? new Character { Name = "Character Not Found" } : new CharacterMapper().QuickMapXmlObject(quickCharacter);
+            return teamString == ServiceConstants.QueryNotFound
+                ? new Team { Name = "Team Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseTeam>(teamString).Results;
         }
 
-        private Team GetMappedTeam(string quickTeam)
+        private Location GetMappedLocation(string locationString)
         {
-            return quickTeam == ServiceConstants.QueryNotFound ? new Team { Name = "Team Not Found" } : new TeamMapper().QuickMapXmlObject(quickTeam);
+            return locationString == ServiceConstants.QueryNotFound
+                ? new Location { Name = "Location Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseLocation>(locationString).Results;
         }
 
-        private Location GetMappedLocation(string quickLocation)
+        private Concept GetMappedConcept(string conceptString)
         {
-            return quickLocation == ServiceConstants.QueryNotFound ? new Location { Name = "Location Not Found" } : new LocationMapper().QuickMapXmlObject(quickLocation);
+            return conceptString == ServiceConstants.QueryNotFound
+                ? new Concept { Name = "Concept Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseConcept>(conceptString).Results;
         }
 
-        private Concept GetMappedConcept(string quickConcept)
+        private ObjectResource GetMappedObject(string objectString)
         {
-            return quickConcept == ServiceConstants.QueryNotFound ? new Concept() { Name = "Concept Not Found" } : new ConceptMapper().QuickMapXmlObject(quickConcept);
+            return objectString == ServiceConstants.QueryNotFound
+                ? new ObjectResource { Name = "Object Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseObjectResource>(objectString).Results;
         }
 
-        private ObjectResource GetMappedObject(string quickObject)
+        private StoryArc GetMappedStoryArc(string storyArcString)
         {
-            return quickObject == ServiceConstants.QueryNotFound ? new ObjectResource { Name = "Object Not Found" } : new ObjectMapper().QuickMapXmlObject(quickObject);
-        }
-
-        private StoryArc GetMappedStoryArc(string quickStoryArc)
-        {
-            return quickStoryArc == ServiceConstants.QueryNotFound ? new StoryArc { Name = "Story Arc Not Found" } : new StoryArcMapper().QuickMapXmlObject(quickStoryArc);
+            return storyArcString == ServiceConstants.QueryNotFound
+                ? new StoryArc { Name = "Story Arc Not Found" }
+                : JsonDeserialize.DeserializeJsonString<JsonSingularBaseStoryArc>(storyArcString).Results;
         }
 
         #endregion
@@ -450,44 +632,44 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void CreatorsView_CreatorClick(object sender, ItemClickEventArgs e)
         {
-            var creator = ((Creator)e.ClickedItem);
-            Frame.Navigate(typeof(CreatorPage), creator.UniqueId);
+            var creator = ((Person)e.ClickedItem);
+            Frame.Navigate(typeof(CreatorPage), creator);
         }
 
         private void CharactersView_CharacterClick(object sender, ItemClickEventArgs e)
         {
             var character = ((Character)e.ClickedItem);
-            Frame.Navigate(typeof(CharacterPage), character.UniqueId);
+            Frame.Navigate(typeof(CharacterPage), character);
         }
 
         private void TeamsView_TeamClick(object sender, ItemClickEventArgs e)
         {
             var team = ((Team)e.ClickedItem);
-            Frame.Navigate(typeof(TeamPage), team.UniqueId);
+            Frame.Navigate(typeof(TeamPage), team);
         }
 
         private void LocationsView_LocationClick(object sender, ItemClickEventArgs e)
         {
             var location = ((Location)e.ClickedItem);
-            Frame.Navigate(typeof(LocationPage), location.UniqueId);
+            Frame.Navigate(typeof(LocationPage), location);
         }
 
         private void ConceptsView_ConceptClick(object sender, ItemClickEventArgs e)
         {
             var concept = ((Concept)e.ClickedItem);
-            Frame.Navigate(typeof(ConceptPage), concept.UniqueId);
+            Frame.Navigate(typeof(ConceptPage), concept);
         }
 
         private void ObjectsView_ObjectClick(object sender, ItemClickEventArgs e)
         {
             var objectResource = ((ObjectResource)e.ClickedItem);
-            Frame.Navigate(typeof(ObjectPage), objectResource.UniqueId);
+            Frame.Navigate(typeof(ObjectPage), objectResource);
         }
 
         private void StoryArcsView_StoryArcClick(object sender, ItemClickEventArgs e)
         {
             var storyArc = ((StoryArc)e.ClickedItem);
-            Frame.Navigate(typeof(StoryArcPage), storyArc.UniqueId);
+            Frame.Navigate(typeof(StoryArcPage), storyArc);
         }
 
         private async void IssueImagesFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -505,69 +687,62 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
             try
             {
-                int selectedIssueNumber = selectedIssue.IssueNumber != -1 ? 
-                    selectedIssue.IssueNumber : 
-                    Convert.ToInt32(selectedIssue.IssueNumberNonInt.Substring(0, selectedIssue.IssueNumberNonInt.IndexOf('.')));
+                Volume currentVol = JsonDeserialize.DeserializeJsonString<JsonSingularBaseVolume>(
+                    await ComicVineSource.GetFilteredVolumeAsync(_issue.Volume.Id, new List<string> { "first_issue", "issues", "last_issue" })).Results;
 
-                int basicIssueNumber = _basicIssueForPage.IssueNumber != -1 ?
-                    _basicIssueForPage.IssueNumber :
-                    Convert.ToInt32(_basicIssueForPage.IssueNumberNonInt.Substring(0, _basicIssueForPage.IssueNumberNonInt.IndexOf('.')));
-
-                switch (selectedIssueNumber - basicIssueNumber)
+                var diff = selectedIssue.IssueNumberInteger - _issue.IssueNumberInteger;
+                if (diff >= 1)
                 {
-                    case 1:
-                        _previousIssue = _basicIssueForPage;
-                        _basicIssueForPage = _nextIssue;
-                        await FetchBasicNextIssueResource();
-                        if (flipView.Items != null)
+                    _previousIssue = _issue;
+                    _issue = _nextIssue;
+                    await FetchBasicNextIssueResource(currentVol);
+                    if (flipView.Items != null)
+                    {
+                        var contains = false;
+                        foreach (int issuePos in flipView.Items.Cast<Issue>().Where(issue => issue.Id == _nextIssue.Id)
+                            .Select(issue => flipView.Items.IndexOf(issue)))
                         {
-                            var contains = false;
-                            foreach (int issuePos in flipView.Items.Cast<Issue>().Where(issue => issue.UniqueId == _nextIssue.UniqueId)
-                                .Select(issue => flipView.Items.IndexOf(issue)))
-                            {
-                                flipView.Items.RemoveAt(issuePos);
-                                flipView.Items.Insert(issuePos, _nextIssue);
-                                contains = true;
-                            }
-
-                            if (!contains && _nextIssue.Name != ServiceConstants.QueryNotFound)
-                            {
-                                flipView.Items.Add(_nextIssue);
-                            }
-
-                            flipView.SelectedItem = _basicIssueForPage;
+                            flipView.Items.RemoveAt(issuePos);
+                            flipView.Items.Insert(issuePos, _nextIssue);
+                            contains = true;
                         }
-                        await LoadIssue();
-                        await LoadNextIssue();
-                        await LoadPreviousIssue();
-                        break;
 
-                    case 0:
-                    case -1:
-                        _nextIssue = _basicIssueForPage;
-                        _basicIssueForPage = _previousIssue;
-                        await FetchBasicPreviousIssueResource();
-                        if (flipView.Items != null)
+                        if (!contains && _nextIssue.Name != ServiceConstants.QueryNotFound)
                         {
-                            var contains = false;
-                            foreach (int issuePos in flipView.Items.Cast<Issue>().Where(issue => issue.UniqueId == _previousIssue.UniqueId).Select(issue => flipView.Items.IndexOf(issue)))
-                            {
-                                flipView.Items.RemoveAt(issuePos);
-                                flipView.Items.Insert(issuePos, _previousIssue);
-                                contains = true;
-                            }
-
-                            if (!contains && _previousIssue.Name != ServiceConstants.QueryNotFound)
-                            {
-                                flipView.Items.Insert(flipView.SelectedIndex, _previousIssue);
-                            }
-
-                            flipView.SelectedItem = _basicIssueForPage;
+                            flipView.Items.Add(_nextIssue);
                         }
-                        await LoadIssue();
-                        await LoadNextIssue();
-                        await LoadPreviousIssue();
-                        break;
+
+                        flipView.SelectedItem = _issue;
+                    }
+                    await LoadIssue();
+                    await LoadNextIssue();
+                    await LoadPreviousIssue();
+                }
+                else if (diff <= 0)
+                {
+                    _nextIssue = _issue;
+                    _issue = _previousIssue;
+                    await FetchBasicPreviousIssueResource(currentVol);
+                    if (flipView.Items != null)
+                    {
+                        var contains = false;
+                        foreach (int issuePos in flipView.Items.Cast<Issue>().Where(issue => issue.Id == _previousIssue.Id).Select(issue => flipView.Items.IndexOf(issue)))
+                        {
+                            flipView.Items.RemoveAt(issuePos);
+                            flipView.Items.Insert(issuePos, _previousIssue);
+                            contains = true;
+                        }
+
+                        if (!contains && _previousIssue.Name != ServiceConstants.QueryNotFound)
+                        {
+                            flipView.Items.Insert(flipView.SelectedIndex, _previousIssue);
+                        }
+
+                        flipView.SelectedItem = _issue;
+                    }
+                    await LoadIssue();
+                    await LoadNextIssue();
+                    await LoadPreviousIssue();
                 }
             }
             catch (TaskCanceledException)
@@ -582,7 +757,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
 
         private void VolumeName_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            Frame.Navigate(typeof(VolumePage), _basicIssueForPage.VolumeId);
+            Frame.Navigate(typeof(VolumePage), _issue.Volume);
         }
 
         private void SearchBoxEventsSuggestionsRequested(SearchBox sender, SearchBoxSuggestionsRequestedEventArgs args)

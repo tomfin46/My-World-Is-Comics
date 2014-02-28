@@ -78,6 +78,23 @@
                 </DataTemplate>
             </HubSection>
 
+            <HubSection IsHeaderInteractive="False" DataContext="{Binding TrendingCharacters}" Header="Trending Characters" Padding="40,40,40,32">
+                <DataTemplate>
+                    <GridView
+                        x:Name="itemGridView"
+                        ItemsSource="{Binding ResultsList}"
+                        Margin="-9,-14,0,0"
+                        AutomationProperties.AutomationId="ItemGridView"
+                        AutomationProperties.Name="Items In Group"
+                        ItemTemplate="{StaticResource SearchResultItemTemplate}"
+                        SelectionMode="None"
+                        IsSwipeEnabled="false"
+                        IsItemClickEnabled="True"
+                        ItemClick="ItemView_ItemClick" MinWidth="2849">
+                    </GridView>
+                </DataTemplate>
+            </HubSection>
+
             <HubSection x:Name="RandCharHubSection" Width="620" Margin="0,0,20,0" Tapped="RandHeroImage_Tapped" Visibility="Visible" DataContext="{Binding RandomCharacter}">
                 <HubSection.Background>
                     <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="UniformToFill" />
@@ -98,25 +115,7 @@
                     </Grid>
                 </DataTemplate>
             </HubSection>
-
             
-            <HubSection IsHeaderInteractive="False" DataContext="{Binding TrendingCharacters}" Header="Trending Characters" Padding="40,40,40,32">
-                <DataTemplate>
-                    <GridView
-                        x:Name="itemGridView"
-                        ItemsSource="{Binding ResultsList}"
-                        Margin="-9,-14,0,0"
-                        AutomationProperties.AutomationId="ItemGridView"
-                        AutomationProperties.Name="Items In Group"
-                        ItemTemplate="{StaticResource SearchResultItemTemplate}"
-                        SelectionMode="None"
-                        IsSwipeEnabled="false"
-                        IsItemClickEnabled="True"
-                        ItemClick="ItemView_ItemClick">
-                    </GridView>
-                </DataTemplate>
-            </HubSection>
-
             <HubSection Width="500" x:Uid="Section1Header" Header="Section 1" Visibility="Collapsed">
                 <DataTemplate>
                     <Grid>

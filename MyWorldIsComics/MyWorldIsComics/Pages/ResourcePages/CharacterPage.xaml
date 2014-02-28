@@ -42,15 +42,15 @@
                 </Border>
             </Hub.Header>
 
-            <HubSection x:Name="ImageHubSection" Width="620" Margin="0,0,20,0" Visibility="Visible" Tapped="BioHubSection_Tapped">
+            <HubSection x:Name="ImageHubSection" Width="520" Margin="0,0,20,0" Visibility="Visible" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="Uniform" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" />
                 </HubSection.Background>
             </HubSection>
 
-            <HubSection x:Name="BioHubSection" Width="620" Margin="0,0,20,0" Visibility="Collapsed" Tapped="BioHubSection_Tapped">
+            <HubSection x:Name="BioHubSection" Width="520" Margin="0,0,20,0" Visibility="Collapsed" Tapped="BioHubSection_Tapped">
                 <HubSection.Background>
-                    <ImageBrush ImageSource="{Binding Image.Super_Url}" Stretch="Uniform" />
+                    <ImageBrush ImageSource="{Binding Image.Super_Url}" />
                 </HubSection.Background>
 
                 <DataTemplate x:Name="BioHubTemplate">

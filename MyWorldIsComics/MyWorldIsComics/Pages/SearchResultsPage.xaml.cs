@@ -119,7 +119,7 @@ namespace MyWorldIsComics.Pages
             }
             catch (HttpRequestException)
             {
-                pageTitle.Text = "An internet connection is required here";                
+                pageTitle.Text = "An internet connection is required here";
             }
             catch (TaskCanceledException)
             {
@@ -129,24 +129,26 @@ namespace MyWorldIsComics.Pages
 
         private async void FetchResults(string tag)
         {
-            try { 
-            pageTitle.Text = "Loading...";
-            SearchResultsMapper searchResultsMapper = new SearchResultsMapper();
-            searchResultsMapper.MapSearchResults(await ComicVineSource.ExecuteSearchAsync(_query, tag));
-            pageTitle.Text = "Results";
-            Dictionary<string, bool> isEmptyDictionary = searchResultsMapper.Results.ToDictionary(results => results.Name, results => results.ResultsList.Count == 0);
-
-            bool isEmpty = true;
-            foreach (KeyValuePair<string, bool> keyValuePair in isEmptyDictionary.Where(keyValuePair => keyValuePair.Value == false)) { isEmpty = false; }
-
-            if (!isEmpty)
+            try
             {
+                pageTitle.Text = "Loading...";
+                SearchResultsMapper searchResultsMapper = new SearchResultsMapper();
                 DefaultViewModel["SearchResults"] = searchResultsMapper.Results;
-            }
-            else
-            {
-                DefaultViewModel["SearchResults"] = new ObservableCollection<Results> { new Results { Name = "No results", ResultsList = new ObservableCollection<IResponse> { new ResponseSchema { Name = "Please search again." } } } };
-            }
+                searchResultsMapper.MapSearchResults(await ComicVineSource.ExecuteSearchAsync(_query, tag));
+                pageTitle.Text = "Results";
+                Dictionary<string, bool> isEmptyDictionary = searchResultsMapper.Results.ToDictionary(results => results.Name, results => results.ResultsList.Count == 0);
+
+                bool isEmpty = true;
+                foreach (KeyValuePair<string, bool> keyValuePair in isEmptyDictionary.Where(keyValuePair => keyValuePair.Value == false)) { isEmpty = false; }
+
+                if (!isEmpty)
+                {
+                    DefaultViewModel["SearchResults"] = searchResultsMapper.Results;
+                }
+                else
+                {
+                    DefaultViewModel["SearchResults"] = new ObservableCollection<Results> { new Results { Name = "No results", ResultsList = new ObservableCollection<IResponse> { new ResponseSchema { Name = "Please search again." } } } };
+                }
             }
             catch (TaskCanceledException)
             {

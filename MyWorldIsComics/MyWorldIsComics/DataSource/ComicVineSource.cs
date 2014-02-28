@@ -66,7 +66,7 @@ namespace MyWorldIsComics.DataSource
 
         public static async Task<string> GetLatestUpdatedCharacters()
         {
-            var uri = comicVineSource.ContructUrl(Resources.ResourcesEnum.Characters, new List<string> { "deck", "id", "image", "name", "publisher" }, "date_last_updated", "asc", 15);
+            var uri = comicVineSource.ContructUrl(Resources.ResourcesEnum.Characters, new List<string> { "deck", "id", "image", "name", "publisher" }, "date_last_updated", "asc", 23);
             return await QueryServiceAsync(uri);
         }
 

@@ -77,7 +77,7 @@ namespace MyWorldIsComics
 
             try
             {
-                await CalcCharacterLimit();
+                InitTrendingCharacters();
                 await LoadTrendingCharacters();
             }
             catch (HttpRequestException)
@@ -115,6 +115,16 @@ namespace MyWorldIsComics
             SavedData.TrendingCharacters = _trendingCharacters;
         }
 
+        private void InitTrendingCharacters()
+        {
+            _trendingCharacters = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResponse>() };
+            DefaultViewModel["TrendingCharacters"] = _trendingCharacters;
+            //for (int i = 0; i < 22; ++i)
+            //{
+            //    _trendingCharacters.ResultsList.Add(new Character());
+            //}
+        }
+
         private async Task LoadTrendingCharacters()
         {
             if (SavedData.TrendingCharacters != null)
@@ -136,9 +146,6 @@ namespace MyWorldIsComics
 
             else
             {
-                _trendingCharacters = new Results { Name = "Characters", ResultsList = new ObservableCollection<IResponse>() };
-                DefaultViewModel["TrendingCharacters"] = _trendingCharacters;
-
                 //var response = ServiceConstants.QueryNotFound;
                 var response = await MarvelWikiaSource.GetTrendingCharactersAsync();
                 if (response != ServiceConstants.QueryNotFound)
@@ -200,6 +207,8 @@ namespace MyWorldIsComics
                 if (trendChar != null)
                 {
                     _trendingCharacters.ResultsList.Add(trendChar);
+                    //_trendingCharacters.ResultsList.RemoveAt(i);
+                    //_trendingCharacters.ResultsList.Insert(i, trendChar);
                 }
                 else
                 {
@@ -216,7 +225,6 @@ namespace MyWorldIsComics
                 charName = tcm.GetResponseTitle(index);
                 charName = charName.Substring(0, charName.IndexOf(" (", System.StringComparison.Ordinal));
             }
-
             var results = await ComicVineSource.ExecuteCharacterFilterLimitOneAsync(charName);
             return MapTrendingCharacter(results);
         }
@@ -252,6 +260,10 @@ namespace MyWorldIsComics
 
         private async Task<Character> GetRandomCharacter()
         {
+            if (_randLimit == 0)
+            {
+                await CalcCharacterLimit();                
+            }
             string response;
             Random rand = new Random();
             Character character;

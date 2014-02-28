@@ -18,9 +18,7 @@ namespace MyWorldIsComics.Pages.CollectionPages
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
         private Team _team;
-        private string _collectionName;
 
-        private static Team SavedTeam;
         public static string CollectionName;
 
         /// <summary>

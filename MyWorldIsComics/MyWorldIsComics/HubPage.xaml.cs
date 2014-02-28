@@ -93,8 +93,24 @@ namespace MyWorldIsComics
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            _trendingCharacters.ResultsList.Insert(0, DefaultViewModel["RandomCharacter"] as Character);
-            _trendingCharacters.ResultsList.Insert(0, DefaultViewModel["TopCharacter"] as Character);
+            try
+            {
+                var random = DefaultViewModel["RandomCharacter"] as Character;
+                var top = DefaultViewModel["TopCharacter"] as Character;
+                
+                if (random != null)
+                {
+                    _trendingCharacters.ResultsList.Insert(0, random);
+                }
+                if (top != null)
+                {
+                    _trendingCharacters.ResultsList.Insert(0, top);
+                }
+            }
+            catch (KeyNotFoundException)
+            {
+
+            }
             
             SavedData.TrendingCharacters = _trendingCharacters;
         }
@@ -330,7 +346,14 @@ namespace MyWorldIsComics
 
         private async void RandCharGen(object sender, TappedRoutedEventArgs e)
         {
-            DefaultViewModel["RandomCharacter"] = await GetRandomCharacter();
+            try
+            {
+                DefaultViewModel["RandomCharacter"] = await GetRandomCharacter();
+            }
+            catch (HttpRequestException)
+            {
+                pageTitle.Text = "An internet connection is required here";
+            }
         }
     }
 }

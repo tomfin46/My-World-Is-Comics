@@ -749,7 +749,7 @@ namespace MyWorldIsComics.Pages.ResourcePages
             {
                 ComicVineSource.ReinstateCts();
             }
-            catch (InvalidOperationException ioe)
+            catch (InvalidOperationException)
             {
 
             }

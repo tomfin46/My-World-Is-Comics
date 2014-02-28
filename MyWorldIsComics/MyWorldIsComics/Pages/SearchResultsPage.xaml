@@ -23,6 +23,27 @@
 
     </Page.Resources>
 
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton Label="SymbolIcon" Icon="Filter">
+                <AppBarButton.Flyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="by Character" Click="MenuFlyoutItem_OnClick" Tag="character"/>
+                        <MenuFlyoutItem Text="by Concept" Click="MenuFlyoutItem_OnClick" Tag="concept"/>
+                        <MenuFlyoutItem Text="by Issue" Click="MenuFlyoutItem_OnClick" Tag="issue"/>
+                        <MenuFlyoutItem Text="by Location" Click="MenuFlyoutItem_OnClick" Tag="location"/>
+                        <MenuFlyoutItem Text="by Object" Click="MenuFlyoutItem_OnClick" Tag="object"/>
+                        <MenuFlyoutItem Text="by Creator" Click="MenuFlyoutItem_OnClick" Tag="person"/>
+                        <MenuFlyoutItem Text="by Publisher" Click="MenuFlyoutItem_OnClick" Tag="publisher"/>
+                        <MenuFlyoutItem Text="by Story Arc" Click="MenuFlyoutItem_OnClick" Tag="story_arc"/>
+                        <MenuFlyoutItem Text="by Team" Click="MenuFlyoutItem_OnClick" Tag="team"/>
+                        <MenuFlyoutItem Text="by Volume" Click="MenuFlyoutItem_OnClick" Tag="volume"/>
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+        </CommandBar>
+    </Page.BottomAppBar>
+
     <!--
         This grid acts as a root panel for the page that defines two rows:
         * Row 0 contains the back button and page title

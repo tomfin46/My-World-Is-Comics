@@ -8,7 +8,6 @@ namespace MyWorldIsComics.DataModel.ResponseSchemas
     {
         #region Json Response Fields
 
-        public string Aliases { get; set; }
         public ObservableCollection<Character> Character_Credits { get; set; }
         public ObservableCollection<Character> Character_Died_In { get; set; }
         public ObservableCollection<Concept> Concept_Credits { get; set; }

@@ -35,6 +35,13 @@ namespace MyWorldIsComics.DataSource
         {
             return await QueryServiceAsync(comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query, new List<string> { "deck", "id", "image", "issue_number", "name", "publisher", "volume" }));
         }
+        public static async Task<string> ExecuteSearchAsync(string query, string filter)
+        {
+            var uri = comicVineSource.ContructUrl(Resources.ResourcesEnum.Search, query,
+                new List<string> {"deck", "id", "image", "issue_number", "name", "publisher", "volume"});
+            uri = new Uri(uri.AbsoluteUri + "&resources=" + filter);
+            return await QueryServiceAsync(uri);
+        }
 
         public static async Task<string> ExecuteCharacterFilterLimitOneAsync(string query)
         {
@@ -59,7 +66,7 @@ namespace MyWorldIsComics.DataSource
 
         public static async Task<string> GetLatestUpdatedCharacters()
         {
-            var uri = comicVineSource.ContructUrl(Resources.ResourcesEnum.Characters, new List<string> {"deck", "id", "image", "name", "publisher"}, "date_last_updated", "asc", 15);
+            var uri = comicVineSource.ContructUrl(Resources.ResourcesEnum.Characters, new List<string> { "deck", "id", "image", "name", "publisher" }, "date_last_updated", "asc", 15);
             return await QueryServiceAsync(uri);
         }
 
@@ -241,7 +248,7 @@ namespace MyWorldIsComics.DataSource
         {
             if (issue.Description != null)
             {
-                return await Task.Run(() => new DescriptionMapper().MapDescription(issue)); 
+                return await Task.Run(() => new DescriptionMapper().MapDescription(issue));
             }
             return new Section();
         }
@@ -249,7 +256,7 @@ namespace MyWorldIsComics.DataSource
         {
             if (volume.Description != null)
             {
-                return await Task.Run(() => new DescriptionMapper().MapDescription(volume)); 
+                return await Task.Run(() => new DescriptionMapper().MapDescription(volume));
             }
             return new Section();
         }
@@ -355,7 +362,5 @@ namespace MyWorldIsComics.DataSource
         }
 
         #endregion
-
-        
     }
 }

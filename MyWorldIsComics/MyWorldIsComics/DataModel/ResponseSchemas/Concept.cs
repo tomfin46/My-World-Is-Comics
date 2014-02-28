@@ -4,7 +4,6 @@ namespace MyWorldIsComics.DataModel.ResponseSchemas
 {
     public class Concept : ResponseSchema
     {
-        public string Aliases { get; set; }
         public int Count_Of_Isssue_Appearances { get; set; }
         public Issue First_Appeared_In_Issue { get; set; }
         public ObservableCollection<Issue> Issue_Credits { get; set; }

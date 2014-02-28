@@ -6,7 +6,6 @@ namespace MyWorldIsComics.DataModel.ResponseSchemas
 {
     public class Person : ResponseSchema
     {
-        public string Aliases { get; set; }
 
         public string Birth { get; set; }
         public DateTime BirthDateTime

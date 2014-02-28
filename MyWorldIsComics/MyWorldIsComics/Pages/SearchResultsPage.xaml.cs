@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
 using MyWorldIsComics.Common;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -24,6 +26,7 @@ namespace MyWorldIsComics.Pages
     {
         private readonly NavigationHelper _navigationHelper;
         private readonly ObservableDictionary _defaultViewModel = new ObservableDictionary();
+        private string _query;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -67,21 +70,35 @@ namespace MyWorldIsComics.Pages
         {
             if (ComicVineSource.IsCanceled()) { ComicVineSource.ReinstateCts(); }
 
-            string query = e.NavigationParameter as string;
-            FetchResults(query);
+            _query = e.NavigationParameter as string;
+            try
+            {
+                FetchResults();
+            }
+            catch (HttpRequestException)
+            {
+                pageTitle.Text = "An internet connection is required here";
+            }
         }
 
-        private async void FetchResults(string query)
+        private async void FetchResults()
         {
             try
             {
                 SearchResultsMapper searchResultsMapper = new SearchResultsMapper();
-                searchResultsMapper.MapSearchResults(await ComicVineSource.ExecuteSearchAsync(query));
+                searchResultsMapper.MapSearchResults(await ComicVineSource.ExecuteSearchAsync(_query));
                 pageTitle.Text = "Results";
-                Dictionary<string, bool> isEmptyDictionary = searchResultsMapper.Results.ToDictionary(results => results.Name, results => results.ResultsList.Count == 0);
+                Dictionary<string, bool> isEmptyDictionary =
+                    searchResultsMapper.Results.ToDictionary(results => results.Name,
+                        results => results.ResultsList.Count == 0);
 
                 bool isEmpty = true;
-                foreach (KeyValuePair<string, bool> keyValuePair in isEmptyDictionary.Where(keyValuePair => keyValuePair.Value == false)) { isEmpty = false; }
+                foreach (
+                    KeyValuePair<string, bool> keyValuePair in
+                        isEmptyDictionary.Where(keyValuePair => keyValuePair.Value == false))
+                {
+                    isEmpty = false;
+                }
 
                 if (!isEmpty)
                 {
@@ -89,8 +106,47 @@ namespace MyWorldIsComics.Pages
                 }
                 else
                 {
-                    DefaultViewModel["SearchResults"] = new ObservableCollection<Results> { new Results { Name = "No results", ResultsList = new ObservableCollection<IResponse> { new ResponseSchema { Name = "Please search again." } } } };
+                    DefaultViewModel["SearchResults"] = new ObservableCollection<Results>
+                    {
+                        new Results
+                        {
+                            Name = "No results",
+                            ResultsList =
+                                new ObservableCollection<IResponse> {new ResponseSchema {Name = "Please search again."}}
+                        }
+                    };
                 }
+            }
+            catch (HttpRequestException)
+            {
+                pageTitle.Text = "An internet connection is required here";                
+            }
+            catch (TaskCanceledException)
+            {
+                ComicVineSource.ReinstateCts();
+            }
+        }
+
+        private async void FetchResults(string tag)
+        {
+            try { 
+            pageTitle.Text = "Loading...";
+            SearchResultsMapper searchResultsMapper = new SearchResultsMapper();
+            searchResultsMapper.MapSearchResults(await ComicVineSource.ExecuteSearchAsync(_query, tag));
+            pageTitle.Text = "Results";
+            Dictionary<string, bool> isEmptyDictionary = searchResultsMapper.Results.ToDictionary(results => results.Name, results => results.ResultsList.Count == 0);
+
+            bool isEmpty = true;
+            foreach (KeyValuePair<string, bool> keyValuePair in isEmptyDictionary.Where(keyValuePair => keyValuePair.Value == false)) { isEmpty = false; }
+
+            if (!isEmpty)
+            {
+                DefaultViewModel["SearchResults"] = searchResultsMapper.Results;
+            }
+            else
+            {
+                DefaultViewModel["SearchResults"] = new ObservableCollection<Results> { new Results { Name = "No results", ResultsList = new ObservableCollection<IResponse> { new ResponseSchema { Name = "Please search again." } } } };
+            }
             }
             catch (TaskCanceledException)
             {
@@ -182,6 +238,17 @@ namespace MyWorldIsComics.Pages
             if (string.IsNullOrEmpty(queryText)) return;
 
             Frame.Navigate(typeof(SearchResultsPage), queryText);
+        }
+
+        private void MenuFlyoutItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            MenuFlyoutItem selectedItem = sender as MenuFlyoutItem;
+
+            if (selectedItem != null)
+            {
+                var tag = selectedItem.Tag.ToString();
+                FetchResults(tag);
+            }
         }
     }
 }
